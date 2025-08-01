@@ -1,6 +1,6 @@
-// src/pages/LoginPage.tsx
+// src/login/LoginPage.tsx
 import { Container } from '@mui/material';
-import LoginForm from '../components/LoginForm';
+import LoginForm from '../login/LoginForm';
 
 interface Props {
   onLoginSuccess: () => void;

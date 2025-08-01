@@ -1,7 +1,7 @@
 // src/App.tsx
 import { useState, useEffect } from 'react';
 import { CssBaseline, ThemeProvider, createTheme } from '@mui/material';
-import LoginPage from './pages/LoginPage';
+import LoginPage from './login/LoginPage';
 import AppContent from './components/AppContent';
 
 const theme = createTheme({
