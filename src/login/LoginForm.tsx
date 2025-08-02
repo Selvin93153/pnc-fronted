@@ -45,7 +45,7 @@ export default function LoginForm({ onLoginSuccess }: Props) {
     setError('');
 
     try {
-      if (correo === 'admin@hotmail.com' && contraseña === 'admin') {
+      if (correo === 'admin@hotmal.com' && contraseña === 'admin') {
         localStorage.setItem('token', 'mock-token-admin');
         onLoginSuccess();
         return;

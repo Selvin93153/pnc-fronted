@@ -1,4 +1,4 @@
-import  { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Typography,
@@ -9,10 +9,12 @@ import {
   TableHead,
   TableRow,
   Paper,
-  TextField,
   Button,
+  Collapse,
 } from "@mui/material";
-import { getRoles } from "./rolesService";
+
+import AddRoleForm from "./AddRoleForm";
+import { getRoles, addRole } from "./rolesService"; // asegúrate de importar addRole
 
 interface Role {
   id_rol: number;
@@ -21,7 +23,7 @@ interface Role {
 
 export default function RolesTable() {
   const [roles, setRoles] = useState<Role[]>([]);
-  const [nuevoNombre, setNuevoNombre] = useState("");
+  const [mostrarFormulario, setMostrarFormulario] = useState(false);
 
   useEffect(() => {
     async function fetchRoles() {
@@ -35,48 +37,37 @@ export default function RolesTable() {
     fetchRoles();
   }, []);
 
-  const handleAddRole = () => {
-    if (nuevoNombre.trim() === "") return;
 
-    const nuevoRol: Role = {
-      id_rol: roles.length > 0 ? Math.max(...roles.map((r) => r.id_rol)) + 1 : 1,
-      nombre_rol: nuevoNombre.trim(),
-    };
-    setRoles([nuevoRol, ...roles]);
-    setNuevoNombre("");
-  };
+
+const handleAddRole = async (nombre: string) => {
+  try {
+    const nuevoRol = await addRole(nombre); // guardar en backend
+    setRoles([nuevoRol, ...roles]); // actualizar localmente
+    setMostrarFormulario(false);
+  } catch (error) {
+    console.error("Error al agregar rol:", error);
+    // Podrías mostrar un mensaje de error al usuario aquí
+  }
+};
 
   return (
     <Box sx={{ p: 4, bgcolor: "#f5f5f5", minHeight: "100vh" }}>
-      <Typography variant="h4" component="h1" align="center" gutterBottom>
+      <Typography variant="h4" align="center" gutterBottom>
         Gestión de Roles
       </Typography>
 
-      <Box
-        component="form"
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleAddRole();
-        }}
-        sx={{
-          mb: 4,
-          display: "flex",
-          justifyContent: "center",
-          gap: 2,
-          flexWrap: "wrap",
-        }}
-      >
-        <TextField
-          label="Nombre del nuevo rol"
-          value={nuevoNombre}
-          onChange={(e) => setNuevoNombre(e.target.value)}
-          size="small"
-          sx={{ minWidth: 250 }}
-        />
-        <Button variant="contained" color="primary" type="submit">
-          Agregar Rol
+      <Box sx={{ textAlign: "center", mb: 2 }}>
+        <Button
+          variant="contained"
+          onClick={() => setMostrarFormulario(!mostrarFormulario)}
+        >
+          {mostrarFormulario ? "Cancelar" : "Agregar nuevo rol"}
         </Button>
       </Box>
+
+      <Collapse in={mostrarFormulario}>
+        <AddRoleForm onAdd={handleAddRole} />
+      </Collapse>
 
       <TableContainer component={Paper} sx={{ maxWidth: 700, mx: "auto" }}>
         <Table>
@@ -91,11 +82,7 @@ export default function RolesTable() {
           <TableBody>
             {roles.length > 0 ? (
               roles.map((role) => (
-                <TableRow
-                  key={role.id_rol}
-                  hover
-                  sx={{ cursor: "pointer" }}
-                >
+                <TableRow key={role.id_rol} hover sx={{ cursor: "pointer" }}>
                   <TableCell>{role.id_rol}</TableCell>
                   <TableCell>{role.nombre_rol}</TableCell>
                 </TableRow>
