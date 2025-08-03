@@ -51,9 +51,15 @@ export default function LoginForm({ onLoginSuccess }: Props) {
         return;
       }
 
-      const { access_token } = await login(correo, contraseña);
-      localStorage.setItem('token', access_token);
-      onLoginSuccess();
+     const { access_token, usuario } = await login(correo, contraseña);
+
+// Guardar el token y el objeto del usuario en localStorage
+localStorage.setItem('token', access_token);
+localStorage.setItem('usuario', JSON.stringify(usuario));
+
+onLoginSuccess();
+
+
     } catch (err: any) {
       setError('Correo o contraseña incorrectos.');
     } finally {

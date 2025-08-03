@@ -10,10 +10,18 @@ import {
 import RolesTable from '../roles/RolesTable';
 import TiposTable from '../tipos_equipos/TiposTable';
 import UsuariosTable from '../usuarios/UsuariosTable';
+import ReportesTable from '../reportes/ReportesTable';
 import PeopleIcon from '@mui/icons-material/People';
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 import DevicesIcon from '@mui/icons-material/Devices';
+import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
+import BuildIcon from '@mui/icons-material/Build';
+import ChecklistIcon from '@mui/icons-material/Checklist';
+import SummarizeIcon from '@mui/icons-material/Summarize';
+
+
 import { useState } from 'react';
+
 
 interface Props {
   onLogout: () => void;
@@ -38,6 +46,33 @@ const modules = [
     icon: <PeopleIcon fontSize="large" color="secondary" />,
     index: 2,
   },
+  {
+  title: 'Reportes',
+  description: 'Visualización de reportes del sistema',
+  icon: <SummarizeIcon fontSize="large" color="primary" />,
+  index: 3,
+},
+   {
+    title: 'Vehiculos',
+    description: 'Control de vehiculos',
+    icon: <DirectionsCarIcon fontSize="large" color="info" />,
+    index: 4,
+  },
+  {
+    title: 'Mantenimiento',
+    description: 'Control de vehiculos',
+    icon: <BuildIcon fontSize="large" color="warning" />,
+    index: 5,
+  },
+  {
+  title: 'Equipos Asignados',
+  description: 'Gestión de armas, chalecos y radios',
+  icon: <ChecklistIcon fontSize="large" color="success" />,
+  index: 6,
+},
+
+
+
 ];
 
 export default function AppContent({ onLogout }: Props) {
@@ -59,13 +94,19 @@ export default function AppContent({ onLogout }: Props) {
       </Stack>
 
       {tabIndex === null && (
-        <Box
-          sx={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-            gap: 4,
-          }}
-        >
+  <Box
+    sx={{
+      display: 'grid',
+      gridTemplateColumns: {
+        xs: 'repeat(1, 1fr)',
+        sm: 'repeat(2, 1fr)',
+        md: 'repeat(3, 1fr)',
+        lg: 'repeat(4, 1fr)',
+      },
+      gap: 4,
+    }}
+  >
+
           {modules.map((mod) => (
             <Card
               key={mod.title}
@@ -122,6 +163,16 @@ export default function AppContent({ onLogout }: Props) {
             Lista de Usuarios
           </Typography>
           <UsuariosTable />
+        </Box>
+      )}
+
+        {tabIndex === 3 && (
+        <Box mt={4}>
+          <Button onClick={() => setTabIndex(null)}>&larr; Volver</Button>
+          <Typography variant="h5" gutterBottom>
+            Lista de Reportes
+          </Typography>
+          <ReportesTable />
         </Box>
       )}
     </Box>
