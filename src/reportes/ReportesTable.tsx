@@ -1,15 +1,36 @@
-// src/pages/ReportesTable.tsx
 import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, Button, TextField, Typography, Box
+  Box,
+  Button,
+  Card,
+  CardContent,
+  Typography,
+  Collapse,
+  TextField,
+  Modal,
+  Backdrop,
+  Fade,
 } from '@mui/material';
 import { useEffect, useState } from 'react';
 import {
   type Reporte,
   getReportes,
   addReporte,
-  eliminarReporte
+  eliminarReporte,
 } from './reportesService';
+
+const modalStyle = {
+  position: 'fixed' as const,
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 400,
+  maxHeight: '80vh',
+  overflowY: 'auto',
+  bgcolor: 'background.paper',
+  borderRadius: 3,
+  boxShadow: 24,
+  p: 4,
+};
 
 export default function ReportesTable() {
   const [reportes, setReportes] = useState<Reporte[]>([]);
@@ -17,16 +38,17 @@ export default function ReportesTable() {
   const [nuevaDescripcion, setNuevaDescripcion] = useState('');
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [idUsuarioActivo, setIdUsuarioActivo] = useState<number | null>(null);
+  const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [openModalDesc, setOpenModalDesc] = useState(false);
+  const [descCompleta, setDescCompleta] = useState<string>('');
 
   useEffect(() => {
-    // Obtener los reportes existentes
     const fetchData = async () => {
       const data = await getReportes();
       setReportes(data);
     };
     fetchData();
 
-    // Obtener el usuario autenticado desde localStorage
     const storedUser = localStorage.getItem('usuario');
     if (storedUser) {
       const usuario = JSON.parse(storedUser);
@@ -35,15 +57,12 @@ export default function ReportesTable() {
   }, []);
 
   const handleAgregar = async () => {
-    // Validar campos obligatorios
-    if (!nuevoTitulo || !nuevaDescripcion || !idUsuarioActivo) return;
-
+    if (!nuevoTitulo || !idUsuarioActivo) return;
     const nuevo = await addReporte({
       id_usuario: idUsuarioActivo,
       titulo: nuevoTitulo,
       descripcion: nuevaDescripcion,
     });
-
     setReportes([...reportes, nuevo]);
     setNuevoTitulo('');
     setNuevaDescripcion('');
@@ -52,23 +71,56 @@ export default function ReportesTable() {
 
   const handleEliminar = async (id: number) => {
     await eliminarReporte(id);
-    setReportes(reportes.filter(r => r.id_reporte !== id));
+    setReportes(reportes.filter((r) => r.id_reporte !== id));
+  };
+
+  const toggleExpand = (id: number) => {
+    setExpandedId(expandedId === id ? null : id);
+  };
+
+  const abrirModalDescripcion = (desc: string) => {
+    setDescCompleta(desc);
+    setOpenModalDesc(true);
+  };
+
+  const cerrarModalDescripcion = () => {
+    setOpenModalDesc(false);
+    setDescCompleta('');
   };
 
   return (
     <Box p={3}>
-      <Typography variant="h5" gutterBottom>
-        Reportes
-      </Typography>
+      {/* Botón para mostrar formulario flotante */}
+      <Box mb={3} display="flex" justifyContent="flex-end">
+        <Button variant="contained" onClick={() => setMostrarFormulario(true)}>
+          Agregar nuevo reporte
+        </Button>
+      </Box>
 
-      <Box mb={2}>
-        {mostrarFormulario ? (
-          <Box display="flex" flexDirection="column" gap={2}>
+      {/* Modal flotante para agregar reporte */}
+      <Modal
+        open={mostrarFormulario}
+        onClose={() => setMostrarFormulario(false)}
+        closeAfterTransition
+        slots={{ backdrop: Backdrop }}
+        slotProps={{
+          backdrop: {
+            timeout: 500,
+            sx: { backgroundColor: 'rgba(0,0,0,0.3)' },
+          },
+        }}
+      >
+        <Fade in={mostrarFormulario}>
+          <Box sx={modalStyle}>
+            <Typography variant="h6" gutterBottom>
+              Agregar nuevo reporte
+            </Typography>
             <TextField
               label="Título"
               value={nuevoTitulo}
               onChange={(e) => setNuevoTitulo(e.target.value)}
               fullWidth
+              sx={{ mb: 2 }}
             />
             <TextField
               label="Descripción"
@@ -77,63 +129,142 @@ export default function ReportesTable() {
               multiline
               minRows={3}
               fullWidth
+              sx={{ mb: 2 }}
             />
-            <Box display="flex" gap={2}>
+            <Box display="flex" justifyContent="flex-end" gap={2}>
+              <Button
+                variant="outlined"
+                color="secondary"
+                onClick={() => setMostrarFormulario(false)}
+              >
+                Cancelar
+              </Button>
               <Button variant="contained" color="primary" onClick={handleAgregar}>
                 Guardar
               </Button>
-              <Button variant="outlined" color="secondary" onClick={() => setMostrarFormulario(false)}>
-                Cancelar
+            </Box>
+          </Box>
+        </Fade>
+      </Modal>
+
+      {/* Modal para descripción completa */}
+      <Modal
+        open={openModalDesc}
+        onClose={cerrarModalDescripcion}
+        closeAfterTransition
+        slots={{ backdrop: Backdrop }}
+        slotProps={{
+          backdrop: {
+            timeout: 500,
+            sx: { backgroundColor: 'rgba(0,0,0,0.3)' },
+          },
+        }}
+      >
+        <Fade in={openModalDesc}>
+          <Box sx={modalStyle}>
+            <Typography variant="h6" gutterBottom>
+              Descripción completa
+            </Typography>
+            <Typography
+              sx={{ whiteSpace: 'pre-wrap', maxHeight: '60vh', overflowY: 'auto' }}
+            >
+              {descCompleta}
+            </Typography>
+            <Box display="flex" justifyContent="flex-end" mt={2}>
+              <Button variant="contained" onClick={cerrarModalDescripcion}>
+                Cerrar
               </Button>
             </Box>
           </Box>
-        ) : (
-          <Button variant="contained" onClick={() => setMostrarFormulario(true)}>
-            Agregar nuevo reporte
-          </Button>
-        )}
-      </Box>
+        </Fade>
+      </Modal>
 
-      {reportes.length === 0 ? (
-        <Typography>No hay reportes disponibles.</Typography>
-      ) : (
-        <TableContainer component={Paper}>
-          <Table>
-            <TableHead sx={{ backgroundColor: '#1976d2' }}>
-              <TableRow>
-                <TableCell sx={{ color: '#fff' }}>Título</TableCell>
-                <TableCell sx={{ color: '#fff' }}>Descripción</TableCell>
-                <TableCell sx={{ color: '#fff' }}>Usuario</TableCell>
-                <TableCell sx={{ color: '#fff' }}>Correo</TableCell>
-                <TableCell sx={{ color: '#fff' }}>Fecha</TableCell>
-                <TableCell sx={{ color: '#fff' }}>Acciones</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {reportes.map((reporte) => (
-                <TableRow key={reporte.id_reporte}>
-                  <TableCell>{reporte.titulo}</TableCell>
-                  <TableCell>{reporte.descripcion}</TableCell>
-                  <TableCell>
-                    {reporte.id_usuario?.nombres} {reporte.id_usuario?.apellidos}
-                  </TableCell>
-                  <TableCell>{reporte.id_usuario?.correo}</TableCell>
-                  <TableCell>{new Date(reporte.fecha_creacion).toLocaleString()}</TableCell>
-                  <TableCell>
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      onClick={() => handleEliminar(reporte.id_reporte)}
-                    >
-                      Eliminar
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      )}
+      {/* Contenedor con flexbox para 3 columnas */}
+      <Box
+        sx={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 3,
+          justifyContent: 'flex-start',
+        }}
+      >
+        {reportes.map((reporte) => (
+          <Card
+            key={reporte.id_reporte}
+            sx={{
+              width: 'calc((100% / 3) - 16px)',
+              minWidth: 280,
+              boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+              borderRadius: 3,
+              transition: 'transform 0.3s',
+              '&:hover': {
+                transform: 'scale(1.03)',
+                boxShadow: '0 8px 30px rgba(0,0,0,0.15)',
+              },
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+            }}
+          >
+            <CardContent>
+              <Typography variant="h6" fontWeight="bold" gutterBottom>
+                {reporte.titulo}
+              </Typography>
+              <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ mb: 1 }}
+                noWrap
+              >
+                {reporte.descripcion}
+              </Typography>
+
+              {/* Botón Ver más solo si hay descripción */}
+              {reporte.descripcion && (
+                <Button
+                  size="small"
+                  onClick={() => abrirModalDescripcion(reporte.descripcion ?? '')}
+                  sx={{ textTransform: 'none', fontWeight: 'bold', mb: 1 }}
+                >
+                  Ver más
+                </Button>
+              )}
+
+              <Button
+                size="small"
+                onClick={() => toggleExpand(reporte.id_reporte)}
+                sx={{ mb: 1 }}
+              >
+                {expandedId === reporte.id_reporte ? 'Ocultar detalles' : 'Detalles'}
+              </Button>
+
+              <Collapse in={expandedId === reporte.id_reporte} timeout="auto" unmountOnExit>
+                <Box mt={2}>
+                  <Typography>
+                    <strong>Usuario:</strong> {reporte.id_usuario?.nombres}{' '}
+                    {reporte.id_usuario?.apellidos}
+                  </Typography>
+                  <Typography>
+                    <strong>Correo:</strong> {reporte.id_usuario?.correo}
+                  </Typography>
+                  <Typography>
+                    <strong>Fecha:</strong>{' '}
+                    {new Date(reporte.fecha_creacion).toLocaleString()}
+                  </Typography>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    sx={{ mt: 1 }}
+                    onClick={() => handleEliminar(reporte.id_reporte)}
+                  >
+                    Eliminar
+                  </Button>
+                </Box>
+              </Collapse>
+            </CardContent>
+          </Card>
+        ))}
+      </Box>
     </Box>
   );
 }
