@@ -21,6 +21,7 @@ import SummarizeIcon from '@mui/icons-material/Summarize';
 
 
 import { useState } from 'react';
+import AsignadosTable from '../asignados/AsignadosTable';
 
 
 interface Props {
@@ -173,6 +174,16 @@ export default function AppContent({ onLogout }: Props) {
             Lista de Reportes
           </Typography>
           <ReportesTable />
+        </Box>
+      )}
+
+       {tabIndex === 6 && (
+        <Box mt={4}>
+          <Button onClick={() => setTabIndex(null)}>&larr; Volver</Button>
+          <Typography variant="h5" gutterBottom>
+            Lista de Equipos Asignados
+          </Typography>
+          <AsignadosTable />
         </Box>
       )}
     </Box>
