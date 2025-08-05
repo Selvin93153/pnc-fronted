@@ -1,45 +1,12 @@
 import {
-  Box,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  MenuItem,
-  TextField,
-  Typography,
-  Table,
-  TableHead,
-  TableBody,
-  TableRow,
-  TableCell,
-  Paper,
-  TableContainer
+  Box, Button, Dialog, DialogActions, DialogContent,
+  DialogTitle, MenuItem, TextField, Typography, Table,
+  TableHead, TableBody, TableRow, TableCell, Paper, TableContainer
 } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { getAsignados, createAsignado } from '../asignados/asignadosService';
-import axios from 'axios';
+import { getAsignados, createAsignado, getTipos, getUsuarios } from '../asignados/asignadosService';
+import type { Asignado, Tipo, Usuario } from '../asignados/asignadosService';
 
-interface Usuario {
-  id_usuario: number;
-  nombres: string;
-  apellidos: string;
-}
-
-interface Tipo {
-  id_tipo: number;
-  nombre: string;
-}
-
-interface Asignado {
-  id_asignacion: number;
-  clase: string;
-  marca?: string;
-  calibre?: string;
-  serie: string;
-  id_tipo: Tipo;
-  id_usuario: Usuario;
-}
 
 export default function AsignadosTable() {
   const [asignados, setAsignados] = useState<Asignado[]>([]);
@@ -57,22 +24,23 @@ export default function AsignadosTable() {
   });
 
   useEffect(() => {
-    getAsignados().then(setAsignados);
+    async function fetchData() {
+      const [asignadosData, tiposData, usuariosData] = await Promise.all([
+        getAsignados(),
+        getTipos(),
+        getUsuarios(),
+      ]);
+      setAsignados(asignadosData);
+      setTipos(tiposData);
+      setUsuarios(usuariosData);
+    }
 
-    axios.get('http://localhost:3000/api/tipos-equipos').then(res => {
-      setTipos(res.data);
-    });
-
-    axios.get('http://localhost:3000/api/usuarios').then(res => {
-      setUsuarios(res.data);
-    });
+    fetchData();
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value,
-    }));
+    const { name, value } = e.target;
+    setForm(prev => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async () => {
@@ -140,7 +108,6 @@ export default function AsignadosTable() {
         </Table>
       </TableContainer>
 
-      {/* Diálogo de agregar asignación */}
       <Dialog open={open} onClose={() => setOpen(false)} fullWidth maxWidth="sm">
         <DialogTitle>Agregar nueva asignación</DialogTitle>
         <DialogContent>
@@ -148,32 +115,18 @@ export default function AsignadosTable() {
           <TextField label="Marca" name="marca" fullWidth margin="dense" value={form.marca} onChange={handleInputChange} />
           <TextField label="Calibre" name="calibre" fullWidth margin="dense" value={form.calibre} onChange={handleInputChange} />
           <TextField label="Serie" name="serie" fullWidth margin="dense" value={form.serie} onChange={handleInputChange} />
-
           <TextField
-            select
-            label="Tipo de equipo"
-            name="id_tipo"
-            fullWidth
-            margin="dense"
-            value={form.id_tipo}
-            onChange={handleInputChange}
-          >
+            select label="Tipo de equipo" name="id_tipo" fullWidth margin="dense"
+            value={form.id_tipo} onChange={handleInputChange}>
             {tipos.map((tipo) => (
               <MenuItem key={tipo.id_tipo} value={tipo.id_tipo}>
                 {tipo.nombre}
               </MenuItem>
             ))}
           </TextField>
-
           <TextField
-            select
-            label="Usuario"
-            name="id_usuario"
-            fullWidth
-            margin="dense"
-            value={form.id_usuario}
-            onChange={handleInputChange}
-          >
+            select label="Usuario" name="id_usuario" fullWidth margin="dense"
+            value={form.id_usuario} onChange={handleInputChange}>
             {usuarios.map((usuario) => (
               <MenuItem key={usuario.id_usuario} value={usuario.id_usuario}>
                 {usuario.nombres} {usuario.apellidos}
@@ -181,7 +134,6 @@ export default function AsignadosTable() {
             ))}
           </TextField>
         </DialogContent>
-
         <DialogActions>
           <Button onClick={() => setOpen(false)}>Cancelar</Button>
           <Button onClick={handleSubmit} variant="contained" color="primary">Guardar</Button>
