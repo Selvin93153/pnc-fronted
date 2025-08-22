@@ -18,10 +18,12 @@ import DirectionsCarIcon from '@mui/icons-material/DirectionsCar';
 import BuildIcon from '@mui/icons-material/Build';
 import ChecklistIcon from '@mui/icons-material/Checklist';
 import SummarizeIcon from '@mui/icons-material/Summarize';
+import AssignmentReturnIcon from '@mui/icons-material/AssignmentReturn';
 
 
 import { useState } from 'react';
 import AsignadosTable from '../asignados/AsignadosTable';
+import PrestamosTable from '../prestamos/prestamostable';
 
 
 interface Props {
@@ -70,6 +72,12 @@ const modules = [
   description: 'Gestión de armas, chalecos y radios',
   icon: <ChecklistIcon fontSize="large" color="success" />,
   index: 6,
+},
+ {
+  title: 'Equipos a Prestamo',
+  description: 'Total de armas, chalecos y radios disponibles',
+  icon: <AssignmentReturnIcon fontSize="large" color="success" />,
+  index: 7,
 },
 
 
@@ -186,6 +194,19 @@ export default function AppContent({ onLogout }: Props) {
           <AsignadosTable />
         </Box>
       )}
+
+      {tabIndex === 7 && (
+        <Box mt={4}>
+          <Button onClick={() => setTabIndex(null)}>&larr; Volver</Button>
+          <Typography variant="h5" gutterBottom>
+            Lista de Equipos a Prestamo
+          </Typography>
+          <PrestamosTable />
+        </Box>
+      )}
+
+
+
     </Box>
   );
 }
