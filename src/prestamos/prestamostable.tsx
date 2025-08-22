@@ -1,162 +1,148 @@
-import React, { useEffect, useState } from 'react';
-import { 
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, 
-  Paper, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Select, MenuItem, InputLabel, FormControl 
-} from '@mui/material';
-import { 
-  getEquiposPrestamo, addEquipoPrestamo, updateEquipoPrestamo, deleteEquipoPrestamo, type EquipoPrestamo, type TipoEquipo 
-} from './equipos-prestamos';
+import React, { useEffect, useState } from "react";
+import {
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+  Paper, Button, Dialog, DialogActions, DialogContent, DialogTitle,
+  TextField, MenuItem
+} from "@mui/material";
+import axiosPrestamo from "./axiosprestamo";
+import { usePrestarPrestamo } from "./usePrestarPrestamo";
 
-// Si quieres, puedes traer los tipos de tu API en otro fetch similar a roles/tipos
-const tiposMock: TipoEquipo[] = [
-  { id_tipo: 1, nombre: 'armas cortas' },
-  { id_tipo: 2, nombre: 'armas largas' },
-];
+interface Prestamo {
+  id_prestamo: number;
+  marca: string;
+  calibre: string;
+  serie: string;
+  estado: string;
+}
+
+interface Usuario {
+  id_usuario: number;
+  nombres: string;
+  apellidos: string;
+}
 
 const PrestamosTable: React.FC = () => {
-  const [equipos, setEquipos] = useState<EquipoPrestamo[]>([]);
-  const [open, setOpen] = useState(false);
-  const [formData, setFormData] = useState<Partial<EquipoPrestamo>>({});
+  const [prestamos, setPrestamos] = useState<Prestamo[]>([]);
+  const [usuarios, setUsuarios] = useState<Usuario[]>([]);
 
-  const cargarEquipos = async () => {
-    const data = await getEquiposPrestamo();
-    setEquipos(data);
+
+// Aca se guarda el usuario que tiene iniciada la sesion para cargarlo al camgo id_usuario_entrega
+  const usuarioLogueado = localStorage.getItem("usuario");
+const usuarioEntregaId = usuarioLogueado ? JSON.parse(usuarioLogueado).id_usuario : null;
+
+if (!usuarioEntregaId) {
+  console.error("No hay usuario logueado");
+}
+  
+
+  // Función para actualizar estado de un equipo después de prestar
+  const actualizarEstado = (idPrestamo: number) => {
+    setPrestamos((prev) =>
+      prev.map((p) =>
+        p.id_prestamo === idPrestamo ? { ...p, estado: "en uso" } : p
+      )
+    );
   };
 
-  useEffect(() => { cargarEquipos(); }, []);
+  const {
+    openDialog,
+    formData,
+    handleOpenDialog,
+    handleCloseDialog,
+    handleChange,
+    handlePrestar,
+  } = usePrestarPrestamo(usuarioEntregaId, actualizarEstado);
 
-  const handleCrear = async () => {
-    if (!formData.marca || !formData.calibre || !formData.serie || !formData.id_tipo) return;
-    await addEquipoPrestamo({
-      marca: formData.marca,
-      calibre: formData.calibre,
-      serie: formData.serie,
-      id_tipo: formData.id_tipo.id_tipo,
-      estado: formData.estado || 'activo',
-    });
-    cargarEquipos();
-    setOpen(false);
-    setFormData({});
-  };
+  // Cargar equipos
+  useEffect(() => {
+    axiosPrestamo.get("/api/equipos-prestamo")
+      .then((res) => setPrestamos(res.data))
+      .catch(console.error);
+  }, []);
 
-  const handleEditar = async () => {
-    if (!formData.id_prestamo) return;
-    await updateEquipoPrestamo(formData.id_prestamo, {
-      marca: formData.marca,
-      calibre: formData.calibre,
-      serie: formData.serie,
-      id_tipo: formData.id_tipo?.id_tipo,
-      estado: formData.estado,
-    });
-    cargarEquipos();
-    setOpen(false);
-    setFormData({});
-  };
-
-  const handleEliminar = async (id: number) => {
-    await deleteEquipoPrestamo(id);
-    cargarEquipos();
-  };
-
-  const openForm = (equipo?: EquipoPrestamo) => {
-    setFormData(equipo || {});
-    setOpen(true);
-  };
+  // Cargar usuarios
+  useEffect(() => {
+    axiosPrestamo.get("/api/usuarios")
+      .then((res) => setUsuarios(res.data))
+      .catch(console.error);
+  }, []);
 
   return (
-    <TableContainer component={Paper}>
-      <Button onClick={() => openForm()} variant="contained" sx={{ m: 2 }}>
-        Nuevo Prestamo
-      </Button>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Marca</TableCell>
-            <TableCell>Calibre</TableCell>
-            <TableCell>Serie</TableCell>
-            <TableCell>Tipo</TableCell>
-            <TableCell>Estado</TableCell>
-            <TableCell>Acciones</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {equipos.map((equipo) => (
-            <TableRow key={equipo.id_prestamo}>
-              <TableCell>{equipo.marca}</TableCell>
-              <TableCell>{equipo.calibre}</TableCell>
-              <TableCell>{equipo.serie}</TableCell>
-              <TableCell>{equipo.id_tipo.nombre}</TableCell>
-              <TableCell>{equipo.estado}</TableCell>
-              <TableCell>
-                <Button onClick={() => openForm(equipo)} sx={{ mr: 1 }}>Editar</Button>
-                <Button onClick={() => handleEliminar(equipo.id_prestamo)}>Eliminar</Button>
-              </TableCell>
+    <>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>ID</TableCell>
+              <TableCell>Marca</TableCell>
+              <TableCell>Calibre</TableCell>
+              <TableCell>Serie</TableCell>
+              <TableCell>Estado</TableCell>
+              <TableCell>Acciones</TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHead>
+          <TableBody>
+            {prestamos.map((prestamo) => (
+              <TableRow key={prestamo.id_prestamo}>
+                <TableCell>{prestamo.id_prestamo}</TableCell>
+                <TableCell>{prestamo.marca}</TableCell>
+                <TableCell>{prestamo.calibre}</TableCell>
+                <TableCell>{prestamo.serie}</TableCell>
+                <TableCell>{prestamo.estado}</TableCell>
+                <TableCell>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => handleOpenDialog(prestamo.id_prestamo)}
+                    disabled={prestamo.estado !== "activo"}
+                  >
+                    Prestar
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
 
-      <Dialog open={open} onClose={() => setOpen(false)}>
-        <DialogTitle>{formData.id_prestamo ? 'Editar Prestamo' : 'Nuevo Prestamo'}</DialogTitle>
+      {/* Dialog Prestar */}
+      <Dialog open={openDialog} onClose={handleCloseDialog}>
+        <DialogTitle>Prestar equipo</DialogTitle>
         <DialogContent>
           <TextField
-            label="Marca"
+            select
+            label="Usuario que recibe"
+            name="id_usuario_recibe"
+            value={formData.id_usuario_recibe}
+            onChange={handleChange}
             fullWidth
             margin="dense"
-            value={formData.marca || ''}
-            onChange={(e) => setFormData({ ...formData, marca: e.target.value })}
-          />
+          >
+            {usuarios.map((user) => (
+              <MenuItem key={user.id_usuario} value={user.id_usuario}>
+                {user.nombres} {user.apellidos}
+              </MenuItem>
+            ))}
+          </TextField>
           <TextField
-            label="Calibre"
+            label="Comentarios"
+            name="comentarios"
+            value={formData.comentarios}
+            onChange={handleChange}
             fullWidth
             margin="dense"
-            value={formData.calibre || ''}
-            onChange={(e) => setFormData({ ...formData, calibre: e.target.value })}
+            multiline
+            rows={3}
           />
-          <TextField
-            label="Serie"
-            fullWidth
-            margin="dense"
-            value={formData.serie || ''}
-            onChange={(e) => setFormData({ ...formData, serie: e.target.value })}
-          />
-          <FormControl fullWidth margin="dense">
-            <InputLabel id="tipo-label">Tipo</InputLabel>
-            <Select
-              labelId="tipo-label"
-              value={formData.id_tipo?.id_tipo || ''}
-              label="Tipo"
-              onChange={(e) => {
-                const tipo = tiposMock.find(t => t.id_tipo === Number(e.target.value));
-                if (tipo) setFormData({ ...formData, id_tipo: tipo });
-              }}
-            >
-              {tiposMock.map((tipo) => (
-                <MenuItem key={tipo.id_tipo} value={tipo.id_tipo}>{tipo.nombre}</MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <FormControl fullWidth margin="dense">
-            <InputLabel id="estado-label">Estado</InputLabel>
-            <Select
-              labelId="estado-label"
-              value={formData.estado || 'activo'}
-              label="Estado"
-              onChange={(e) => setFormData({ ...formData, estado: e.target.value })}
-            >
-              <MenuItem value="activo">Activo</MenuItem>
-              <MenuItem value="inactivo">Inactivo</MenuItem>
-            </Select>
-          </FormControl>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setOpen(false)}>Cancelar</Button>
-          <Button onClick={formData.id_prestamo ? handleEditar : handleCrear}>
-            {formData.id_prestamo ? 'Actualizar' : 'Crear'}
+          <Button onClick={handleCloseDialog}>Cancelar</Button>
+          <Button onClick={handlePrestar} variant="contained" color="primary">
+            Confirmar préstamo
           </Button>
         </DialogActions>
       </Dialog>
-    </TableContainer>
+    </>
   );
 };
 

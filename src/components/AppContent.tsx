@@ -24,6 +24,7 @@ import AssignmentReturnIcon from '@mui/icons-material/AssignmentReturn';
 import { useState } from 'react';
 import AsignadosTable from '../asignados/AsignadosTable';
 import PrestamosTable from '../prestamos/prestamostable';
+import MovimientosTable from '../movimientos/movimientosTable';
 
 
 interface Props {
@@ -78,6 +79,12 @@ const modules = [
   description: 'Total de armas, chalecos y radios disponibles',
   icon: <AssignmentReturnIcon fontSize="large" color="success" />,
   index: 7,
+},
+ {
+  title: 'Movimientos de Equipos',
+  description: 'Registro de Ingreso y egreso de equipos',
+  icon: <AssignmentReturnIcon fontSize="large" color="success" />,
+  index: 8,
 },
 
 
@@ -202,6 +209,16 @@ export default function AppContent({ onLogout }: Props) {
             Lista de Equipos a Prestamo
           </Typography>
           <PrestamosTable />
+        </Box>
+      )}
+
+       {tabIndex === 8 && (
+        <Box mt={4}>
+          <Button onClick={() => setTabIndex(null)}>&larr; Volver</Button>
+          <Typography variant="h5" gutterBottom>
+            Movimientos de Equipos 
+          </Typography>
+          <MovimientosTable />
         </Box>
       )}
 
