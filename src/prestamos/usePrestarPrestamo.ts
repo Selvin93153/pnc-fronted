@@ -2,26 +2,33 @@ import { useState } from "react";
 import axiosPrestamo from "./axiosprestamo";
 
 interface MovimientoForm {
+  id_prestamo: number | null;
   id_usuario_recibe: number;
   comentarios: string;
 }
 
-export const usePrestarPrestamo = (usuarioEntregaId: number, actualizarEstado: (idPrestamo: number) => void) => {
+export const usePrestarPrestamo = (
+  usuarioEntregaId: number,
+  actualizarEstado: (idPrestamo: number) => void
+) => {
   const [openDialog, setOpenDialog] = useState(false);
-  const [selectedPrestamo, setSelectedPrestamo] = useState<number | null>(null);
   const [formData, setFormData] = useState<MovimientoForm>({
+    id_prestamo: null,
     id_usuario_recibe: 0,
     comentarios: "",
   });
 
   const handleOpenDialog = (idPrestamo: number) => {
-    setSelectedPrestamo(idPrestamo);
+    setFormData((prev) => ({
+      ...prev,
+      id_prestamo: idPrestamo,
+    }));
     setOpenDialog(true);
   };
 
   const handleCloseDialog = () => {
     setOpenDialog(false);
-    setFormData({ id_usuario_recibe: 0, comentarios: "" });
+    setFormData({ id_prestamo: null, id_usuario_recibe: 0, comentarios: "" });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -30,10 +37,10 @@ export const usePrestarPrestamo = (usuarioEntregaId: number, actualizarEstado: (
   };
 
   const handlePrestar = async () => {
-    if (!selectedPrestamo || !formData.id_usuario_recibe) return;
+    if (!formData.id_prestamo || !formData.id_usuario_recibe) return;
 
     const nuevoMovimiento = {
-      id_prestamo: selectedPrestamo,
+      id_prestamo: formData.id_prestamo,
       id_usuario_entrega: usuarioEntregaId,
       id_usuario_recibe: formData.id_usuario_recibe,
       comentarios: formData.comentarios,
@@ -43,16 +50,22 @@ export const usePrestarPrestamo = (usuarioEntregaId: number, actualizarEstado: (
     };
 
     try {
+      // 1️⃣ Registrar movimiento
       await axiosPrestamo.post("/api/movimientos-equipos", nuevoMovimiento);
-      alert("Equipo prestado con éxito ✅");
 
-      // Actualizar estado en la tabla
-      actualizarEstado(selectedPrestamo);
+      // 2️⃣ Actualizar estado del equipo en la DB
+      await axiosPrestamo.put(`/api/equipos-prestamo/${formData.id_prestamo}`, {
+        estado: "en uso",
+      });
 
+      // 3️⃣ Actualizar estado en frontend
+      actualizarEstado(formData.id_prestamo);
+
+      // 4️⃣ Cerrar modal
       handleCloseDialog();
     } catch (error: any) {
       console.error("Error detalle:", error.response?.data || error.message);
-      alert("Error al registrar el préstamo ❌");
+      throw error; // el Snackbar en PrestamosTable se encarga de mostrar el error
     }
   };
 

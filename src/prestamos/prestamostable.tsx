@@ -1,9 +1,28 @@
 import React, { useEffect, useState } from "react";
 import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, Button, Dialog, DialogActions, DialogContent, DialogTitle,
-  TextField, MenuItem
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  TextField,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
+  Snackbar,
+  Alert,
+  Typography,
+  Box,
 } from "@mui/material";
+import { CheckCircle, Close, Send } from "@mui/icons-material";
 import axiosPrestamo from "./axiosprestamo";
 import { usePrestarPrestamo } from "./usePrestarPrestamo";
 
@@ -24,18 +43,19 @@ interface Usuario {
 const PrestamosTable: React.FC = () => {
   const [prestamos, setPrestamos] = useState<Prestamo[]>([]);
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
+  const [filtro, setFiltro] = useState<"todos" | "disponible" | "en uso">(
+    "todos"
+  );
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const [mensajeSnackbar, setMensajeSnackbar] = useState("");
 
-
-// Aca se guarda el usuario que tiene iniciada la sesion para cargarlo al camgo id_usuario_entrega
   const usuarioLogueado = localStorage.getItem("usuario");
-const usuarioEntregaId = usuarioLogueado ? JSON.parse(usuarioLogueado).id_usuario : null;
+  const usuarioEntregaId = usuarioLogueado
+    ? JSON.parse(usuarioLogueado).id_usuario
+    : null;
 
-if (!usuarioEntregaId) {
-  console.error("No hay usuario logueado");
-}
-  
+  if (!usuarioEntregaId) console.error("No hay usuario logueado");
 
-  // Función para actualizar estado de un equipo después de prestar
   const actualizarEstado = (idPrestamo: number) => {
     setPrestamos((prev) =>
       prev.map((p) =>
@@ -50,51 +70,137 @@ if (!usuarioEntregaId) {
     handleOpenDialog,
     handleCloseDialog,
     handleChange,
-    handlePrestar,
-  } = usePrestarPrestamo(usuarioEntregaId, actualizarEstado);
+  } = usePrestarPrestamo(usuarioEntregaId!, actualizarEstado);
 
   // Cargar equipos
   useEffect(() => {
-    axiosPrestamo.get("/api/equipos-prestamo")
+    axiosPrestamo
+      .get("/api/equipos-prestamo")
       .then((res) => setPrestamos(res.data))
       .catch(console.error);
   }, []);
 
   // Cargar usuarios
   useEffect(() => {
-    axiosPrestamo.get("/api/usuarios")
+    axiosPrestamo
+      .get("/api/usuarios")
       .then((res) => setUsuarios(res.data))
       .catch(console.error);
   }, []);
 
+  // Equipos filtrados
+  const prestamosFiltrados = prestamos.filter((p) => {
+    if (filtro === "todos") return true;
+    return p.estado === filtro;
+  });
+
+  // Nueva función para prestar con actualización de DB y Snackbar
+  const handlePrestar = async () => {
+    if (!formData.id_usuario_recibe || !formData.id_prestamo) return;
+
+    try {
+      // Registrar movimiento
+      await axiosPrestamo.post("/api/movimientos-equipos", {
+        id_prestamo: formData.id_prestamo,
+        id_usuario_entrega: usuarioEntregaId,
+        id_usuario_recibe: formData.id_usuario_recibe,
+        comentarios: formData.comentarios,
+        estado: "en uso",
+        fecha_devolucion: null,
+        hora_devolucion: null,
+      });
+
+      // Actualizar estado del equipo en DB
+      await axiosPrestamo.put(`/api/equipos-prestamo/${formData.id_prestamo}`, {
+        estado: "en uso",
+      });
+
+      // Actualizar estado en frontend
+      actualizarEstado(formData.id_prestamo);
+
+      // Mostrar mensaje emergente
+      setMensajeSnackbar("✅ Equipo prestado con éxito");
+      setOpenSnackbar(true);
+      handleCloseDialog();
+    } catch (error: any) {
+      console.error(error.response?.data || error.message);
+      setMensajeSnackbar("❌ Error al registrar el préstamo");
+      setOpenSnackbar(true);
+    }
+  };
+
   return (
-    <>
-      <TableContainer component={Paper}>
+    <Box sx={{ p: 3 }}>
+      <Typography variant="h5" gutterBottom fontWeight="bold" color="primary">
+        📋 Gestión de Préstamos de Equipos
+      </Typography>
+
+      {/* Filtro por estado */}
+      <FormControl fullWidth margin="normal">
+        <InputLabel>Filtrar por estado</InputLabel>
+        <Select
+          value={filtro}
+          onChange={(e) => setFiltro(e.target.value as any)}
+          label="Filtrar por estado"
+        >
+          <MenuItem value="todos">Todos</MenuItem>
+          <MenuItem value="disponible">Disponibles</MenuItem>
+          <MenuItem value="en uso">En uso</MenuItem>
+        </Select>
+      </FormControl>
+
+      <TableContainer
+        component={Paper}
+        sx={{
+          mt: 2,
+          borderRadius: 3,
+          boxShadow: 4,
+          overflow: "hidden",
+        }}
+      >
         <Table>
-          <TableHead>
+          <TableHead sx={{ backgroundColor: "primary.main" }}>
             <TableRow>
-              <TableCell>ID</TableCell>
-              <TableCell>Marca</TableCell>
-              <TableCell>Calibre</TableCell>
-              <TableCell>Serie</TableCell>
-              <TableCell>Estado</TableCell>
-              <TableCell>Acciones</TableCell>
+              <TableCell sx={{ color: "white", fontWeight: "bold" }}>ID</TableCell>
+              <TableCell sx={{ color: "white", fontWeight: "bold" }}>Marca</TableCell>
+              <TableCell sx={{ color: "white", fontWeight: "bold" }}>Calibre</TableCell>
+              <TableCell sx={{ color: "white", fontWeight: "bold" }}>Serie</TableCell>
+              <TableCell sx={{ color: "white", fontWeight: "bold" }}>Estado</TableCell>
+              <TableCell sx={{ color: "white", fontWeight: "bold" }}>Acciones</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {prestamos.map((prestamo) => (
-              <TableRow key={prestamo.id_prestamo}>
+            {prestamosFiltrados.map((prestamo) => (
+              <TableRow
+                key={prestamo.id_prestamo}
+                sx={{
+                  "&:hover": { backgroundColor: "#f5f5f5" },
+                  transition: "0.2s",
+                }}
+              >
                 <TableCell>{prestamo.id_prestamo}</TableCell>
                 <TableCell>{prestamo.marca}</TableCell>
                 <TableCell>{prestamo.calibre}</TableCell>
                 <TableCell>{prestamo.serie}</TableCell>
-                <TableCell>{prestamo.estado}</TableCell>
+                <TableCell>
+                  <Typography
+                    variant="body2"
+                    fontWeight="bold"
+                    color={
+                      prestamo.estado === "disponible" ? "success.main" : "error.main"
+                    }
+                  >
+                    {prestamo.estado}
+                  </Typography>
+                </TableCell>
                 <TableCell>
                   <Button
                     variant="contained"
                     color="primary"
+                    startIcon={<Send />}
                     onClick={() => handleOpenDialog(prestamo.id_prestamo)}
-                    disabled={prestamo.estado !== "activo"}
+                    disabled={prestamo.estado !== "disponible"}
+                    sx={{ borderRadius: 2 }}
                   >
                     Prestar
                   </Button>
@@ -106,8 +212,16 @@ if (!usuarioEntregaId) {
       </TableContainer>
 
       {/* Dialog Prestar */}
-      <Dialog open={openDialog} onClose={handleCloseDialog}>
-        <DialogTitle>Prestar equipo</DialogTitle>
+      <Dialog
+        open={openDialog}
+        onClose={handleCloseDialog}
+        PaperProps={{
+          sx: { borderRadius: 3, p: 1 },
+        }}
+      >
+        <DialogTitle fontWeight="bold" color="primary">
+          🎯 Prestar equipo
+        </DialogTitle>
         <DialogContent>
           <TextField
             select
@@ -136,13 +250,45 @@ if (!usuarioEntregaId) {
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseDialog}>Cancelar</Button>
-          <Button onClick={handlePrestar} variant="contained" color="primary">
+          <Button
+            onClick={handleCloseDialog}
+            startIcon={<Close />}
+            variant="outlined"
+            color="secondary"
+          >
+            Cancelar
+          </Button>
+          <Button
+            onClick={handlePrestar}
+            startIcon={<CheckCircle />}
+            variant="contained"
+            color="primary"
+          >
             Confirmar préstamo
           </Button>
         </DialogActions>
       </Dialog>
-    </>
+
+      {/* Snackbar */}
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={3000}
+        onClose={() => setOpenSnackbar(false)}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <Alert
+          onClose={() => setOpenSnackbar(false)}
+          severity={mensajeSnackbar.includes("✅") ? "success" : "error"}
+          sx={{
+            width: "100%",
+            borderRadius: 2,
+            fontWeight: "bold",
+          }}
+        >
+          {mensajeSnackbar}
+        </Alert>
+      </Snackbar>
+    </Box>
   );
 };
 
