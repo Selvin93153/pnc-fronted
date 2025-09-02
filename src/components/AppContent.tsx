@@ -25,6 +25,7 @@ import { useState } from 'react';
 import AsignadosTable from '../asignados/AsignadosTable';
 import PrestamosTable from '../prestamos/prestamostable';
 import MovimientosTable from '../movimientos/movimientosTable';
+import AsignadosPropio from '../asignadospropio/AsignadosPropio';
 
 
 interface Props {
@@ -85,6 +86,13 @@ const modules = [
   description: 'Registro de Ingreso y egreso de equipos',
   icon: <AssignmentReturnIcon fontSize="large" color="success" />,
   index: 8,
+},
+
+ {
+  title: 'Equipos Cargados',
+  description: 'Listo de equipos Adjudicados',
+  icon: <AssignmentReturnIcon fontSize="large" color="success" />,
+  index: 9,
 },
 
 
@@ -219,6 +227,15 @@ export default function AppContent({ onLogout }: Props) {
             Movimientos de Equipos 
           </Typography>
           <MovimientosTable />
+        </Box>
+      )}
+         {tabIndex === 9 && (
+        <Box mt={4}>
+          <Button onClick={() => setTabIndex(null)}>&larr; Volver</Button>
+          <Typography variant="h5" gutterBottom>
+          Lista de Adjudicaciones 
+          </Typography>
+          <AsignadosPropio />
         </Box>
       )}
 
