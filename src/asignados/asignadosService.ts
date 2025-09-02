@@ -25,6 +25,8 @@ export interface Asignado {
   serie: string;
   id_tipo: Tipo;
   id_usuario: Usuario;
+  tipo: Tipo;           
+  usuario: Usuario;      
 }
 
 

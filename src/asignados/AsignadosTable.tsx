@@ -100,8 +100,8 @@ export default function AsignadosTable() {
                 <TableCell>{item.marca || '-'}</TableCell>
                 <TableCell>{item.calibre || '-'}</TableCell>
                 <TableCell>{item.serie}</TableCell>
-                <TableCell>{item.id_tipo?.nombre}</TableCell>
-                <TableCell>{item.id_usuario?.nombres} {item.id_usuario?.apellidos}</TableCell>
+                <TableCell>{item.tipo?.nombre}</TableCell>
+                <TableCell>{item.usuario?.nombres} {item.usuario?.apellidos}</TableCell>
               </TableRow>
             ))}
           </TableBody>
