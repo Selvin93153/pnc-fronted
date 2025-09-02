@@ -28,6 +28,7 @@ import { usePrestarPrestamo } from "./usePrestarPrestamo";
 
 interface Prestamo {
   id_prestamo: number;
+  clase: string;
   marca: string;
   calibre: string;
   serie: string;
@@ -162,6 +163,7 @@ const PrestamosTable: React.FC = () => {
           <TableHead sx={{ backgroundColor: "primary.main" }}>
             <TableRow>
               <TableCell sx={{ color: "white", fontWeight: "bold" }}>ID</TableCell>
+              <TableCell sx={{ color: "white", fontWeight: "bold" }}>Clase</TableCell>
               <TableCell sx={{ color: "white", fontWeight: "bold" }}>Marca</TableCell>
               <TableCell sx={{ color: "white", fontWeight: "bold" }}>Calibre</TableCell>
               <TableCell sx={{ color: "white", fontWeight: "bold" }}>Serie</TableCell>
@@ -179,6 +181,7 @@ const PrestamosTable: React.FC = () => {
                 }}
               >
                 <TableCell>{prestamo.id_prestamo}</TableCell>
+                 <TableCell>{prestamo.clase}</TableCell>
                 <TableCell>{prestamo.marca}</TableCell>
                 <TableCell>{prestamo.calibre}</TableCell>
                 <TableCell>{prestamo.serie}</TableCell>

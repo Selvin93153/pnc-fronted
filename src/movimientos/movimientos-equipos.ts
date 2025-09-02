@@ -3,6 +3,7 @@ import axiosMovimientos from './axiosMovimientos';
 // Relación con préstamo
 export interface Prestamo {
   id_prestamo: number;
+  clase: string;
   marca: string;
   calibre: string;
   serie: string;
