@@ -26,6 +26,7 @@ import AsignadosTable from '../asignados/AsignadosTable';
 import PrestamosTable from '../prestamos/prestamostable';
 import MovimientosTable from '../movimientos/movimientosTable';
 import AsignadosPropio from '../asignadospropio/AsignadosPropio';
+import UserProfile from '../perfil/UserProfile';
 
 
 interface Props {
@@ -93,6 +94,12 @@ const modules = [
   description: 'Listo de equipos Adjudicados',
   icon: <AssignmentReturnIcon fontSize="large" color="success" />,
   index: 9,
+},
+ {
+  title: 'Perfil',
+  description: 'Datos personales',
+  icon: <AssignmentReturnIcon fontSize="large" color="success" />,
+  index: 10,
 },
 
 
@@ -239,7 +246,15 @@ export default function AppContent({ onLogout }: Props) {
         </Box>
       )}
 
-
+         {tabIndex === 10 && (
+        <Box mt={4}>
+          <Button onClick={() => setTabIndex(null)}>&larr; Volver</Button>
+          <Typography variant="h5" gutterBottom>
+          Perfil
+          </Typography>
+          <UserProfile onLogout={onLogout} />
+        </Box>
+      )}
 
     </Box>
   );
