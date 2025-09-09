@@ -1,5 +1,5 @@
 // src/asignadospropio/service.ts
-import axiosPropio from './axiosPropio'; // Ajusta la ruta si es necesario
+import axiosPropio from './axiosPropio';
 import type { EquipoAsignado } from './types';
 
 export const getMisEquipos = async (): Promise<EquipoAsignado[]> => {

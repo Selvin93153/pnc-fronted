@@ -15,6 +15,7 @@ export interface EquipoAsignado {
   marca: string;
   calibre: string;
   serie: string;
+  estado: string;
   usuario: Usuario;
   tipo: TipoEquipo;
 }

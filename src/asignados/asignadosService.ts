@@ -23,6 +23,7 @@ export interface Asignado {
   marca?: string;
   calibre?: string;
   serie: string;
+  estado: string;
   id_tipo: Tipo;
   id_usuario: Usuario;
   tipo: Tipo;           
@@ -42,6 +43,7 @@ export async function createAsignado(data: {
   marca?: string;
   calibre?: string;
   serie: string;
+  estado: string;
   id_tipo: number;
   id_usuario: number;
 }) {

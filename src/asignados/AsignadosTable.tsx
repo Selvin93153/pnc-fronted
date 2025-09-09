@@ -19,6 +19,7 @@ export default function AsignadosTable() {
     marca: '',
     calibre: '',
     serie: '',
+    estado: '',
     id_tipo: '',
     id_usuario: '',
   });
@@ -50,6 +51,7 @@ export default function AsignadosTable() {
         marca: form.marca,
         calibre: form.calibre,
         serie: form.serie,
+        estado: form.estado,
         id_tipo: parseInt(form.id_tipo),
         id_usuario: parseInt(form.id_usuario),
       });
@@ -58,6 +60,7 @@ export default function AsignadosTable() {
         marca: '',
         calibre: '',
         serie: '',
+        estado: '',
         id_tipo: '',
         id_usuario: '',
       });
@@ -89,6 +92,7 @@ export default function AsignadosTable() {
               <TableCell sx={{ color: '#fff' }}>Marca</TableCell>
               <TableCell sx={{ color: '#fff' }}>Calibre</TableCell>
               <TableCell sx={{ color: '#fff' }}>Serie</TableCell>
+              <TableCell sx={{ color: '#fff' }}>Estado</TableCell>
               <TableCell sx={{ color: '#fff' }}>Tipo</TableCell>
               <TableCell sx={{ color: '#fff' }}>Usuario</TableCell>
             </TableRow>
@@ -100,6 +104,7 @@ export default function AsignadosTable() {
                 <TableCell>{item.marca || '-'}</TableCell>
                 <TableCell>{item.calibre || '-'}</TableCell>
                 <TableCell>{item.serie}</TableCell>
+                 <TableCell>{item.estado}</TableCell>
                 <TableCell>{item.tipo?.nombre}</TableCell>
                 <TableCell>{item.usuario?.nombres} {item.usuario?.apellidos}</TableCell>
               </TableRow>
@@ -115,6 +120,12 @@ export default function AsignadosTable() {
           <TextField label="Marca" name="marca" fullWidth margin="dense" value={form.marca} onChange={handleInputChange} />
           <TextField label="Calibre" name="calibre" fullWidth margin="dense" value={form.calibre} onChange={handleInputChange} />
           <TextField label="Serie" name="serie" fullWidth margin="dense" value={form.serie} onChange={handleInputChange} />
+          <TextField select label="Estado" name="estado" fullWidth margin="dense" value={form.estado} onChange={handleInputChange}>
+           <MenuItem value="guardado">guardado</MenuItem>
+      <    MenuItem value="en uso">en uso</MenuItem>
+          </TextField>
+
+
           <TextField
             select label="Tipo de equipo" name="id_tipo" fullWidth margin="dense"
             value={form.id_tipo} onChange={handleInputChange}>

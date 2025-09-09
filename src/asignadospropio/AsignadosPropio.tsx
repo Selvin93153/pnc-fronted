@@ -64,6 +64,7 @@ const AsignadosPropio: React.FC = () => {
               <TableCell sx={{ color: "#fff", fontWeight: "bold" }}>Serie</TableCell>
               <TableCell sx={{ color: "#fff", fontWeight: "bold" }}>Tipo</TableCell>
               <TableCell sx={{ color: "#fff", fontWeight: "bold" }}>Usuario</TableCell>
+             <TableCell sx={{ color: "#fff", fontWeight: "bold" }}>Estado</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -77,6 +78,7 @@ const AsignadosPropio: React.FC = () => {
                   <TableCell>{equipo.serie}</TableCell>
                    <TableCell>{equipo.tipo?.nombre}</TableCell>
   <TableCell>{equipo.usuario?.nombres} {equipo.usuario?.apellidos}</TableCell>
+                     <TableCell>{equipo.estado}</TableCell>
                 </TableRow>
               ))}
           </TableBody>
