@@ -52,6 +52,7 @@ export default function AppContent({ onLogout, forceReloadWelcome }: Props) {
 
   const sidebarItems = [
     { title: "Inicio", icon: <AccountCircleIcon />, route: "/welcome" },
+    { title: "Perfil", icon: <AdminPanelSettingsIcon />, route: "/panel/perfil" },
     { title: "Roles", icon: <AdminPanelSettingsIcon />, route: "/panel/roles" },
     { title: "Usuarios", icon: <PeopleIcon />, route: "/panel/usuarios" },
     { title: "Reportes", icon: <SummarizeIcon />, route: "/panel/reportes" },

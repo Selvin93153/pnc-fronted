@@ -13,7 +13,9 @@ import BuildIcon  from "@mui/icons-material/Build";
 
 // 🔹 Items de la barra lateral
 const sidebarItems = [
-  { title: "Inicio", icon: <EmojiEventsIcon />, route: "/" },
+  { title: "Inicio", icon: <EmojiEventsIcon />, route: "/welcome" },
+  { title: "Perfil", icon: <AdminPanelSettingsIcon />, route: "/panel/perfil" },
+  { title: "Panel General", icon: <MenuIcon />, route: "/panel" },
   { title: "Roles", icon: <AdminPanelSettingsIcon />, route: "/panel/roles" },
   { title: "Usuarios", icon: <PeopleIcon />, route: "/panel/usuarios" },
   { title: "Reportes", icon: <SummarizeIcon />, route: "/panel/reportes" },
@@ -33,8 +35,9 @@ export default function WelcomePage() {
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         onLogout={() => navigate("/login")}
-        items={sidebarItems}
-      />
+        items={sidebarItems} forceReloadWelcome={function (): void {
+          throw new Error("Function not implemented.");
+        } }      />
 
       {/* Contenido principal */}
       <Box sx={{ flexGrow: 1, p: 3, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
