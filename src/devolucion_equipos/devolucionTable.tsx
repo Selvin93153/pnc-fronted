@@ -1,9 +1,9 @@
-// 👇 en devolucionTable.tsx
 import React, { useEffect, useState } from "react";
 import {
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
   Paper, Typography, Chip, IconButton, Tooltip, Button, Dialog,
-  DialogTitle, DialogContent, TextField, DialogActions
+  DialogTitle, DialogContent, TextField, DialogActions, Box, FormControl,
+  InputLabel, Select, MenuItem
 } from "@mui/material";
 import ReplayIcon from "@mui/icons-material/Replay";
 import {
@@ -17,6 +17,12 @@ const DevolucionTable: React.FC = () => {
   const [comentarios, setComentarios] = useState("");
   const [movSeleccionado, setMovSeleccionado] = useState<MovimientoEquipo | null>(null);
 
+  // 🔹 Filtros separados
+  const [filtroEntregaMes, setFiltroEntregaMes] = useState<number | string>("");
+  const [filtroEntregaAnio, setFiltroEntregaAnio] = useState<number | string>("");
+  const [filtroDevolucionMes, setFiltroDevolucionMes] = useState<number | string>("");
+  const [filtroDevolucionAnio, setFiltroDevolucionAnio] = useState<number | string>("");
+
   const cargarMovimientos = async () => {
     const data = await getMovimientos();
     setMovimientos(data);
@@ -24,7 +30,6 @@ const DevolucionTable: React.FC = () => {
 
   useEffect(() => { cargarMovimientos(); }, []);
 
-  
   const handleAbrirDevolucion = (mov: MovimientoEquipo) => {
     setMovSeleccionado(mov);
     setComentarios("");
@@ -50,6 +55,33 @@ const DevolucionTable: React.FC = () => {
     cargarMovimientos();
   };
 
+  // 🔹 Filtrado de movimientos
+  const movimientosFiltrados = movimientos.filter((mov) => {
+    const fechaEntrega = new Date(mov.fecha_entrega);
+    const fechaDevolucion = mov.fecha_devolucion ? new Date(mov.fecha_devolucion) : null;
+
+    // Si hay filtro por entrega
+    if (filtroEntregaMes !== "" && filtroEntregaAnio !== "") {
+      const fechaInicio = new Date(filtroEntregaAnio as number, (filtroEntregaMes as number) - 1, 1);
+      const fechaFin = new Date(filtroEntregaAnio as number, filtroEntregaMes as number, 0);
+      return fechaEntrega >= fechaInicio && fechaEntrega <= fechaFin;
+    }
+
+    // Si hay filtro por devolución
+    if (filtroDevolucionMes !== "" && filtroDevolucionAnio !== "" && fechaDevolucion) {
+      const fechaInicio = new Date(filtroDevolucionAnio as number, (filtroDevolucionMes as number) - 1, 1);
+      const fechaFin = new Date(filtroDevolucionAnio as number, filtroDevolucionMes as number, 0);
+      return fechaDevolucion >= fechaInicio && fechaDevolucion <= fechaFin;
+    }
+
+    return true; // si no hay filtros → mostrar todo
+  });
+
+  const meses = [
+    "Enero","Febrero","Marzo","Abril","Mayo","Junio",
+    "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"
+  ];
+
   return (
     <Paper elevation={6} sx={{ p: 3, borderRadius: 3 }}>
       <Typography variant="h5" gutterBottom fontWeight="bold" color="primary">
@@ -58,6 +90,59 @@ const DevolucionTable: React.FC = () => {
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
         Aquí puedes aceptar la devolución de equipos prestados.
       </Typography>
+
+      {/* 🔹 Filtros */}
+      <Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: "wrap" }}>
+        {/* Filtro por entrega */}
+        <FormControl sx={{ minWidth: 150 }} size="small">
+          <InputLabel>Mes Entrega</InputLabel>
+          <Select
+            value={filtroEntregaMes}
+            onChange={(e) => setFiltroEntregaMes(e.target.value === "" ? "" : Number(e.target.value))}
+            disabled={filtroDevolucionMes !== "" || filtroDevolucionAnio !== ""}
+          >
+            <MenuItem value="">Todos</MenuItem>
+            {meses.map((nombre, i) => (
+              <MenuItem key={i} value={i + 1}>{nombre}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <TextField
+          type="number"
+          label="Año Entrega"
+          value={filtroEntregaAnio}
+          onChange={(e) => setFiltroEntregaAnio(e.target.value === "" ? "" : Number(e.target.value))}
+          size="small"
+          placeholder="2025"
+          disabled={filtroDevolucionMes !== "" || filtroDevolucionAnio !== ""}
+        />
+
+        {/* Filtro por devolución */}
+        <FormControl sx={{ minWidth: 150 }} size="small">
+          <InputLabel>Mes Devolución</InputLabel>
+          <Select
+            value={filtroDevolucionMes}
+            onChange={(e) => setFiltroDevolucionMes(e.target.value === "" ? "" : Number(e.target.value))}
+            disabled={filtroEntregaMes !== "" || filtroEntregaAnio !== ""}
+          >
+            <MenuItem value="">Todos</MenuItem>
+            {meses.map((nombre, i) => (
+              <MenuItem key={i} value={i + 1}>{nombre}</MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <TextField
+          type="number"
+          label="Año Devolución"
+          value={filtroDevolucionAnio}
+          onChange={(e) => setFiltroDevolucionAnio(e.target.value === "" ? "" : Number(e.target.value))}
+          size="small"
+          placeholder="2025"
+          disabled={filtroEntregaMes !== "" || filtroEntregaAnio !== ""}
+        />
+      </Box>
 
       <TableContainer sx={{ borderRadius: 2, overflow: "hidden" }}>
         <Table>
@@ -73,14 +158,12 @@ const DevolucionTable: React.FC = () => {
               <TableCell sx={{ color: "white", fontWeight: "bold" }}>Hora Devolución</TableCell>
               <TableCell sx={{ color: "white", fontWeight: "bold" }}>Comentarios</TableCell>
               <TableCell sx={{ color: "white", fontWeight: "bold" }}>Estado</TableCell>
-              <TableCell sx={{ color: "white", fontWeight: "bold", textAlign: "center" }}>
-                Acciones
-              </TableCell>
+              <TableCell sx={{ color: "white", fontWeight: "bold", textAlign: "center" }}>Acciones</TableCell>
             </TableRow>
           </TableHead>
 
           <TableBody>
-            {movimientos.length === 0 ? (
+            {movimientosFiltrados.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={11} align="center" sx={{ py: 4 }}>
                   <Typography variant="body1" color="text.secondary">
@@ -89,7 +172,7 @@ const DevolucionTable: React.FC = () => {
                 </TableCell>
               </TableRow>
             ) : (
-              movimientos.map((mov) => (
+              movimientosFiltrados.map((mov) => (
                 <TableRow key={mov.id_movimiento} hover>
                   <TableCell>{mov.id_prestamo.clase}</TableCell>
                   <TableCell>{mov.id_prestamo.marca} - {mov.id_prestamo.serie}</TableCell>
@@ -118,7 +201,6 @@ const DevolucionTable: React.FC = () => {
                         <ReplayIcon />
                       </IconButton>
                     </Tooltip>
-                    
                   </TableCell>
                 </TableRow>
               ))
