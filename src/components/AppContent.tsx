@@ -46,6 +46,7 @@ export default function AppContent({ onLogout, forceReloadWelcome }: Props) {
     { title: "Equipos Asignados", icon: <ChecklistIcon sx={{ fontSize: 40, color: "#388e3c" }} />, route: "/panel/asignados", description: "Gestión de armas, chalecos y radios" },
     { title: "Equipos a Prestamo", icon: <WorkOutlineIcon sx={{ fontSize: 40, color: "#6a1b9a" }} />, route: "/panel/prestamos", description: "Total de equipos disponibles" },
     { title: "Movimientos de Equipos", icon: <CompareArrowsIcon sx={{ fontSize: 40, color: "#00796b" }} />, route: "/panel/movimientos", description: "Registro de ingreso y egreso" },
+   { title: "Devolucion de Equipos", icon: <CompareArrowsIcon sx={{ fontSize: 40, color: "#00796b" }} />, route: "/panel/devolucion", description: "Devoluciones de equipos" },
     { title: "Equipos Cargados", icon: <Inventory2Icon sx={{ fontSize: 40, color: "#795548" }} />, route: "/panel/equiposcargados", description: "Listado de equipos adjudicados" },
     { title: "Perfil", icon: <AccountCircleIcon sx={{ fontSize: 40, color: "#0097a7" }} />, route: "/panel/perfil", description: "Datos personales" },
   ];

@@ -14,6 +14,7 @@ import AsignadosTable from "../asignados/AsignadosTable";
 import PrestamosTable from "../prestamos/prestamostable";
 import MovimientosTable from "../movimientos/movimientosTable";
 import AsignadosPropio from "../asignadospropio/AsignadosPropio";
+import DevolucionTable from "../devolucion_equipos/devolucionTable";
 import UserProfile from "../perfil/UserProfile";
 import { Box } from "@mui/material";
 
@@ -62,6 +63,7 @@ export default function AppRoutes() {
         <Route path="asignados" element={<AsignadosTable />} />
         <Route path="prestamos" element={<PrestamosTable />} />
         <Route path="movimientos" element={<MovimientosTable />} />
+          <Route path="devolucion" element={<DevolucionTable />} />
         <Route path="equiposcargados" element={<AsignadosPropio />} />
         <Route path="perfil" element={<UserProfile onLogout={handleLogout} />} />
       </Route>
