@@ -14,6 +14,8 @@ import {
 import { Email, Lock, Visibility, VisibilityOff } from '@mui/icons-material';
 import { login } from '../login/authService';
 import { keyframes } from '@mui/system';
+import { useNavigate } from 'react-router-dom';
+
 
 interface Props {
   onLoginSuccess: () => void;
@@ -37,6 +39,8 @@ export default function LoginForm({ onLoginSuccess }: Props) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  const navigate = useNavigate();
+
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -48,6 +52,7 @@ export default function LoginForm({ onLoginSuccess }: Props) {
       if (correo === 'admin@hotmal.com' && contraseña === 'admin') {
         localStorage.setItem('token', 'mock-token-admin');
         onLoginSuccess();
+        navigate('/welcome');
         return;
       }
 
@@ -58,7 +63,7 @@ localStorage.setItem('token', access_token);
 localStorage.setItem('usuario', JSON.stringify(usuario));
 
 onLoginSuccess();
-
+navigate('/welcome');
 
     } catch (err: any) {
       setError('Correo o contraseña incorrectos.');

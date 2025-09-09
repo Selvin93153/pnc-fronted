@@ -12,15 +12,17 @@ import {
   Alert,
 } from "@mui/material";
 import { getUsuarioById } from "./profileService";
+import { useNavigate } from "react-router-dom";
 
-interface Props {
-  onLogout: () => void;
+interface UserProfileProps {
+  onLogout?: () => void;
 }
 
-export default function UserProfile({ onLogout }: Props) {
+export default function UserProfile({ onLogout }: UserProfileProps) {
   const [usuario, setUsuario] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -32,27 +34,28 @@ export default function UserProfile({ onLogout }: Props) {
       return;
     }
 
-    // Llamada al backend con el id
     getUsuarioById(storedUser.id_usuario, token)
       .then((data) => setUsuario(data))
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("usuario");
+    if (onLogout) {
+      onLogout();
+    } else {
+      navigate("/login");
+    }
+  };
+
   if (loading) {
-    return (
-      <Box textAlign="center" mt={4}>
-        <CircularProgress />
-      </Box>
-    );
+    return <Box textAlign="center" mt={4}><CircularProgress /></Box>;
   }
 
   if (error) {
-    return (
-      <Box textAlign="center" mt={4}>
-        <Alert severity="error">{error}</Alert>
-      </Box>
-    );
+    return <Box textAlign="center" mt={4}><Alert severity="error">{error}</Alert></Box>;
   }
 
   return (
@@ -60,34 +63,20 @@ export default function UserProfile({ onLogout }: Props) {
       <Card sx={{ borderRadius: 4, boxShadow: 6 }}>
         <CardContent>
           <Stack spacing={3} alignItems="center">
-            <Avatar
-              sx={{
-                width: 100,
-                height: 100,
-                bgcolor: "primary.main",
-                fontSize: 40,
-              }}
-            >
+            <Avatar sx={{ width: 100, height: 100, bgcolor: "primary.main", fontSize: 40 }}>
               {usuario.nombres?.charAt(0).toUpperCase() || "U"}
             </Avatar>
-
             <Box textAlign="center">
               <Typography variant="h5" fontWeight="bold">
                 {usuario.nombres} {usuario.apellidos}
               </Typography>
               <Typography color="text.secondary">{usuario.correo}</Typography>
             </Box>
-
             <Box>
-              <Typography>
-                <strong>NIP:</strong> {usuario.nip}
-              </Typography>
-              <Typography>
-                <strong>Rol:</strong> {usuario.rol?.nombre_rol}
-              </Typography>
+              <Typography><strong>NIP:</strong> {usuario.nip}</Typography>
+              <Typography><strong>Rol:</strong> {usuario.rol?.nombre_rol}</Typography>
             </Box>
-
-            <Button variant="outlined" color="primary" onClick={onLogout}>
+            <Button variant="outlined" color="primary" onClick={handleLogout}>
               Cerrar sesión
             </Button>
           </Stack>
