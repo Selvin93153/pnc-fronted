@@ -18,10 +18,12 @@ import DevicesIcon from "@mui/icons-material/Devices";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import ChecklistIcon from "@mui/icons-material/Checklist";
 import WorkOutlineIcon from "@mui/icons-material/WorkOutline";
-import CompareArrowsIcon from "@mui/icons-material/CompareArrows";
-import Inventory2Icon from "@mui/icons-material/Inventory2";
+import SwapHorizIcon from "@mui/icons-material/SwapHoriz";
+import AssignmentReturnIcon from "@mui/icons-material/AssignmentReturn";
 import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import BuildIcon from "@mui/icons-material/Build";
+import StorefrontIcon  from "@mui/icons-material/Storefront";
+import AssignmentReturnedIcon  from "@mui/icons-material/AssignmentReturned";
 import SummarizeIcon  from "@mui/icons-material/Summarize";
 
 interface Props {
@@ -45,12 +47,10 @@ export default function AppContent({ onLogout, forceReloadWelcome }: Props) {
     { title: "Mantenimiento", icon: <BuildIcon sx={{ fontSize: 40, color: "#f44336" }} />, route: "/panel/mantenimiento", description: "Gestión de mantenimiento" },
     { title: "Equipos Asignados", icon: <ChecklistIcon sx={{ fontSize: 40, color: "#388e3c" }} />, route: "/panel/asignados", description: "Gestión de armas, chalecos y radios" },
     { title: "Equipos a Prestamo", icon: <WorkOutlineIcon sx={{ fontSize: 40, color: "#6a1b9a" }} />, route: "/panel/prestamos", description: "Total de equipos disponibles" },
-    { title: "Movimientos de Equipos", icon: <CompareArrowsIcon sx={{ fontSize: 40, color: "#00796b" }} />, route: "/panel/movimientos", description: "Registro de ingreso y egreso" },
-   { title: "Devolucion de Equipos", icon: <CompareArrowsIcon sx={{ fontSize: 40, color: "#00796b" }} />, route: "/panel/devolucion", description: "Devoluciones de equipos" },
-    { title: "Equipos Cargados", icon: <Inventory2Icon sx={{ fontSize: 40, color: "#795548" }} />, route: "/panel/equiposcargados", description: "Listado de equipos adjudicados" },
-    { title: "Devoluciones de Equipos Propios", icon: <Inventory2Icon sx={{ fontSize: 40, color: "#795548" }} />, route: "/panel/equipospropios", description: "Listado de equipos adjudicados" },
-    
-    
+    { title: "Movimientos de Equipos", icon: <SwapHorizIcon sx={{ fontSize: 40, color: "#1976d2" }} />, route: "/panel/movimientos", description: "Registro de ingreso y egreso de equipos",},
+    { title: "Devolución de Equipos", icon: <AssignmentReturnIcon sx={{ fontSize: 40, color: "#00796b" }} />, route: "/panel/devolucion", description: "Devoluciones de equipos",},
+    { title: "Equipos Cargados", icon: <StorefrontIcon sx={{ fontSize: 40, color: "#ff9800" }} />, route: "/panel/equiposcargados", description: "Listado de equipos adjudicados",  },
+    {  title: "Devoluciones de Equipos Propios", icon: <AssignmentReturnedIcon sx={{ fontSize: 40, color: "#795548" }} />, route: "/panel/equipospropios", description: "Listado de devoluciones de equipos propios",  },
   ];
 
   const sidebarItems = [
