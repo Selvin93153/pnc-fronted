@@ -1,6 +1,7 @@
-import { Drawer, List, ListItemButton, ListItemIcon, ListItemText, Button } from "@mui/material";
+import { Drawer, List, ListItemButton, ListItemIcon, ListItemText, Button, Divider, Typography, Box } from "@mui/material";
 import type { JSX } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import LogoutIcon from '@mui/icons-material/Logout';
 
 interface SidebarItem {
   title: string;
@@ -13,7 +14,7 @@ interface Props {
   onClose: () => void;
   onLogout: () => void;
   items: SidebarItem[];
-  forceReloadWelcome: () => void; // 🔹 NUEVO
+  forceReloadWelcome: () => void;
 }
 
 export default function Sidebar({ open, onClose, onLogout, items, forceReloadWelcome }: Props) {
@@ -22,7 +23,6 @@ export default function Sidebar({ open, onClose, onLogout, items, forceReloadWel
 
   const handleNavigate = (route: string) => {
     if (route === "/welcome" && location.pathname === "/welcome") {
-      // 🔹 Si ya estamos en WelcomePage, recargamos solo el componente
       forceReloadWelcome();
     } else {
       navigate(route);
@@ -45,33 +45,66 @@ export default function Sidebar({ open, onClose, onLogout, items, forceReloadWel
       onClose={onClose}
       sx={{
         "& .MuiDrawer-paper": {
-          width: 250,
-          backgroundColor: "#fefbfbff",
-          color: "#0c0c0cff",
+          width: 260,
+          backgroundColor: "#0b1a2f", // 🔹 negro marino
+          color: "#fff",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
         },
       }}
     >
-      <List>
-        {items.map((mod) => (
-          <ListItemButton
-            key={mod.title}
-            onClick={() => handleNavigate(mod.route)}
-            sx={{ "&:hover": { backgroundColor: "rgba(0,0,0,0.05)" } }}
-          >
-            <ListItemIcon sx={{ color: "#1976d2" }}>{mod.icon}</ListItemIcon>
-            <ListItemText primary={mod.title} />
-          </ListItemButton>
-        ))}
+      {/* Logo o título de la app */}
+      <Box sx={{ p: 3 }}>
+        <Typography variant="h6" fontWeight="bold">
+          Mi App
+        </Typography>
+      </Box>
 
+      <List>
+        {items.map((mod) => {
+          const isActive = location.pathname === mod.route;
+          return (
+            <ListItemButton
+              key={mod.title}
+              onClick={() => handleNavigate(mod.route)}
+              sx={{
+                mb: 1,
+                borderRadius: 2,
+                mx: 2,
+                transition: "0.3s",
+                backgroundColor: isActive ? "rgba(255,255,255,0.1)" : "transparent",
+                "&:hover": { backgroundColor: "rgba(255,255,255,0.2)" }
+              }}
+            >
+              <ListItemIcon sx={{ color: isActive ? "#4fc3f7" : "rgba(255,255,255,0.7)" }}>
+                {mod.icon}
+              </ListItemIcon>
+              <ListItemText primary={mod.title} sx={{ color: "#fff", fontWeight: isActive ? "bold" : "normal" }} />
+            </ListItemButton>
+          );
+        })}
+      </List>
+
+      <Divider sx={{ backgroundColor: "rgba(255,255,255,0.3)" }} />
+
+      <Box sx={{ p: 2 }}>
         <Button
-          variant="outlined"
-          color="secondary"
-          sx={{ m: 2 }}
+          variant="contained"
+          startIcon={<LogoutIcon />}
+          sx={{
+            width: "100%",
+            borderRadius: 2,
+            backgroundColor: "#f44336",
+            "&:hover": { backgroundColor: "#d32f2f" },
+            textTransform: "none",
+            fontWeight: "bold",
+          }}
           onClick={handleLogout}
         >
           Cerrar sesión
         </Button>
-      </List>
+      </Box>
     </Drawer>
   );
 }
