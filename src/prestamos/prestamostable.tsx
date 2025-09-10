@@ -1,52 +1,19 @@
 import React, { useEffect, useState } from "react";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  TextField,
-  MenuItem,
-  Select,
-  FormControl,
-  InputLabel,
-  Snackbar,
-  Alert,
-  Typography,
-  Box,
+  Table, TableBody, TableCell, TableContainer, TableHead,
+  TableRow, Paper, Button, Dialog, DialogActions,
+  DialogContent, DialogTitle, TextField, MenuItem,
+  Select, FormControl, InputLabel, Snackbar, Alert,
+  Typography, Box,
 } from "@mui/material";
 import { CheckCircle, Close, Send } from "@mui/icons-material";
-import axiosPrestamo from "./axiosprestamo";
+import { prestamosService, type EquipoPrestamo, type Usuario } from "./prestamos.service";
 import { usePrestarPrestamo } from "./usePrestarPrestamo";
 
-interface Prestamo {
-  id_prestamo: number;
-  clase: string;
-  marca: string;
-  calibre: string;
-  serie: string;
-  estado: string;
-}
-
-interface Usuario {
-  id_usuario: number;
-  nombres: string;
-  apellidos: string;
-}
-
 const PrestamosTable: React.FC = () => {
-  const [prestamos, setPrestamos] = useState<Prestamo[]>([]);
+  const [prestamos, setPrestamos] = useState<EquipoPrestamo[]>([]);
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
-  const [filtro, setFiltro] = useState<"todos" | "disponible" | "en uso">(
-    "todos"
-  );
+  const [filtro, setFiltro] = useState<"todos" | "disponible" | "en uso">("todos");
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [mensajeSnackbar, setMensajeSnackbar] = useState("");
 
@@ -71,64 +38,30 @@ const PrestamosTable: React.FC = () => {
     handleOpenDialog,
     handleCloseDialog,
     handleChange,
-  } = usePrestarPrestamo(usuarioEntregaId!, actualizarEstado);
+    handlePrestar,
+  } = usePrestarPrestamo(usuarioEntregaId!, actualizarEstado,
+    (msg) => { setMensajeSnackbar(msg); setOpenSnackbar(true); },
+    (msg) => { setMensajeSnackbar(msg); setOpenSnackbar(true); }
+  );
 
   // Cargar equipos
   useEffect(() => {
-    axiosPrestamo
-      .get("/api/equipos-prestamo")
-      .then((res) => setPrestamos(res.data))
+    prestamosService.getEquipos()
+      .then(setPrestamos)
       .catch(console.error);
   }, []);
 
   // Cargar usuarios
   useEffect(() => {
-    axiosPrestamo
-      .get("/api/usuarios")
-      .then((res) => setUsuarios(res.data))
+    prestamosService.getUsuarios()
+      .then(setUsuarios)
       .catch(console.error);
   }, []);
 
   // Equipos filtrados
-  const prestamosFiltrados = prestamos.filter((p) => {
-    if (filtro === "todos") return true;
-    return p.estado === filtro;
-  });
-
-  // Nueva función para prestar con actualización de DB y Snackbar
-  const handlePrestar = async () => {
-    if (!formData.id_usuario_recibe || !formData.id_prestamo) return;
-
-    try {
-      // Registrar movimiento
-      await axiosPrestamo.post("/api/movimientos-equipos", {
-        id_prestamo: formData.id_prestamo,
-        id_usuario_entrega: usuarioEntregaId,
-        id_usuario_recibe: formData.id_usuario_recibe,
-        comentarios: formData.comentarios,
-        estado: "en uso",
-        fecha_devolucion: null,
-        hora_devolucion: null,
-      });
-
-      // Actualizar estado del equipo en DB
-      await axiosPrestamo.put(`/api/equipos-prestamo/${formData.id_prestamo}`, {
-        estado: "en uso",
-      });
-
-      // Actualizar estado en frontend
-      actualizarEstado(formData.id_prestamo);
-
-      // Mostrar mensaje emergente
-      setMensajeSnackbar("✅ Equipo prestado con éxito");
-      setOpenSnackbar(true);
-      handleCloseDialog();
-    } catch (error: any) {
-      console.error(error.response?.data || error.message);
-      setMensajeSnackbar("❌ Error al registrar el préstamo");
-      setOpenSnackbar(true);
-    }
-  };
+  const prestamosFiltrados = prestamos.filter((p) =>
+    filtro === "todos" ? true : p.estado === filtro
+  );
 
   return (
     <Box sx={{ p: 3 }}>
@@ -150,15 +83,8 @@ const PrestamosTable: React.FC = () => {
         </Select>
       </FormControl>
 
-      <TableContainer
-        component={Paper}
-        sx={{
-          mt: 2,
-          borderRadius: 3,
-          boxShadow: 4,
-          overflow: "hidden",
-        }}
-      >
+      {/* Tabla */}
+      <TableContainer component={Paper} sx={{ mt: 2, borderRadius: 3, boxShadow: 4 }}>
         <Table>
           <TableHead sx={{ backgroundColor: "primary.main" }}>
             <TableRow>
@@ -173,15 +99,9 @@ const PrestamosTable: React.FC = () => {
           </TableHead>
           <TableBody>
             {prestamosFiltrados.map((prestamo) => (
-              <TableRow
-                key={prestamo.id_prestamo}
-                sx={{
-                  "&:hover": { backgroundColor: "#f5f5f5" },
-                  transition: "0.2s",
-                }}
-              >
+              <TableRow key={prestamo.id_prestamo}>
                 <TableCell>{prestamo.id_prestamo}</TableCell>
-                 <TableCell>{prestamo.clase}</TableCell>
+                <TableCell>{prestamo.clase}</TableCell>
                 <TableCell>{prestamo.marca}</TableCell>
                 <TableCell>{prestamo.calibre}</TableCell>
                 <TableCell>{prestamo.serie}</TableCell>
@@ -189,9 +109,7 @@ const PrestamosTable: React.FC = () => {
                   <Typography
                     variant="body2"
                     fontWeight="bold"
-                    color={
-                      prestamo.estado === "disponible" ? "success.main" : "error.main"
-                    }
+                    color={prestamo.estado === "disponible" ? "success.main" : "error.main"}
                   >
                     {prestamo.estado}
                   </Typography>
@@ -215,16 +133,8 @@ const PrestamosTable: React.FC = () => {
       </TableContainer>
 
       {/* Dialog Prestar */}
-      <Dialog
-        open={openDialog}
-        onClose={handleCloseDialog}
-        PaperProps={{
-          sx: { borderRadius: 3, p: 1 },
-        }}
-      >
-        <DialogTitle fontWeight="bold" color="primary">
-          🎯 Prestar equipo
-        </DialogTitle>
+      <Dialog open={openDialog} onClose={handleCloseDialog} PaperProps={{ sx: { borderRadius: 3, p: 1 } }}>
+        <DialogTitle fontWeight="bold" color="primary">🎯 Prestar equipo</DialogTitle>
         <DialogContent>
           <TextField
             select
@@ -253,20 +163,10 @@ const PrestamosTable: React.FC = () => {
           />
         </DialogContent>
         <DialogActions>
-          <Button
-            onClick={handleCloseDialog}
-            startIcon={<Close />}
-            variant="outlined"
-            color="secondary"
-          >
+          <Button onClick={handleCloseDialog} startIcon={<Close />} variant="outlined" color="secondary">
             Cancelar
           </Button>
-          <Button
-            onClick={handlePrestar}
-            startIcon={<CheckCircle />}
-            variant="contained"
-            color="primary"
-          >
+          <Button onClick={handlePrestar} startIcon={<CheckCircle />} variant="contained" color="primary">
             Confirmar préstamo
           </Button>
         </DialogActions>
@@ -282,11 +182,7 @@ const PrestamosTable: React.FC = () => {
         <Alert
           onClose={() => setOpenSnackbar(false)}
           severity={mensajeSnackbar.includes("✅") ? "success" : "error"}
-          sx={{
-            width: "100%",
-            borderRadius: 2,
-            fontWeight: "bold",
-          }}
+          sx={{ width: "100%", borderRadius: 2, fontWeight: "bold" }}
         >
           {mensajeSnackbar}
         </Alert>

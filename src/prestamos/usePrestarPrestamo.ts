@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axiosPrestamo from "./axiosprestamo";
+import { prestamosService, type MovimientoEquipo } from "./prestamos.service";
 
 interface MovimientoForm {
   id_prestamo: number | null;
@@ -9,7 +9,9 @@ interface MovimientoForm {
 
 export const usePrestarPrestamo = (
   usuarioEntregaId: number,
-  actualizarEstado: (idPrestamo: number) => void
+  actualizarEstado: (idPrestamo: number) => void,
+  onSuccess?: (msg: string) => void,
+  onError?: (msg: string) => void
 ) => {
   const [openDialog, setOpenDialog] = useState(false);
   const [formData, setFormData] = useState<MovimientoForm>({
@@ -19,10 +21,7 @@ export const usePrestarPrestamo = (
   });
 
   const handleOpenDialog = (idPrestamo: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      id_prestamo: idPrestamo,
-    }));
+    setFormData((prev) => ({ ...prev, id_prestamo: idPrestamo }));
     setOpenDialog(true);
   };
 
@@ -39,7 +38,7 @@ export const usePrestarPrestamo = (
   const handlePrestar = async () => {
     if (!formData.id_prestamo || !formData.id_usuario_recibe) return;
 
-    const nuevoMovimiento = {
+    const nuevoMovimiento: MovimientoEquipo = {
       id_prestamo: formData.id_prestamo,
       id_usuario_entrega: usuarioEntregaId,
       id_usuario_recibe: formData.id_usuario_recibe,
@@ -51,21 +50,19 @@ export const usePrestarPrestamo = (
 
     try {
       // 1️⃣ Registrar movimiento
-      await axiosPrestamo.post("/api/movimientos-equipos", nuevoMovimiento);
+      await prestamosService.registrarMovimiento(nuevoMovimiento);
 
-      // 2️⃣ Actualizar estado del equipo en la DB
-      await axiosPrestamo.put(`/api/equipos-prestamo/${formData.id_prestamo}`, {
-        estado: "en uso",
-      });
+      // 2️⃣ Actualizar estado del equipo
+      await prestamosService.updateEquipo(formData.id_prestamo, { estado: "en uso" });
 
       // 3️⃣ Actualizar estado en frontend
       actualizarEstado(formData.id_prestamo);
 
-      // 4️⃣ Cerrar modal
+      onSuccess?.("✅ Equipo prestado con éxito");
       handleCloseDialog();
     } catch (error: any) {
-      console.error("Error detalle:", error.response?.data || error.message);
-      throw error; // el Snackbar en PrestamosTable se encarga de mostrar el error
+      console.error("Error al prestar:", error.response?.data || error.message);
+      onError?.("❌ Error al registrar el préstamo");
     }
   };
 
