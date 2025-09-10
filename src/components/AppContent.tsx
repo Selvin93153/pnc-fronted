@@ -48,7 +48,9 @@ export default function AppContent({ onLogout, forceReloadWelcome }: Props) {
     { title: "Movimientos de Equipos", icon: <CompareArrowsIcon sx={{ fontSize: 40, color: "#00796b" }} />, route: "/panel/movimientos", description: "Registro de ingreso y egreso" },
    { title: "Devolucion de Equipos", icon: <CompareArrowsIcon sx={{ fontSize: 40, color: "#00796b" }} />, route: "/panel/devolucion", description: "Devoluciones de equipos" },
     { title: "Equipos Cargados", icon: <Inventory2Icon sx={{ fontSize: 40, color: "#795548" }} />, route: "/panel/equiposcargados", description: "Listado de equipos adjudicados" },
-    { title: "Perfil", icon: <AccountCircleIcon sx={{ fontSize: 40, color: "#0097a7" }} />, route: "/panel/perfil", description: "Datos personales" },
+    { title: "Devoluciones de Equipos Propios", icon: <Inventory2Icon sx={{ fontSize: 40, color: "#795548" }} />, route: "/panel/equipospropios", description: "Listado de equipos adjudicados" },
+    
+    
   ];
 
   const sidebarItems = [

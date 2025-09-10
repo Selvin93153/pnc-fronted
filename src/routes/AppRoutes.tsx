@@ -17,6 +17,7 @@ import AsignadosPropio from "../asignadospropio/AsignadosPropio";
 import DevolucionTable from "../devolucion_equipos/devolucionTable";
 import UserProfile from "../perfil/UserProfile";
 import { Box } from "@mui/material";
+import DevolucionPropios from "../devolucion_propios/devolucionTable";
 
 export default function AppRoutes() {
   const [welcomeKey, setWelcomeKey] = useState(0);
@@ -65,6 +66,7 @@ export default function AppRoutes() {
         <Route path="movimientos" element={<MovimientosTable />} />
           <Route path="devolucion" element={<DevolucionTable />} />
         <Route path="equiposcargados" element={<AsignadosPropio />} />
+        <Route path="equipospropios" element={<DevolucionPropios />} />
         <Route path="perfil" element={<UserProfile onLogout={handleLogout} />} />
       </Route>
 
