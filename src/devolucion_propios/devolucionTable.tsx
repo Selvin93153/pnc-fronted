@@ -47,7 +47,7 @@ const DevolucionPropios: React.FC = () => {
       fecha_devolucion: fechaISO,
       hora_devolucion: hora,
       comentarios: comentarios || "Equipo devuelto",
-      estado: "disponible",
+      estado: "guardado",
     });
 
     setOpenDialog(false);
@@ -185,7 +185,7 @@ const DevolucionPropios: React.FC = () => {
                   <TableCell>{mov.comentarios || "-"}</TableCell>
                   <TableCell>
                     <Chip
-                      label={mov.estado === "en uso" ? "En Uso" : "Disponible"}
+                      label={mov.estado === "en uso" ? "En Uso" : "guardado"}
                       color={mov.estado === "en uso" ? "warning" : "success"}
                       variant="outlined"
                       size="small"

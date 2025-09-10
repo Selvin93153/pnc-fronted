@@ -1,11 +1,8 @@
 // src/asignados/asignadosService.ts
 import axiosAsignados from './axiosAsignados';
-import axios from 'axios';
 
 
-const API_BASE = import.meta.env.VITE_API_URL;
-
-
+// 🔹 Interfaces
 export interface Usuario {
   id_usuario: number;
   nombres: string;
@@ -26,18 +23,26 @@ export interface Asignado {
   estado: string;
   id_tipo: Tipo;
   id_usuario: Usuario;
-  tipo: Tipo;           
-  usuario: Usuario;      
+  tipo: Tipo;
+  usuario: Usuario;
 }
 
+export interface Movimiento {
+  id_asignacion: number;
+  id_usuario_entrega: number;
+  id_usuario_recibe: number;
+  fecha_devolucion?: string | null;
+  hora_devolucion?: string | null;
+  comentarios?: string;
+  estado: string;
+}
 
-// Obtener asignaciones
+// 🔹 Funciones para equipos asignados
 export async function getAsignados(): Promise<Asignado[]> {
   const response = await axiosAsignados.get('/api/equipos-asignados');
   return response.data;
 }
 
-// Crear nueva asignación
 export async function createAsignado(data: {
   clase: string;
   marca?: string;
@@ -51,14 +56,24 @@ export async function createAsignado(data: {
   return response.data;
 }
 
-// Obtener tipos de equipos
-export async function getTipos(): Promise<Tipo[]> {
-  const response = await axios.get(`${API_BASE}/api/tipos-equipos`);
+export async function updateAsignado(id_asignacion: number, data: Partial<Asignado>) {
+  const response = await axiosAsignados.put(`/api/equipos-asignados/${id_asignacion}`, data);
   return response.data;
 }
 
-// Obtener usuarios
+// 🔹 Funciones para tipos y usuarios
+export async function getTipos(): Promise<Tipo[]> {
+  const response = await axiosAsignados.get(`/api/tipos-equipos`);
+  return response.data;
+}
+
 export async function getUsuarios(): Promise<Usuario[]> {
-  const response = await axios.get(`${API_BASE}/api/usuarios`);
+  const response = await axiosAsignados.get(`/api/usuarios`);
+  return response.data;
+}
+
+// 🔹 Función para registrar movimientos propios (POST)
+export async function addMovimiento(data: Movimiento) {
+  const response = await axiosAsignados.post('/api/movimientos-propios', data);
   return response.data;
 }
