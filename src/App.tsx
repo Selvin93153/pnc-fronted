@@ -1,5 +1,4 @@
-// src/App.tsx
-import { CssBaseline, ThemeProvider, createTheme } from "@mui/material";
+import { CssBaseline, ThemeProvider, createTheme, Box } from "@mui/material";
 import { BrowserRouter } from "react-router-dom";
 import AppRoutes from "./routes/AppRoutes";
 
@@ -18,9 +17,11 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <BrowserRouter>
-        <AppRoutes />
-      </BrowserRouter>
+      <Box sx={{ width: '100%', minHeight: '100vh' }}>
+        <BrowserRouter>
+          <AppRoutes />
+        </BrowserRouter>
+      </Box>
     </ThemeProvider>
   );
 }

@@ -1,6 +1,6 @@
 // src/login/LoginPage.tsx
-import { Container } from '@mui/material';
-import LoginForm from '../login/LoginForm';
+import { Box } from '@mui/material';
+import LoginForm from './LoginForm';
 
 interface Props {
   onLoginSuccess: () => void;
@@ -8,8 +8,17 @@ interface Props {
 
 export default function LoginPage({ onLoginSuccess }: Props) {
   return (
-    <Container maxWidth="sm">
+    <Box
+      sx={{
+        width: '100%',
+        minHeight: '100vh',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        background: 'linear-gradient(135deg, #0d1b2a, #1b263b, #0a1128)',
+      }}
+    >
       <LoginForm onLoginSuccess={onLoginSuccess} />
-    </Container>
+    </Box>
   );
 }
