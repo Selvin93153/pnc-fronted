@@ -96,31 +96,31 @@ export default function WelcomePage() {
         <Stack direction={{ xs: "column", md: "row" }} spacing={4} justifyContent="center" alignItems="center" flexWrap="wrap">
           
           {/* Usuarios activos */}
-          <Paper sx={{ p: 4, borderRadius: 3, backgroundColor: "#1b263b", minWidth: 200, textAlign: "center" }}>
+          <Paper sx={{ p: 4, borderRadius: 3, backgroundColor: "#f7f8fbff", minWidth: 200, textAlign: "center" }}>
             <PeopleIcon sx={{ fontSize: 40, color: "#4fc3f7" }} />
             <Typography variant="h5" fontWeight="bold" sx={{ mt: 1 }}>{stats.usuariosActivos}</Typography>
-            <Typography variant="subtitle1" sx={{ color: "#cfd8dc" }}>Usuarios activos</Typography>
+            <Typography variant="subtitle1" sx={{ color: "#0b0b0bff" }}>Usuarios activos</Typography>
           </Paper>
 
           {/* Reportes recientes */}
-          <Paper sx={{ p: 4, borderRadius: 3, backgroundColor: "#1b263b", minWidth: 200, textAlign: "center" }}>
+          <Paper sx={{ p: 4, borderRadius: 3, backgroundColor: "#fdfcfcff", minWidth: 200, textAlign: "center" }}>
             <SummarizeIcon sx={{ fontSize: 40, color: "#ffb74d" }} />
             <Typography variant="h5" fontWeight="bold" sx={{ mt: 1 }}>{stats.reportesRecientes}</Typography>
-            <Typography variant="subtitle1" sx={{ color: "#cfd8dc" }}>Reportes recientes</Typography>
+            <Typography variant="subtitle1" sx={{ color: "#0a0a0aff" }}>Reportes recientes</Typography>
           </Paper>
 
           {/* Equipos en uso */}
-          <Paper sx={{ p: 4, borderRadius: 3, backgroundColor: "#1b263b", minWidth: 200, textAlign: "center" }}>
+          <Paper sx={{ p: 4, borderRadius: 3, backgroundColor: "#fdfbfbff", minWidth: 200, textAlign: "center" }}>
             <BuildIcon sx={{ fontSize: 40, color: "#81c784" }} />
             <Typography variant="h5" fontWeight="bold" sx={{ mt: 1 }}>{stats.equiposEnUso}</Typography>
-            <Typography variant="subtitle1" sx={{ color: "#cfd8dc" }}>Equipos en uso</Typography>
+            <Typography variant="subtitle1" sx={{ color: "#0b0b0bff" }}>Equipos en uso</Typography>
           </Paper>
 
           {/* Movimientos hoy */}
-          <Paper sx={{ p: 4, borderRadius: 3, backgroundColor: "#1b263b", minWidth: 200, textAlign: "center" }}>
+          <Paper sx={{ p: 4, borderRadius: 3, backgroundColor: "#f4f6f9ff", minWidth: 200, textAlign: "center" }}>
             <DirectionsCarIcon sx={{ fontSize: 40, color: "#f06292" }} />
             <Typography variant="h5" fontWeight="bold" sx={{ mt: 1 }}>{stats.movimientosHoy}</Typography>
-            <Typography variant="subtitle1" sx={{ color: "#cfd8dc" }}>Movimientos hoy</Typography>
+            <Typography variant="subtitle1" sx={{ color: "#0f0f0fff" }}>Movimientos hoy</Typography>
           </Paper>
         </Stack>
       </Box>
