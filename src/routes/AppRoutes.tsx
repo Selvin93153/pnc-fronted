@@ -18,6 +18,8 @@ import DevolucionTable from "../devolucion_equipos/devolucionTable";
 import UserProfile from "../perfil/UserProfile";
 import { Box } from "@mui/material";
 import DevolucionPropios from "../devolucion_propios/devolucionTable";
+import VehiculosTable from "../vehiculos/VehiculosTable";
+import ControlVehiculo from "../vehiculos/ControlVehiculo";
 
 export default function AppRoutes() {
   const [welcomeKey, setWelcomeKey] = useState(0);
@@ -59,7 +61,7 @@ export default function AppRoutes() {
         <Route path="tipos" element={<TiposTable />} />
         <Route path="usuarios" element={<UsuariosTable />} />
         <Route path="reportes" element={<ReportesTable />} />
-        <Route path="vehiculos" element={<Box>Vista Vehículos</Box>} />
+        <Route path="vehiculos" element={<VehiculosTable />} />
         <Route path="mantenimiento" element={<Box>Vista Mantenimiento</Box>} />
         <Route path="asignados" element={<AsignadosTable />} />
         <Route path="prestamos" element={<PrestamosTable />} />
@@ -68,6 +70,8 @@ export default function AppRoutes() {
         <Route path="equiposcargados" element={<AsignadosPropio />} />
         <Route path="equipospropios" element={<DevolucionPropios />} />
         <Route path="perfil" element={<UserProfile onLogout={handleLogout} />} />
+        <Route path="vehiculos/control/:id" element={<ControlVehiculo />} />
+
       </Route>
 
       {/* Redirección por defecto */}
