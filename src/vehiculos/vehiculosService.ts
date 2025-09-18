@@ -77,6 +77,15 @@ export const cambiarPiloto = async (idVehiculo: number, idUsuario: number) => {
   return data;
 };
 
+// Actualizar km_entrada de un control
+export const updateKmEntrada = async (idControl: number, kmEntrada: number) => {
+  const { data } = await axiosVehiculo.put(`/api/control/${idControl}`, {
+    km_entrada: kmEntrada,
+  });
+  return data;
+};
+
+
 export interface Control {
   id_control: number;
   id_vehiculo: number;
@@ -88,6 +97,7 @@ export interface Control {
 
 // Obtener controles de un vehículo
 export const getControlesByVehiculo = async (vehiculoId: number): Promise<Control[]> => {
-  const { data } = await axiosVehiculo.get<Control[]>(`/api/control/${vehiculoId}`);
+  const { data } = await axiosVehiculo.get<Control[]>(`/api/control/vehiculo/${vehiculoId}`);
   return data;
 };
+

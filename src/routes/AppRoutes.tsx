@@ -20,6 +20,7 @@ import { Box } from "@mui/material";
 import DevolucionPropios from "../devolucion_propios/devolucionTable";
 import VehiculosTable from "../vehiculos/VehiculosTable";
 import ControlVehiculo from "../vehiculos/ControlVehiculo";
+import MantenimientoTabla from "../mantenimiento/MantenimientoTabla";
 
 export default function AppRoutes() {
   const [welcomeKey, setWelcomeKey] = useState(0);
@@ -62,7 +63,7 @@ export default function AppRoutes() {
         <Route path="usuarios" element={<UsuariosTable />} />
         <Route path="reportes" element={<ReportesTable />} />
         <Route path="vehiculos" element={<VehiculosTable />} />
-        <Route path="mantenimiento" element={<Box>Vista Mantenimiento</Box>} />
+        <Route path="mantenimiento" element={<MantenimientoTabla/>} />
         <Route path="asignados" element={<AsignadosTable />} />
         <Route path="prestamos" element={<PrestamosTable />} />
         <Route path="movimientos" element={<MovimientosTable />} />
