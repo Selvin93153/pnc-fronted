@@ -6,20 +6,29 @@ export interface Usuario {
   apellidos: string;
   nip: string;
   correo: string;
+  rol?: string;
 }
 
 export interface Reporte {
   id_reporte: number;
-  id_usuario: Usuario;
+  id_usuario: number | Usuario;
   titulo: string;
   descripcion?: string;
   fecha_creacion: string;
 }
 
-// Obtener todos los reportes
+// Función para obtener el token de localStorage
+const getAuthHeader = () => {
+  const token = localStorage.getItem('token');
+  return { Authorization: `Bearer ${token}` };
+};
+
+// Obtener todos los reportes (el backend filtrará según rol)
 export async function getReportes(): Promise<Reporte[]> {
   try {
-    const response = await axiosReporte.get<Reporte[]>('/api/reportes');
+    const response = await axiosReporte.get<Reporte[]>('/api/reportes', {
+      headers: getAuthHeader(),
+    });
     return response.data;
   } catch (error) {
     console.error('Error al obtener reportes:', error);
@@ -29,12 +38,16 @@ export async function getReportes(): Promise<Reporte[]> {
 
 // Crear un nuevo reporte
 export async function addReporte(reporte: {
-  id_usuario: number;
+   id_usuario: number;
   titulo: string;
   descripcion?: string;
 }): Promise<Reporte> {
   try {
-    const response = await axiosReporte.post<Reporte>('/api/reportes', reporte);
+    const response = await axiosReporte.post<Reporte>(
+      '/api/reportes',
+      reporte,
+      { headers: getAuthHeader() }
+    );
     return response.data;
   } catch (error) {
     console.error('Error al crear reporte:', error);
@@ -43,25 +56,17 @@ export async function addReporte(reporte: {
 }
 
 // Actualizar un reporte
-export async function updateReporte(
+export const updateReporte = async (
   id_reporte: number,
-  reporte: Partial<{ titulo: string; descripcion: string }>
-): Promise<Reporte> {
+  data: { titulo?: string; descripcion?: string }
+): Promise<Reporte> => {
   try {
-    const response = await axiosReporte.put<Reporte>(`/api/reportes/${id_reporte}`, reporte);
-    return response.data;
+    const res = await axiosReporte.put(`/api/reportes/${id_reporte}`, data, {
+      headers: getAuthHeader(),
+    });
+    return res.data;
   } catch (error) {
     console.error('Error al actualizar reporte:', error);
     throw error;
   }
-}
-
-// Eliminar un reporte
-export async function eliminarReporte(id_reporte: number): Promise<void> {
-  try {
-    await axiosReporte.delete(`/api/reportes/${id_reporte}`);
-  } catch (error) {
-    console.error('Error al eliminar reporte:', error);
-    throw error;
-  }
-}
+};
