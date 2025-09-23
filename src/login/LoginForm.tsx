@@ -14,7 +14,7 @@ import {
 import { Email, Lock, Visibility, VisibilityOff } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { login } from '../login/authService';
-import axios from 'axios';
+import { publicClient } from './publicClient';
 
 interface Props {
   onLoginSuccess: () => void;
@@ -25,7 +25,6 @@ const fadeSlide = keyframes`
   to { opacity: 1; transform: translateY(0); }
 `;
 
-const API_URL = import.meta.env.VITE_API_URL;
 
 export default function LoginForm({ onLoginSuccess }: Props) {
   const [correo, setCorreo] = useState('');
@@ -98,7 +97,7 @@ export default function LoginForm({ onLoginSuccess }: Props) {
     setForgotMessage('');
 
     try {
-      const response = await axios.post(`${API_URL}/api/usuarios/forgot-password`, {
+      const response = await publicClient.post(`/api/usuarios/forgot-password`, {
         correo: forgotCorreo,
       });
       setForgotMessage(response.data.message);
@@ -123,7 +122,7 @@ export default function LoginForm({ onLoginSuccess }: Props) {
     }
 
     try {
-      const response = await axios.post(`${API_URL}/api/usuarios/reset-password`, {
+      const response = await publicClient.post(`/api/usuarios/reset-password`, {
         token,
         newPassword,
       });
