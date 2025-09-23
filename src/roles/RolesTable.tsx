@@ -11,10 +11,12 @@ import {
   Paper,
   Button,
   Collapse,
+  Divider,
 } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add"; // icono para botón
 
 import AddRoleForm from "./AddRoleForm";
-import { getRoles, addRole } from "./rolesService"; // asegúrate de importar addRole
+import { getRoles, addRole } from "./rolesService";
 
 interface Role {
   id_rol: number;
@@ -37,39 +39,59 @@ export default function RolesTable() {
     fetchRoles();
   }, []);
 
-
-
-const handleAddRole = async (nombre: string) => {
-  try {
-    const nuevoRol = await addRole(nombre); // guardar en backend
-    setRoles([nuevoRol, ...roles]); // actualizar localmente
-    setMostrarFormulario(false);
-  } catch (error) {
-    console.error("Error al agregar rol:", error);
-    // Podrías mostrar un mensaje de error al usuario aquí
-  }
-};
+  const handleAddRole = async (nombre: string) => {
+    try {
+      const nuevoRol = await addRole(nombre);
+      setRoles([nuevoRol, ...roles]);
+      setMostrarFormulario(false);
+    } catch (error) {
+      console.error("Error al agregar rol:", error);
+    }
+  };
 
   return (
-    <Box sx={{ p: 4, bgcolor: "#f5f5f5", minHeight: "100vh" }}>
-      <Typography variant="h4" align="center" gutterBottom>
-        Gestión de Roles
-      </Typography>
+    <Box sx={{ p: 4, bgcolor: "#f4f6f8", minHeight: "100vh" }}>
+      {/* Encabezado */}
+      <Paper
+        elevation={3}
+        sx={{ p: 3, mb: 3, textAlign: "center", borderRadius: 3 }}
+      >
+        <Typography variant="h4" fontWeight="bold" gutterBottom>
+          Gestión de Roles
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Administra y agrega los diferentes roles disponibles en el sistema
+        </Typography>
+      </Paper>
 
-      <Box sx={{ textAlign: "center", mb: 2 }}>
+      {/* Botón */}
+      <Box sx={{ textAlign: "center", mb: 3 }}>
         <Button
-          variant="contained"
+          variant={mostrarFormulario ? "outlined" : "contained"}
+          color="primary"
+          startIcon={!mostrarFormulario && <AddIcon />}
           onClick={() => setMostrarFormulario(!mostrarFormulario)}
+          sx={{ borderRadius: 2, px: 3 }}
         >
           {mostrarFormulario ? "Cancelar" : "Agregar nuevo rol"}
         </Button>
       </Box>
 
+      {/* Formulario */}
       <Collapse in={mostrarFormulario}>
-        <AddRoleForm onAdd={handleAddRole} />
+        <Paper elevation={2} sx={{ p: 3, mb: 3, borderRadius: 2, maxWidth: 600, mx: "auto" }}>
+          <AddRoleForm onAdd={handleAddRole} />
+        </Paper>
       </Collapse>
 
-      <TableContainer component={Paper} sx={{ maxWidth: 700, mx: "auto" }}>
+      <Divider sx={{ mb: 3 }} />
+
+      {/* Tabla */}
+      <TableContainer
+        component={Paper}
+        elevation={2}
+        sx={{ maxWidth: 800, mx: "auto", borderRadius: 3 }}
+      >
         <Table>
           <TableHead>
             <TableRow sx={{ bgcolor: "primary.main" }}>
@@ -82,14 +104,25 @@ const handleAddRole = async (nombre: string) => {
           <TableBody>
             {roles.length > 0 ? (
               roles.map((role) => (
-                <TableRow key={role.id_rol} hover sx={{ cursor: "pointer" }}>
+                <TableRow
+                  key={role.id_rol}
+                  hover
+                  sx={{
+                    cursor: "pointer",
+                    "&:hover": { bgcolor: "#f0f4ff" },
+                  }}
+                >
                   <TableCell>{role.id_rol}</TableCell>
                   <TableCell>{role.nombre_rol}</TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={2} align="center" sx={{ fontStyle: "italic" }}>
+                <TableCell
+                  colSpan={2}
+                  align="center"
+                  sx={{ fontStyle: "italic", py: 3 }}
+                >
                   No hay roles disponibles.
                 </TableCell>
               </TableRow>

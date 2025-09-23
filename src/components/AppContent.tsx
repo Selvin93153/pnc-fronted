@@ -77,7 +77,7 @@ export default function AppContent({ onLogout, forceReloadWelcome }: Props) {
         <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
           <Stack direction="row" spacing={2} alignItems="center">
             <IconButton onClick={() => setDrawerOpen(true)}><MenuIcon /></IconButton>
-            <Typography variant="h4" color="primary">Panel de Administración</Typography>
+            <Typography variant="h4" color="primary">PANEL DE ADMINISTRACION</Typography>
           </Stack>
           <Box>
             <IconButton onClick={onLogout}>Cerrar sesión</IconButton>

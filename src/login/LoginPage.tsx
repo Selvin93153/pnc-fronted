@@ -1,10 +1,15 @@
-// src/login/LoginPage.tsx
-import { Box } from '@mui/material';
+import { Box, keyframes } from '@mui/material';
 import LoginForm from './LoginForm';
 
 interface Props {
   onLoginSuccess: () => void;
 }
+
+const bgAnimation = keyframes`
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+`;
 
 export default function LoginPage({ onLoginSuccess }: Props) {
   return (
@@ -15,7 +20,9 @@ export default function LoginPage({ onLoginSuccess }: Props) {
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        background: 'linear-gradient(135deg, #0d1b2a, #1b263b, #0a1128)',
+        background: 'linear-gradient(135deg, #53c3f0ff, #06765cff, #80a6ecff, #06765cff)',
+        backgroundSize: '400% 400%',
+        animation: `${bgAnimation} 20s ease infinite`,
       }}
     >
       <LoginForm onLoginSuccess={onLoginSuccess} />

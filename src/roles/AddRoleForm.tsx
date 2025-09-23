@@ -1,4 +1,5 @@
-import { Box, Button, TextField } from "@mui/material";
+import { Box, Button, TextField, Paper, Stack } from "@mui/material";
+import SaveIcon from "@mui/icons-material/Save";
 import { useState } from "react";
 
 interface AddRoleFormProps {
@@ -16,27 +17,40 @@ export default function AddRoleForm({ onAdd }: AddRoleFormProps) {
   };
 
   return (
-    <Box
-      component="form"
-      onSubmit={handleSubmit}
+    <Paper
+      elevation={1}
       sx={{
-        mb: 4,
-        display: "flex",
-        justifyContent: "center",
-        gap: 2,
-        flexWrap: "wrap",
+        p: 3,
+        borderRadius: 3,
+        bgcolor: "background.paper",
+        maxWidth: 500,
+        mx: "auto",
       }}
     >
-      <TextField
-        label="Nombre del nuevo rol"
-        value={nombreRol}
-        onChange={(e) => setNombreRol(e.target.value)}
-        size="small"
-        sx={{ minWidth: 250 }}
-      />
-      <Button variant="contained" color="primary" type="submit">
-        Guardar
-      </Button>
-    </Box>
+      <Box
+        component="form"
+        onSubmit={handleSubmit}
+        noValidate
+      >
+        <Stack spacing={2}>
+          <TextField
+            label="Nombre del nuevo rol"
+            value={nombreRol}
+            onChange={(e) => setNombreRol(e.target.value)}
+            size="medium"
+            fullWidth
+          />
+          <Button
+            variant="contained"
+            color="primary"
+            type="submit"
+            startIcon={<SaveIcon />}
+            sx={{ borderRadius: 2 }}
+          >
+            Guardar Rol
+          </Button>
+        </Stack>
+      </Box>
+    </Paper>
   );
 }

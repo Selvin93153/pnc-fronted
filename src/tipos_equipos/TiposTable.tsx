@@ -66,7 +66,7 @@ export default function TiposTable() {
   };
 
   return (
-    <Box sx={{ p: 4, bgcolor: "#f5f5f5", minHeight: "100vh" }}>
+    <Box sx={{ p: 4, bgcolor: "#f5f8faff", minHeight: "100vh" }}>
       <Typography variant="h4" align="center" gutterBottom>
         Gestión de tipos de equipos
       </Typography>

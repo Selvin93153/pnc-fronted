@@ -1,4 +1,3 @@
-// src/login/LoginForm.tsx
 import { useState } from 'react';
 import {
   Box,
@@ -10,9 +9,9 @@ import {
   IconButton,
   Alert,
   Fade,
+  keyframes,
 } from '@mui/material';
 import { Email, Lock, Visibility, VisibilityOff } from '@mui/icons-material';
-import { keyframes } from '@mui/system';
 import { useNavigate } from 'react-router-dom';
 import { login } from '../login/authService';
 
@@ -20,8 +19,8 @@ interface Props {
   onLoginSuccess: () => void;
 }
 
-const fadeIn = keyframes`
-  from { opacity: 0; transform: translateY(-20px); }
+const fadeSlide = keyframes`
+  from { opacity: 0; transform: translateY(-50px); }
   to { opacity: 1; transform: translateY(0); }
 `;
 
@@ -62,33 +61,52 @@ export default function LoginForm({ onLoginSuccess }: Props) {
   };
 
   return (
-    <Fade in timeout={600}>
+    <Fade in timeout={700}>
       <Paper
-        elevation={12}
+        elevation={15}
         sx={{
-          p: { xs: 3, sm: 5 },
-          borderRadius: 4,
+          p: 5,
+          borderRadius: 5,
           width: '100%',
-          maxWidth: 420,
+          maxWidth: 400,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          animation: `${fadeIn} 0.8s ease-in-out`,
-          background: 'rgba(255,255,255,0.05)',
-          backdropFilter: 'blur(8px)',
-          boxSizing: 'border-box',
+          animation: `${fadeSlide} 1s ease`,
+          background: 'linear-gradient(145deg, #ffffff, #f0f0f0)',
+          boxShadow: '0 10px 25px rgba(0,0,0,0.3)',
         }}
       >
-        <Typography variant="h4" fontWeight="bold" color="white" mb={1} textAlign="center">
-          Bienvenido
+        <Typography
+          variant="h4"
+          fontWeight="bold"
+          color="#333"
+          mb={1}
+          textAlign="center"
+          sx={{ fontFamily: "'Montserrat', sans-serif" }}
+        >
+          Accede a tu cuenta
         </Typography>
-        <Typography variant="subtitle1" color="rgba(255,255,255,0.8)" mb={3} textAlign="center">
-          Ingresa tus credenciales para continuar
+        <Typography
+          variant="subtitle1"
+          color="#555"
+          mb={3}
+          textAlign="center"
+        >
+          Ingresa tu correo y contraseña
         </Typography>
 
-        {error && <Alert severity="error" sx={{ mb: 2, width: '100%' }}>{error}</Alert>}
+        {error && (
+          <Alert severity="error" sx={{ mb: 2, width: '100%' }}>
+            {error}
+          </Alert>
+        )}
 
-        <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2 }}>
+        <Box
+          component="form"
+          onSubmit={handleSubmit}
+          sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2 }}
+        >
           <TextField
             label="Correo electrónico"
             type="email"
@@ -99,19 +117,17 @@ export default function LoginForm({ onLoginSuccess }: Props) {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <Email sx={{ color: '#90caf9' }} />
+                  <Email sx={{ color: '#04a4e8ff' }} />
                 </InputAdornment>
               ),
             }}
             sx={{
-              input: { color: 'white' },
-              label: { color: 'rgba(255,255,255,0.7)' },
               '& .MuiOutlinedInput-root': {
                 borderRadius: 3,
-                backgroundColor: 'rgba(255,255,255,0.08)',
-                '& fieldset': { borderColor: 'rgba(255,255,255,0.2)' },
-                '&:hover fieldset': { borderColor: '#90caf9' },
-                '&.Mui-focused fieldset': { borderColor: '#42a5f5', boxShadow: '0 0 8px rgba(66,165,245,0.5)' },
+                backgroundColor: '#fff8f5',
+                '& fieldset': { borderColor: '#0e32e4ff' },
+                '&:hover fieldset': { borderColor: '#382ce5ff' },
+                '&.Mui-focused fieldset': { borderColor: '#2522e9ff', boxShadow: '0 0 10px rgba(255,126,95,0.5)' },
               },
             }}
           />
@@ -126,26 +142,29 @@ export default function LoginForm({ onLoginSuccess }: Props) {
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
-                  <Lock sx={{ color: '#90caf9' }} />
+                  <Lock sx={{ color: '#04a4e8ff' }} />
                 </InputAdornment>
               ),
               endAdornment: (
                 <InputAdornment position="end">
-                  <IconButton onClick={handleClickShowPassword} edge="end" size="small" sx={{ color: '#90caf9' }}>
+                  <IconButton
+                    onClick={handleClickShowPassword}
+                    edge="end"
+                    size="small"
+                    sx={{ color: '#1276bcff' }}
+                  >
                     {showPassword ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
                 </InputAdornment>
               ),
             }}
             sx={{
-              input: { color: 'white' },
-              label: { color: 'rgba(255,255,255,0.7)' },
               '& .MuiOutlinedInput-root': {
                 borderRadius: 3,
-                backgroundColor: 'rgba(255,255,255,0.08)',
-                '& fieldset': { borderColor: 'rgba(255,255,255,0.2)' },
-                '&:hover fieldset': { borderColor: '#90caf9' },
-                '&.Mui-focused fieldset': { borderColor: '#42a5f5', boxShadow: '0 0 8px rgba(66,165,245,0.5)' },
+                backgroundColor: '#fff8f5',
+                '& fieldset': { borderColor: '#0f16e4ff' },
+                '&:hover fieldset': { borderColor: '#3817e0ff' },
+                '&.Mui-focused fieldset': { borderColor: '#4024bdff', boxShadow: '0 0 10px rgba(255,126,95,0.5)' },
               },
             }}
           />
@@ -160,13 +179,13 @@ export default function LoginForm({ onLoginSuccess }: Props) {
               fontWeight: 'bold',
               fontSize: '1.1rem',
               borderRadius: 4,
-              background: 'linear-gradient(90deg, #1565c0, #42a5f5)',
-              boxShadow: '0 6px 18px rgba(66,165,245,0.4)',
+              background: 'linear-gradient(90deg, #e1af45ff, #f9cd0bff)',
+              boxShadow: '0 6px 15px rgba(255,126,95,0.5)',
               transition: 'all 0.3s ease',
               '&:hover': {
-                background: 'linear-gradient(90deg, #0d47a1, #1e88e5)',
-                transform: 'translateY(-2px)',
-                boxShadow: '0 10px 24px rgba(66,165,245,0.6)',
+                background: 'linear-gradient(90deg, #82e163ff, #19e10bff)',
+                transform: 'translateY(-2px) scale(1.02)',
+                boxShadow: '0 10px 25px rgba(255,126,95,0.7)',
               },
             }}
             disabled={loading}

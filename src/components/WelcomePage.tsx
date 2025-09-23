@@ -35,7 +35,7 @@ export default function WelcomePage() {
   });
 
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh", backgroundColor: "#0d1b2a", color: "#fff" }}>
+    <Box sx={{ display: "flex", minHeight: "100vh", backgroundColor: "#ffffffff", color: "#0c0c0cff" }}>
       
       {/* Sidebar */}
       <Sidebar
@@ -53,7 +53,7 @@ export default function WelcomePage() {
         <Stack direction="row" justifyContent="space-between" alignItems="center" mb={6}>
           <Stack direction="row" spacing={2} alignItems="center">
             <Button onClick={() => setDrawerOpen(true)}>
-              <MenuIcon sx={{ color: "#4fc3f7" }} />
+              <MenuIcon sx={{ color: "#090909ff" }} />
             </Button>
             <Typography variant="h4" fontWeight="bold">
               Bienvenido
@@ -63,13 +63,25 @@ export default function WelcomePage() {
 
         {/* Título principal */}
         <Box textAlign="center" mb={8}>
-          <EmojiEventsIcon sx={{ fontSize: 80, color: "#4fc3f7" }} />
-          <Typography variant="h2" fontWeight="bold" sx={{ mt: 2, mb: 2, color: "#e0f7fa" }}>
+            <Box sx={{ display: "flex", justifyContent: "center" }}>
+    <img
+      src="/public/logo.png"   // 👉 coloca aquí la ruta de tu logo (carpeta public)
+      alt="Logo PNC"
+      style={{ width: "150px", height: "auto", marginBottom: "20px" }}
+    />
+  </Box>
+
+
+          <Typography variant="h2" fontWeight="bold" sx={{ mt: 2, mb: 2, color: "#0b0b0bff" }}>
             ¡Bienvenido al Sistema de Control!
           </Typography>
-          <Typography variant="h6" sx={{ color: "#cfd8dc" }}>
+          <Typography variant="h6" sx={{ color: "#050505ff" }}>
             Gestiona de forma segura armas, vehículos, equipos y reportes de la sede policial.
           </Typography>
+
+
+
+
 
           <Button
             variant="contained"
@@ -81,11 +93,11 @@ export default function WelcomePage() {
               borderRadius: 3,
               fontWeight: "bold",
               fontSize: "1.1rem",
-              backgroundColor: "#4fc3f7",
+              backgroundColor: "#ffff18ff",
               color: "#0d1b2a",
-              boxShadow: "0 6px 20px rgba(79,195,247,0.5)",
+              boxShadow: "0 6px 20px rgba(0, 0, 0, 0.5)",
               transition: "all 0.3s ease",
-              "&:hover": { backgroundColor: "#3a99c9" },
+              "&:hover": { backgroundColor: "#5d93eaff" },
             }}
           >
             Entrar al Panel General
@@ -96,31 +108,31 @@ export default function WelcomePage() {
         <Stack direction={{ xs: "column", md: "row" }} spacing={4} justifyContent="center" alignItems="center" flexWrap="wrap">
           
           {/* Usuarios activos */}
-          <Paper sx={{ p: 4, borderRadius: 3, backgroundColor: "#f7f8fbff", minWidth: 200, textAlign: "center" }}>
-            <PeopleIcon sx={{ fontSize: 40, color: "#4fc3f7" }} />
+          <Paper sx={{ p: 4, borderRadius: 3, backgroundColor: "#4870e9ff", minWidth: 200, textAlign: "center" }}>
+            <PeopleIcon sx={{ fontSize: 40, color: "#f9fafbff" }} />
             <Typography variant="h5" fontWeight="bold" sx={{ mt: 1 }}>{stats.usuariosActivos}</Typography>
             <Typography variant="subtitle1" sx={{ color: "#0b0b0bff" }}>Usuarios activos</Typography>
           </Paper>
 
           {/* Reportes recientes */}
-          <Paper sx={{ p: 4, borderRadius: 3, backgroundColor: "#fdfcfcff", minWidth: 200, textAlign: "center" }}>
-            <SummarizeIcon sx={{ fontSize: 40, color: "#ffb74d" }} />
+          <Paper sx={{ p: 4, borderRadius: 3, backgroundColor: "#f88214ff", minWidth: 200, textAlign: "center" }}>
+            <SummarizeIcon sx={{ fontSize: 40, color: "#060606ff" }} />
             <Typography variant="h5" fontWeight="bold" sx={{ mt: 1 }}>{stats.reportesRecientes}</Typography>
             <Typography variant="subtitle1" sx={{ color: "#0a0a0aff" }}>Reportes recientes</Typography>
           </Paper>
 
           {/* Equipos en uso */}
-          <Paper sx={{ p: 4, borderRadius: 3, backgroundColor: "#fdfbfbff", minWidth: 200, textAlign: "center" }}>
-            <BuildIcon sx={{ fontSize: 40, color: "#81c784" }} />
+          <Paper sx={{ p: 4, borderRadius: 3, backgroundColor: "#0fe8ddff", minWidth: 200, textAlign: "center" }}>
+            <BuildIcon sx={{ fontSize: 40, color: "#0901ebff" }} />
             <Typography variant="h5" fontWeight="bold" sx={{ mt: 1 }}>{stats.equiposEnUso}</Typography>
             <Typography variant="subtitle1" sx={{ color: "#0b0b0bff" }}>Equipos en uso</Typography>
           </Paper>
 
           {/* Movimientos hoy */}
-          <Paper sx={{ p: 4, borderRadius: 3, backgroundColor: "#f4f6f9ff", minWidth: 200, textAlign: "center" }}>
-            <DirectionsCarIcon sx={{ fontSize: 40, color: "#f06292" }} />
+          <Paper sx={{ p: 4, borderRadius: 3, backgroundColor: "#83f123ff", minWidth: 200, textAlign: "center" }}>
+            <DirectionsCarIcon sx={{ fontSize: 40, color: "#ee0f0fff" }} />
             <Typography variant="h5" fontWeight="bold" sx={{ mt: 1 }}>{stats.movimientosHoy}</Typography>
-            <Typography variant="subtitle1" sx={{ color: "#0f0f0fff" }}>Movimientos hoy</Typography>
+            <Typography variant="subtitle1" sx={{ color: "#040404ff" }}>Movimientos hoy</Typography>
           </Paper>
         </Stack>
       </Box>
