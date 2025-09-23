@@ -37,6 +37,8 @@ export default function AppRoutes() {
     <Routes>
       {/* Rutas públicas */}
       <Route path="/login" element={<LoginPage onLoginSuccess={() => {}} />} />
+        <Route path="/reset-password" element={<LoginPage onLoginSuccess={() => {}} />} />
+
 
       {/* 🔹 WelcomePage fuera del layout */}
       <Route
