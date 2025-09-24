@@ -5,6 +5,7 @@ import LoginPage from "../login/LoginPage";
 import WelcomePage from "../components/WelcomePage";
 import AppContent from "../components/AppContent";
 import PrivateRoute from "./PrivateRoute";
+import RoleProtectedRoute from "./RoleProtectedRoute";
 
 import RolesTable from "../roles/RolesTable";
 import TiposTable from "../tipos_equipos/TiposTable";
@@ -16,7 +17,6 @@ import MovimientosTable from "../movimientos/movimientosTable";
 import AsignadosPropio from "../asignadospropio/AsignadosPropio";
 import DevolucionTable from "../devolucion_equipos/devolucionTable";
 import UserProfile from "../perfil/UserProfile";
-import { Box } from "@mui/material";
 import DevolucionPropios from "../devolucion_propios/devolucionTable";
 import VehiculosTable from "../vehiculos/VehiculosTable";
 import ControlVehiculo from "../vehiculos/ControlVehiculo";
@@ -31,16 +31,15 @@ export default function AppRoutes() {
     window.location.href = "/login";
   };
 
-  const forceReloadWelcome = () => setWelcomeKey(prev => prev + 1); // 🔹 CAMBIO: remount WelcomePage
+  const forceReloadWelcome = () => setWelcomeKey(prev => prev + 1);
 
   return (
     <Routes>
       {/* Rutas públicas */}
       <Route path="/login" element={<LoginPage onLoginSuccess={() => {}} />} />
-        <Route path="/reset-password" element={<LoginPage onLoginSuccess={() => {}} />} />
+      <Route path="/reset-password" element={<LoginPage onLoginSuccess={() => {}} />} />
 
-
-      {/* 🔹 WelcomePage fuera del layout */}
+      {/* WelcomePage */}
       <Route
         path="/welcome"
         element={
@@ -50,7 +49,7 @@ export default function AppRoutes() {
         }
       />
 
-      {/* 🔹 Panel general con layout */}
+      {/* Panel general */}
       <Route
         path="/panel/*"
         element={
@@ -59,20 +58,130 @@ export default function AppRoutes() {
           </PrivateRoute>
         }
       >
-        {/* Rutas internas del panel */}
-        <Route path="roles" element={<RolesTable />} />
-        <Route path="tipos" element={<TiposTable />} />
-        <Route path="usuarios" element={<UsuariosTable />} />
-        <Route path="reportes" element={<ReportesTable />} />
-        <Route path="vehiculos" element={<VehiculosTable />} />
-        <Route path="mantenimiento" element={<MantenimientoTabla/>} />
-        <Route path="asignados" element={<AsignadosTable />} />
-        <Route path="prestamos" element={<PrestamosTable />} />
-        <Route path="movimientos" element={<MovimientosTable />} />
-          <Route path="devolucion" element={<DevolucionTable />} />
-        <Route path="equiposcargados" element={<AsignadosPropio />} />
-        <Route path="equipospropios" element={<DevolucionPropios />} />
+        {/* Roles (solo jefe) */}
+        <Route
+          path="roles"
+          element={
+            <RoleProtectedRoute allowedRoles={["jefe"]}>
+              <RolesTable />
+            </RoleProtectedRoute>
+          }
+        />
+
+        {/* Tipos de Equipos (jefe y armero) */}
+        <Route
+          path="tipos"
+          element={
+            <RoleProtectedRoute allowedRoles={["jefe","armero"]}>
+              <TiposTable />
+            </RoleProtectedRoute>
+          }
+        />
+
+        {/* Usuarios (solo jefe) */}
+        <Route
+          path="usuarios"
+          element={
+            <RoleProtectedRoute allowedRoles={["jefe"]}>
+              <UsuariosTable />
+            </RoleProtectedRoute>
+          }
+        />
+
+        {/* Reportes (todos los roles) */}
+        <Route
+          path="reportes"
+          element={
+            <RoleProtectedRoute allowedRoles={["jefe","armero","agente operativo"]}>
+              <ReportesTable />
+            </RoleProtectedRoute>
+          }
+        />
+
+        {/* Vehiculos (todos los roles) */}
+        <Route
+          path="vehiculos"
+          element={
+            <RoleProtectedRoute allowedRoles={["jefe","armero","agente operativo"]}>
+              <VehiculosTable />
+            </RoleProtectedRoute>
+          }
+        />
+
+        {/* Mantenimiento (todos los roles) */}
+        <Route
+          path="mantenimiento"
+          element={
+            <RoleProtectedRoute allowedRoles={["jefe","armero","agente operativo"]}>
+              <MantenimientoTabla/>
+            </RoleProtectedRoute>
+          }
+        />
+
+        {/* Equipos Asignados (solo armero) */}
+        <Route
+          path="asignados"
+          element={
+            <RoleProtectedRoute allowedRoles={["armero"]}>
+              <AsignadosTable />
+            </RoleProtectedRoute>
+          }
+        />
+
+        {/* Equipos a Prestamo (solo armero) */}
+        <Route
+          path="prestamos"
+          element={
+            <RoleProtectedRoute allowedRoles={["armero"]}>
+              <PrestamosTable />
+            </RoleProtectedRoute>
+          }
+        />
+
+        {/* Movimientos de Equipos (solo armero) */}
+        <Route
+          path="movimientos"
+          element={
+            <RoleProtectedRoute allowedRoles={["armero"]}>
+              <MovimientosTable />
+            </RoleProtectedRoute>
+          }
+        />
+
+        {/* Devolución de Equipos Prestados (solo armero) */}
+        <Route
+          path="devolucion"
+          element={
+            <RoleProtectedRoute allowedRoles={["armero"]}>
+              <DevolucionTable />
+            </RoleProtectedRoute>
+          }
+        />
+
+        {/* Equipos Cargados (todos los roles) */}
+        <Route
+          path="equiposcargados"
+          element={
+            <RoleProtectedRoute allowedRoles={["jefe","armero","agente operativo"]}>
+              <AsignadosPropio />
+            </RoleProtectedRoute>
+          }
+        />
+
+        {/* Devoluciones de Equipos Propios (solo armero) */}
+        <Route
+          path="equipospropios"
+          element={
+            <RoleProtectedRoute allowedRoles={["armero"]}>
+              <DevolucionPropios />
+            </RoleProtectedRoute>
+          }
+        />
+
+        {/* Perfil */}
         <Route path="perfil" element={<UserProfile onLogout={handleLogout} />} />
+
+        {/* Control Vehiculo */}
         <Route path="vehiculos/control/:id" element={<ControlVehiculo />} />
 
       </Route>
