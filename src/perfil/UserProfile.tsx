@@ -10,9 +10,12 @@ import {
   Stack,
   CircularProgress,
   Alert,
+  Divider,
+  Chip,
 } from "@mui/material";
 import { getUsuarioById } from "./profileService";
 import { useNavigate } from "react-router-dom";
+import LogoutIcon from "@mui/icons-material/Logout";
 
 interface UserProfileProps {
   onLogout?: () => void;
@@ -51,32 +54,80 @@ export default function UserProfile({ onLogout }: UserProfileProps) {
   };
 
   if (loading) {
-    return <Box textAlign="center" mt={4}><CircularProgress /></Box>;
+    return (
+      <Box textAlign="center" mt={6}>
+        <CircularProgress size={50} />
+      </Box>
+    );
   }
 
   if (error) {
-    return <Box textAlign="center" mt={4}><Alert severity="error">{error}</Alert></Box>;
+    return (
+      <Box textAlign="center" mt={6}>
+        <Alert severity="error">{error}</Alert>
+      </Box>
+    );
   }
 
   return (
-    <Box sx={{ maxWidth: 500, mx: "auto", mt: 4 }}>
-      <Card sx={{ borderRadius: 4, boxShadow: 6 }}>
+    <Box
+      sx={{
+        maxWidth: 500,
+        mx: "auto",
+        mt: 6,
+        px: 2,
+      }}
+    >
+      <Card
+        sx={{
+          borderRadius: 5,
+          boxShadow: 8,
+          background: "linear-gradient(135deg, #ffffff, #f5f7fa)",
+        }}
+      >
         <CardContent>
           <Stack spacing={3} alignItems="center">
-            <Avatar sx={{ width: 100, height: 100, bgcolor: "primary.main", fontSize: 40 }}>
+            {/* Avatar con borde */}
+            <Avatar
+              sx={{
+                width: 110,
+                height: 110,
+                bgcolor: "primary.main",
+                fontSize: 42,
+                border: "4px solid white",
+                boxShadow: 4,
+              }}
+            >
               {usuario.nombres?.charAt(0).toUpperCase() || "U"}
             </Avatar>
+
+            {/* Nombre y correo */}
             <Box textAlign="center">
               <Typography variant="h5" fontWeight="bold">
                 {usuario.nombres} {usuario.apellidos}
               </Typography>
-              <Typography color="text.secondary">{usuario.correo}</Typography>
+              <Typography variant="body2" color="text.secondary">
+                {usuario.correo}
+              </Typography>
             </Box>
-            <Box>
-              <Typography><strong>NIP:</strong> {usuario.nip}</Typography>
-              <Typography><strong>Rol:</strong> {usuario.rol?.nombre_rol}</Typography>
-            </Box>
-            <Button variant="outlined" color="primary" onClick={handleLogout}>
+
+            <Divider flexItem />
+
+            {/* Info del usuario */}
+            <Stack spacing={1} alignItems="center">
+              <Chip label={`NIP: ${usuario.nip}`} color="primary" variant="outlined" />
+              <Chip label={`Rol: ${usuario.rol?.nombre_rol}`} color="secondary" variant="outlined" />
+            </Stack>
+
+            {/* Botón logout */}
+            <Button
+              variant="contained"
+              color="error"
+              size="large"
+              endIcon={<LogoutIcon />}
+              onClick={handleLogout}
+              sx={{ borderRadius: 3, px: 4, mt: 2 }}
+            >
               Cerrar sesión
             </Button>
           </Stack>

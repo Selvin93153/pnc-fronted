@@ -25,7 +25,6 @@ const fadeSlide = keyframes`
   to { opacity: 1; transform: translateY(0); }
 `;
 
-
 export default function LoginForm({ onLoginSuccess }: Props) {
   const [correo, setCorreo] = useState('');
   const [contraseña, setContraseña] = useState('');
@@ -151,6 +150,18 @@ export default function LoginForm({ onLoginSuccess }: Props) {
           boxShadow: '0 10px 25px rgba(0,0,0,0.3)',
         }}
       >
+        {/* LOGO DENTRO DEL LOGIN */}
+        <Box
+          component="img"
+          src="/logo.png" // reemplaza con la ruta de tu logo
+          alt="Logo"
+          sx={{
+            width: 120,
+            height: 'auto',
+            mb: 3, // espacio debajo del logo
+          }}
+        />
+
         {/* LOGIN FORM */}
         {!showForgotPassword && !showResetPassword && (
           <>

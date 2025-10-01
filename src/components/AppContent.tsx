@@ -108,8 +108,6 @@ export default function AppContent({ onLogout, forceReloadWelcome }: Props) {
     ];
   }
 
-  
-
   return (
     <Box sx={{ display: "flex", height: "100vh" }}>
       <Sidebar
@@ -121,62 +119,69 @@ export default function AppContent({ onLogout, forceReloadWelcome }: Props) {
       />
 
       <Box sx={{ flexGrow: 1, p: 3 }}>
+        {/* Header general (solo botones) */}
         <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
           <Stack direction="row" spacing={2} alignItems="center">
             <IconButton onClick={() => setDrawerOpen(true)}>
               <MenuIcon />
             </IconButton>
-            <Typography variant="h4" color="primary">
-              PANEL DE ADMINISTRACION
-            </Typography>
           </Stack>
           <Box>
             <IconButton onClick={onLogout}>Cerrar sesión</IconButton>
           </Box>
         </Stack>
 
-        {/* Mostrar tarjetas solo en /panel */}
+        {/* Mostrar título y tarjetas solo en /panel */}
         {isInRootPanel && (
-          <Box
-            sx={{
-              display: "flex",
-              flexWrap: "wrap",
-              justifyContent: "center",
-              alignItems: "center",
-              minHeight: "70vh",
-              gap: 4,
-            }}
-          >
-            {cardModules.map((mod) => (
-              <Card
-                key={mod.title}
-                sx={{
-                  width: 340, // ancho de la tarjeta
-                  height: 250, // altura de la tarjeta
-                  borderRadius: 4,
-                  boxShadow: "0 4px 12px rgba(25, 118, 210, 0.3)",
-                  backgroundColor: "#fff",
-                  transition: "transform 0.2s ease-in-out, box-shadow 0.3s",
-                  "&:hover": {
-                    transform: "scale(1.03)",
-                    boxShadow: "0 6px 20px rgba(25, 118, 210, 0.5)",
-                  },
-                }}
-              >
-                <CardActionArea onClick={() => navigate(mod.route)}>
-                  <CardContent sx={{ textAlign: "center", py: 6 }}>
-                    <Box mb={2}>{mod.icon}</Box>
-                    <Typography variant="h6" gutterBottom>
-                      {mod.title}
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      {mod.description}
-                    </Typography>
-                  </CardContent>
-                </CardActionArea>
-              </Card>
-            ))}
-          </Box>
+          <>
+            {/* Título centrado y subtítulo */}
+            <Box textAlign="center" mb={4}>
+              <Typography variant="h4" color="primary" fontWeight="bold" gutterBottom>
+                PANEL DE ADMINISTRACIÓN
+              </Typography>
+            </Box>
+
+            <Box
+              sx={{
+                display: "flex",
+                flexWrap: "wrap",
+                justifyContent: "center",
+                alignItems: "center",
+                minHeight: "70vh",
+                gap: 4,
+              }}
+            >
+              {cardModules.map((mod) => (
+                <Card
+                  key={mod.title}
+                  sx={{
+                    width: 340,
+                    height: 250,
+                    borderRadius: 4,
+                    boxShadow: "0 4px 12px rgba(25, 118, 210, 0.3)",
+                    backgroundColor: "#fff",
+                    transition: "transform 0.2s ease-in-out, box-shadow 0.3s",
+                    "&:hover": {
+                      transform: "scale(1.03)",
+                      boxShadow: "0 6px 20px rgba(25, 118, 210, 0.5)",
+                    },
+                  }}
+                >
+                  <CardActionArea onClick={() => navigate(mod.route)}>
+                    <CardContent sx={{ textAlign: "center", py: 6 }}>
+                      <Box mb={2}>{mod.icon}</Box>
+                      <Typography variant="h6" gutterBottom>
+                        {mod.title}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {mod.description}
+                      </Typography>
+                    </CardContent>
+                  </CardActionArea>
+                </Card>
+              ))}
+            </Box>
+          </>
         )}
 
         {/* Renderizar rutas internas del panel */}
