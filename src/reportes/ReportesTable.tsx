@@ -1,12 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, Typography, Button, Dialog, DialogTitle, DialogContent,
-  DialogActions, TextField, Box
+  Box, Typography, Button, Card, CardContent, CardActions,
+  Dialog, DialogTitle, DialogContent, DialogActions as DialogActionsMUI,
+  TextField
 } from '@mui/material';
-import { type Reporte, getReportes, addReporte, updateReporte, type Usuario } from './reportesService';
+import {
+  type Reporte,
+  getReportes,
+  addReporte,
+  updateReporte,
+  type Usuario,
+  getReportesNoVistos,
+  getReportesVistos,
+  marcarReporteVisto
+} from './reportesService';
 
-const ReportesTable: React.FC = () => {
+const ReportesCards: React.FC = () => {
   const [reportes, setReportes] = useState<Reporte[]>([]);
   const [selectedReporte, setSelectedReporte] = useState<Reporte | null>(null);
   const [openDetalle, setOpenDetalle] = useState(false);
@@ -31,9 +40,18 @@ const ReportesTable: React.FC = () => {
     }
   };
 
-  const handleDetalle = (reporte: Reporte) => {
+  const handleVerReporte = async (reporte: Reporte) => {
     setSelectedReporte(reporte);
     setOpenDetalle(true);
+
+    if (!(reporte as any).visto) {
+      try {
+        await marcarReporteVisto(reporte.id_reporte);
+        cargarReportes();
+      } catch (error) {
+        console.error('Error al marcar reporte como visto:', error);
+      }
+    }
   };
 
   const handleEditar = (reporte: Reporte) => {
@@ -84,60 +102,81 @@ const ReportesTable: React.FC = () => {
 
   return (
     <Box p={3}>
-      <Typography variant="h5" gutterBottom fontWeight="bold">
-        📋 Reportes
-      </Typography>
+      {/* Header */}
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3} flexWrap="wrap">
+        <Typography variant="h5" fontWeight="bold">
+          📋 Reportes
+        </Typography>
+        <Button variant="contained" onClick={() => setOpenNuevo(true)} sx={{ mt: { xs: 2, sm: 0 } }}>
+          Nuevo Reporte
+        </Button>
+      </Box>
 
-      <Button
-        variant="contained"
-        sx={{ mb: 2 }}
-        onClick={() => setOpenNuevo(true)}
-      >
-        Nuevo Reporte
-      </Button>
+      {/* Filtros */}
+      <Box display="flex" justifyContent="flex-start" gap={2} mb={3} flexWrap="wrap">
+        <Button variant="contained" onClick={() => cargarReportes()}>
+          Ver todos
+        </Button>
+        <Button variant="outlined" onClick={async () => {
+          const data = await getReportesNoVistos();
+          setReportes(data);
+        }}>
+          Ver reportes no vistos
+        </Button>
+        <Button variant="outlined" onClick={async () => {
+          const data = await getReportesVistos();
+          setReportes(data);
+        }}>
+          Ver reportes vistos
+        </Button>
+      </Box>
 
-      <TableContainer component={Paper} sx={{ borderRadius: 3, boxShadow: 3 }}>
-        <Table>
-          <TableHead sx={{ backgroundColor: '#1976d2' }}>
-            <TableRow>
-              <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Título</TableCell>
-              <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Usuario</TableCell>
-              <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Fecha</TableCell>
-              <TableCell sx={{ color: 'white', fontWeight: 'bold' }}>Acciones</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {reportes.map((reporte) => {
-              const usuario = reporte.id_usuario as Usuario;
-              return (
-                <TableRow key={reporte.id_reporte} hover>
-                  <TableCell>{reporte.titulo}</TableCell>
-                  <TableCell>{usuario?.nombres} {usuario?.apellidos}</TableCell>
-                  <TableCell>{new Date(reporte.fecha_creacion).toLocaleDateString()}</TableCell>
-                  <TableCell>
-                    <Button
-                      size="small"
-                      variant="outlined"
-                      onClick={() => handleDetalle(reporte)}
-                      sx={{ mr: 1 }}
-                    >
-                      Detalles
-                    </Button>
-                    <Button
-                      size="small"
-                      variant="contained"
-                      color="secondary"
-                      onClick={() => handleEditar(reporte)}
-                    >
-                      Modificar
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      {/* Cards container */}
+      <Box display="flex" flexWrap="wrap" gap={3}>
+        {reportes.map((reporte) => {
+          const usuario = reporte.id_usuario as Usuario;
+          const colorFondo = (reporte as any).visto ? '#c6f7f3ff' : '#fbeec6ff'; // verde suave vs azul suave
+
+          return (
+            <Card
+              key={reporte.id_reporte}
+              sx={{
+                width: { xs: '100%', sm: '48%', md: '31%' },
+                borderRadius: 3,
+                boxShadow: 3,
+                display: 'flex',
+                flexDirection: 'column',
+                transition: 'transform 0.2s, box-shadow 0.2s',
+                backgroundColor: colorFondo,
+                '&:hover': {
+                  transform: 'translateY(-4px)',
+                  boxShadow: 6,
+                },
+              }}
+            >
+              <CardContent sx={{ flexGrow: 1 }}>
+                <Typography variant="h6" gutterBottom>
+                  {reporte.titulo}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Enviado por: {usuario?.nombres} {usuario?.apellidos}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  Fecha: {new Date(reporte.fecha_creacion).toLocaleDateString()}
+                </Typography>
+              </CardContent>
+              <CardActions>
+                <Button size="small" variant="outlined" onClick={() => handleVerReporte(reporte)}>
+                  Ver reporte
+                </Button>
+                <Button size="small" variant="contained" color="secondary" onClick={() => handleEditar(reporte)}>
+                  Modificar
+                </Button>
+              </CardActions>
+            </Card>
+          );
+        })}
+      </Box>
 
       {/* Dialog Detalle */}
       <Dialog open={openDetalle} onClose={() => setOpenDetalle(false)} fullWidth maxWidth="sm">
@@ -155,9 +194,9 @@ const ReportesTable: React.FC = () => {
             Fecha: {selectedReporte && new Date(selectedReporte.fecha_creacion).toLocaleString()}
           </Typography>
         </DialogContent>
-        <DialogActions>
+        <DialogActionsMUI>
           <Button onClick={() => setOpenDetalle(false)}>Cerrar</Button>
-        </DialogActions>
+        </DialogActionsMUI>
       </Dialog>
 
       {/* Dialog Editar */}
@@ -181,12 +220,12 @@ const ReportesTable: React.FC = () => {
             onChange={(e) => setEditDescripcion(e.target.value)}
           />
         </DialogContent>
-        <DialogActions>
+        <DialogActionsMUI>
           <Button onClick={() => setOpenEditar(false)}>Cancelar</Button>
           <Button variant="contained" onClick={handleGuardarEdicion}>
             Guardar
           </Button>
-        </DialogActions>
+        </DialogActionsMUI>
       </Dialog>
 
       {/* Dialog Nuevo Reporte */}
@@ -210,15 +249,15 @@ const ReportesTable: React.FC = () => {
             onChange={(e) => setNuevaDescripcion(e.target.value)}
           />
         </DialogContent>
-        <DialogActions>
+        <DialogActionsMUI>
           <Button onClick={() => setOpenNuevo(false)}>Cancelar</Button>
           <Button variant="contained" onClick={handleNuevoReporte}>
             Guardar
           </Button>
-        </DialogActions>
+        </DialogActionsMUI>
       </Dialog>
     </Box>
   );
 };
 
-export default ReportesTable;
+export default ReportesCards;

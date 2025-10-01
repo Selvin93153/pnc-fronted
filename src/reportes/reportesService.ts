@@ -70,3 +70,42 @@ export const updateReporte = async (
     throw error;
   }
 };
+
+// Obtener reportes no vistos de todos los usuarios
+export async function getReportesNoVistos(): Promise<Reporte[]> {
+  try {
+    const response = await axiosReporte.get<Reporte[]>('/api/reportes/nuevos', {
+      headers: getAuthHeader(),
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener reportes no vistos:', error);
+    throw error;
+  }
+}
+
+// Obtener reportes vistos de todos los usuarios
+export async function getReportesVistos(): Promise<Reporte[]> {
+  try {
+    const response = await axiosReporte.get<Reporte[]>('/api/reportes/vistos', {
+      headers: getAuthHeader(),
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener reportes vistos:', error);
+    throw error;
+  }
+}
+
+// Marcar un reporte como visto
+export async function marcarReporteVisto(id_reporte: number): Promise<Reporte> {
+  try {
+    const response = await axiosReporte.patch<Reporte>(`/api/reportes/${id_reporte}/visto`, {}, {
+      headers: getAuthHeader(),
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error al marcar reporte como visto:', error);
+    throw error;
+  }
+}
