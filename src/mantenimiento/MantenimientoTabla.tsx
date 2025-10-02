@@ -28,13 +28,14 @@ import {
   getMantenimientos,
   createMantenimiento,
   updateMantenimiento,
+  getVehiculosUsuario,
   type Mantenimiento,
 } from "./MantenimientoService";
-import { getVehiculos, type Vehiculo } from "../vehiculos/vehiculosService";
+import type { Vehiculo as VehiculoAPI } from "../vehiculos/vehiculosService";
 
 const MantenimientoTabla: React.FC = () => {
   const [mantenimientos, setMantenimientos] = useState<Mantenimiento[]>([]);
-  const [vehiculos, setVehiculos] = useState<Vehiculo[]>([]);
+  const [vehiculos, setVehiculos] = useState<VehiculoAPI[]>([]);
 
   // Estados formulario
   const [open, setOpen] = useState(false);
@@ -48,27 +49,27 @@ const MantenimientoTabla: React.FC = () => {
   const [success, setSuccess] = useState("");
 
   useEffect(() => {
-    fetchMantenimientos();
     fetchVehiculos();
   }, []);
 
-  const fetchMantenimientos = async () => {
-    try {
-      const data = await getMantenimientos();
-      setMantenimientos(data);
-    } catch (err) {
-      console.error(err);
-      setError("No se pudieron obtener los mantenimientos.");
-    }
-  };
-
+  // Obtener los vehículos del usuario logeado y luego sus mantenimientos
   const fetchVehiculos = async () => {
     try {
-      const data = await getVehiculos();
-      setVehiculos(data);
+      const misVehiculos = await getVehiculosUsuario();
+      setVehiculos(misVehiculos);
+
+      // Filtrar los mantenimientos solo de los vehículos de este usuario
+      const allMantenimientos = await getMantenimientos();
+      const misVehiculosIds = misVehiculos.map(v => v.id_vehiculo);
+      const mantenimientosFiltrados = allMantenimientos.filter(m => {
+        const idVeh = typeof m.id_vehiculo === "object" ? m.id_vehiculo.id_vehiculo : m.id_vehiculo;
+        return misVehiculosIds.includes(idVeh);
+      });
+      setMantenimientos(mantenimientosFiltrados);
+
     } catch (err) {
       console.error(err);
-      setError("No se pudieron obtener los vehículos.");
+      setError("No se pudieron obtener los vehículos o mantenimientos.");
     }
   };
 
@@ -105,7 +106,7 @@ const MantenimientoTabla: React.FC = () => {
     setError("");
     setSuccess("");
 
-    if ( !kmActual || !kmProximo || !tipo || !idVehiculo) {
+    if (!kmActual || !kmProximo || !tipo || !idVehiculo) {
       setError("Todos los campos son obligatorios.");
       return;
     }
@@ -132,7 +133,7 @@ const MantenimientoTabla: React.FC = () => {
       }
 
       handleClose();
-      fetchMantenimientos();
+      fetchVehiculos(); // Refrescar lista filtrada
     } catch (err) {
       console.error(err);
       setError("Error al guardar el mantenimiento.");
@@ -161,6 +162,30 @@ const MantenimientoTabla: React.FC = () => {
         >
           Nuevo Mantenimiento
         </Button>
+
+        {/* Botón visible solo para jefe */}
+        {JSON.parse(localStorage.getItem("usuario") || "{}")?.rol === "jefe" && (
+          <Button
+            variant="outlined"
+            sx={{
+              ml: 2,
+              background: "linear-gradient(90deg, #ff9800, #ffc107)",
+              color: "white",
+              "&:hover": { background: "linear-gradient(90deg, #ffb74d, #ffe082)" },
+            }}
+            onClick={async () => {
+              try {
+                const data = await getMantenimientos(); // Trae todos los mantenimientos
+                setMantenimientos(data);
+              } catch (err) {
+                console.error(err);
+                setError("No se pudieron obtener todos los mantenimientos.");
+              }
+            }}
+          >
+            Ver todos los mantenimientos
+          </Button>
+        )}
       </Box>
 
       <Paper sx={{ p: 2, borderRadius: 3, boxShadow: 6 }}>
@@ -237,7 +262,7 @@ const MantenimientoTabla: React.FC = () => {
             rows={3}
           />
 
-          {/* Select de Vehículos */}
+          {/* Select de Vehículos filtrados */}
           <FormControl fullWidth margin="dense">
             <InputLabel id="vehiculo-label">Vehículo</InputLabel>
             <Select

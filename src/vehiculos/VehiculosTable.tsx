@@ -17,15 +17,17 @@ import {
   TextField,
   MenuItem,
   Alert,
+  Tooltip,
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import {
-  getVehiculos,
   createVehiculo,
   getUsuarios,
   cambiarPiloto,
   type Vehiculo,
   type Usuario,
+  getMisVehiculos,
+  getVehiculos, // Traer todos los vehículos
 } from './vehiculosService';
 
 const estados = ['activo', 'inactivo'];
@@ -40,6 +42,11 @@ const VehiculosTable: React.FC = () => {
   const [vehiculoSeleccionado, setVehiculoSeleccionado] = useState<number | null>(null);
   const [nuevoPiloto, setNuevoPiloto] = useState<number>(0);
   const [error, setError] = useState('');
+  const [mostrarTodos, setMostrarTodos] = useState(false);
+
+  // Verificar si el usuario tiene rol de jefe
+  const usuarioLogueado = JSON.parse(localStorage.getItem('usuario') || '{}');
+  const esJefe = usuarioLogueado?.rol === 'jefe';
 
   const [nuevoVehiculo, setNuevoVehiculo] = useState({
     tipo: '',
@@ -50,10 +57,19 @@ const VehiculosTable: React.FC = () => {
     id_usuario: 0,
   });
 
-  // Fetch vehículos
+  // Fetch vehículos según si se muestran todos o solo del usuario
   const fetchVehiculos = async () => {
-    const data = await getVehiculos();
-    setVehiculos(data);
+    try {
+      let data: Vehiculo[] = [];
+      if (mostrarTodos && esJefe) {
+        data = await getVehiculos(); // Todos los vehículos
+      } else {
+        data = await getMisVehiculos(); // Solo los del usuario
+      }
+      setVehiculos(data);
+    } catch (error) {
+      console.error('Error al obtener vehículos:', error);
+    }
   };
 
   // Fetch usuarios
@@ -65,7 +81,7 @@ const VehiculosTable: React.FC = () => {
   useEffect(() => {
     fetchVehiculos();
     fetchUsuarios();
-  }, []);
+  }, [mostrarTodos]);
 
   const handleChangeVehiculo = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNuevoVehiculo({ ...nuevoVehiculo, [e.target.name]: e.target.value });
@@ -105,9 +121,30 @@ const VehiculosTable: React.FC = () => {
 
   return (
     <Box p={4} sx={{ background: '#f5f5f5', minHeight: '100vh' }}>
-      <Typography variant="h4" gutterBottom fontWeight="bold" color="primary">
-        Gestión de Vehículos
-      </Typography>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+        <Typography variant="h4" fontWeight="bold" color="primary">
+          Gestión de Vehículos
+        </Typography>
+
+        <Tooltip
+          title={
+            esJefe
+              ? "Alterna entre tus vehículos y todos los vehículos"
+              : "Opción solo disponible para usuarios con rol de jefe"
+          }
+        >
+          <span>
+            <Button
+              variant="outlined"
+              color="primary"
+              onClick={() => esJefe && setMostrarTodos(!mostrarTodos)}
+              disabled={!esJefe}
+            >
+              {mostrarTodos ? "Ver Mis Vehículos" : "Ver Todos los Vehículos"}
+            </Button>
+          </span>
+        </Tooltip>
+      </Box>
 
       <Button
         variant="contained"
@@ -159,13 +196,12 @@ const VehiculosTable: React.FC = () => {
                     Control de Vehículo
                   </Button>
                   <Button
-  variant="contained"
-  color="secondary"
-  onClick={() => handleAbrirPiloto(v.id_vehiculo!)}
->
-  Cambiar Piloto
-</Button>
-
+                    variant="contained"
+                    color="secondary"
+                    onClick={() => handleAbrirPiloto(v.id_vehiculo!)}
+                  >
+                    Cambiar Piloto
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}

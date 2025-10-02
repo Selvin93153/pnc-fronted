@@ -1,4 +1,6 @@
 import axiosMantenimiento from './axiosMantenimiento';
+import { getMisVehiculos,  type Vehiculo as VehiculoAPI } from '../vehiculos/vehiculosService';
+
 
 // Interfaces
 export interface Vehiculo {
@@ -40,4 +42,15 @@ export const updateMantenimiento = async (
 ) => {
   const { data } = await axiosMantenimiento.put(`/api/mantenimiento/${id_mantenimiento}`, mantenimiento);
   return data;
+};
+
+
+export const getVehiculosUsuario = async (): Promise<VehiculoAPI[]> => {
+  try {
+    const data = await getMisVehiculos();
+    return data;
+  } catch (err) {
+    console.error(err);
+    return [];
+  }
 };

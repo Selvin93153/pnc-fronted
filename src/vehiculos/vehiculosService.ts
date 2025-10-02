@@ -101,3 +101,13 @@ export const getControlesByVehiculo = async (vehiculoId: number): Promise<Contro
   return data;
 };
 
+// Obtener solo los vehículos del usuario logueado
+export const getMisVehiculos = async (): Promise<Vehiculo[]> => {
+  try {
+    const response = await axiosVehiculo.get<Vehiculo[]>('/api/vehiculos/mis-vehiculos');
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener vehículos del usuario:', error);
+    throw error;
+  }
+};
