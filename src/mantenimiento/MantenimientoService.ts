@@ -14,6 +14,7 @@ export interface Vehiculo {
 
 export interface Mantenimiento {
   id_mantenimiento: number;
+  fecha_servicio?: string;
   km_actual: number;
   km_servicioproximo: number;
   tipo_mantenimiento: string;

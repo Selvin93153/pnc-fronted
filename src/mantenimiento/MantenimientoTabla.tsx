@@ -60,13 +60,15 @@ const MantenimientoTabla: React.FC = () => {
 
       // Filtrar los mantenimientos solo de los vehículos de este usuario
       const allMantenimientos = await getMantenimientos();
-      const misVehiculosIds = misVehiculos.map(v => v.id_vehiculo);
-      const mantenimientosFiltrados = allMantenimientos.filter(m => {
-        const idVeh = typeof m.id_vehiculo === "object" ? m.id_vehiculo.id_vehiculo : m.id_vehiculo;
+      const misVehiculosIds = misVehiculos.map((v) => v.id_vehiculo);
+      const mantenimientosFiltrados = allMantenimientos.filter((m) => {
+        const idVeh =
+          typeof m.id_vehiculo === "object"
+            ? m.id_vehiculo.id_vehiculo
+            : m.id_vehiculo;
         return misVehiculosIds.includes(idVeh);
       });
       setMantenimientos(mantenimientosFiltrados);
-
     } catch (err) {
       console.error(err);
       setError("No se pudieron obtener los vehículos o mantenimientos.");
@@ -146,8 +148,16 @@ const MantenimientoTabla: React.FC = () => {
         Gestión de Mantenimientos
       </Typography>
 
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
-      {success && <Alert severity="success" sx={{ mb: 2 }}>{success}</Alert>}
+      {error && (
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {error}
+        </Alert>
+      )}
+      {success && (
+        <Alert severity="success" sx={{ mb: 2 }}>
+          {success}
+        </Alert>
+      )}
 
       <Box display="flex" justifyContent="flex-end" mb={2}>
         <Button
@@ -157,7 +167,9 @@ const MantenimientoTabla: React.FC = () => {
           sx={{
             background: "linear-gradient(90deg, #1565c0, #42a5f5)",
             color: "white",
-            "&:hover": { background: "linear-gradient(90deg, #1976d2, #64b5f6)" },
+            "&:hover": {
+              background: "linear-gradient(90deg, #1976d2, #64b5f6)",
+            },
           }}
         >
           Nuevo Mantenimiento
@@ -171,7 +183,9 @@ const MantenimientoTabla: React.FC = () => {
               ml: 2,
               background: "linear-gradient(90deg, #ff9800, #ffc107)",
               color: "white",
-              "&:hover": { background: "linear-gradient(90deg, #ffb74d, #ffe082)" },
+              "&:hover": {
+                background: "linear-gradient(90deg, #ffb74d, #ffe082)",
+              },
             }}
             onClick={async () => {
               try {
@@ -192,7 +206,7 @@ const MantenimientoTabla: React.FC = () => {
         <Table>
           <TableHead>
             <TableRow sx={{ backgroundColor: "#1976d2" }}>
-              <TableCell sx={{ color: "white" }}>ID</TableCell>
+              <TableCell sx={{ color: "white" }}>Fecha de Servicio</TableCell>
               <TableCell sx={{ color: "white" }}>Km Actual</TableCell>
               <TableCell sx={{ color: "white" }}>Km Próximo</TableCell>
               <TableCell sx={{ color: "white" }}>Tipo</TableCell>
@@ -204,7 +218,15 @@ const MantenimientoTabla: React.FC = () => {
           <TableBody>
             {mantenimientos.map((m) => (
               <TableRow key={m.id_mantenimiento}>
-                <TableCell>{m.id_mantenimiento}</TableCell>
+                <TableCell>
+                  {m.fecha_servicio
+                    ? new Date(m.fecha_servicio).toLocaleDateString("es-ES", {
+                        year: "numeric",
+                        month: "2-digit",
+                        day: "2-digit",
+                      })
+                    : "—"}
+                </TableCell>
                 <TableCell>{m.km_actual}</TableCell>
                 <TableCell>{m.km_servicioproximo}</TableCell>
                 <TableCell>{m.tipo_mantenimiento}</TableCell>
@@ -231,6 +253,30 @@ const MantenimientoTabla: React.FC = () => {
           {editando ? "Editar Mantenimiento" : "Nuevo Mantenimiento"}
         </DialogTitle>
         <DialogContent>
+          {/* Mostrar fecha solo cuando se edita */}
+          {editando && (
+            <TextField
+              fullWidth
+              margin="dense"
+              label="Fecha de Servicio"
+              value={
+                editando.fecha_servicio
+                  ? new Date(editando.fecha_servicio).toLocaleDateString(
+                      "es-ES",
+                      {
+                        year: "numeric",
+                        month: "2-digit",
+                        day: "2-digit",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      }
+                    )
+                  : ""
+              }
+              InputProps={{ readOnly: true }}
+            />
+          )}
+
           <TextField
             fullWidth
             margin="dense"
@@ -285,7 +331,9 @@ const MantenimientoTabla: React.FC = () => {
             sx={{
               background: "linear-gradient(90deg, #1565c0, #42a5f5)",
               color: "white",
-              "&:hover": { background: "linear-gradient(90deg, #1976d2, #64b5f6)" },
+              "&:hover": {
+                background: "linear-gradient(90deg, #1976d2, #64b5f6)",
+              },
             }}
             onClick={handleSave}
           >

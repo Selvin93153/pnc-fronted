@@ -11,17 +11,20 @@ import {
   type MovimientoEquipo
 } from "./movimientos-propios";
 
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+
 const DevolucionPropios: React.FC = () => {
   const [movimientos, setMovimientos] = useState<MovimientoEquipo[]>([]);
   const [openDialog, setOpenDialog] = useState(false);
   const [comentarios, setComentarios] = useState("");
   const [movSeleccionado, setMovSeleccionado] = useState<MovimientoEquipo | null>(null);
 
-  // 🔹 Filtros separados
   const [filtroEntregaMes, setFiltroEntregaMes] = useState<number | string>("");
   const [filtroEntregaAnio, setFiltroEntregaAnio] = useState<number | string>("");
   const [filtroDevolucionMes, setFiltroDevolucionMes] = useState<number | string>("");
   const [filtroDevolucionAnio, setFiltroDevolucionAnio] = useState<number | string>("");
+  const [filtroEstado, setFiltroEstado] = useState<"todos" | "guardado" | "en uso">("todos"); // 🔹 nuevo
 
   const cargarMovimientos = async () => {
     const data = await getMovimientos();
@@ -40,8 +43,8 @@ const DevolucionPropios: React.FC = () => {
     if (!movSeleccionado) return;
 
     const fechaActual = new Date();
-    const fechaISO = fechaActual.toISOString().split("T")[0]; // YYYY-MM-DD
-    const hora = fechaActual.toTimeString().split(" ")[0]; // HH:mm:ss
+    const fechaISO = fechaActual.toISOString().split("T")[0];
+    const hora = fechaActual.toTimeString().split(" ")[0];
 
     await updateMovimiento(movSeleccionado.id_movimiento, {
       fecha_devolucion: fechaISO,
@@ -60,27 +63,69 @@ const DevolucionPropios: React.FC = () => {
     const fechaEntrega = new Date(mov.fecha_entrega);
     const fechaDevolucion = mov.fecha_devolucion ? new Date(mov.fecha_devolucion) : null;
 
-    // Si hay filtro por entrega
+    // Filtro por estado
+    if (filtroEstado !== "todos" && mov.estado !== filtroEstado) return false;
+
+    // Filtros de fecha
     if (filtroEntregaMes !== "" && filtroEntregaAnio !== "") {
       const fechaInicio = new Date(filtroEntregaAnio as number, (filtroEntregaMes as number) - 1, 1);
       const fechaFin = new Date(filtroEntregaAnio as number, filtroEntregaMes as number, 0);
       return fechaEntrega >= fechaInicio && fechaEntrega <= fechaFin;
     }
 
-    // Si hay filtro por devolución
     if (filtroDevolucionMes !== "" && filtroDevolucionAnio !== "" && fechaDevolucion) {
       const fechaInicio = new Date(filtroDevolucionAnio as number, (filtroDevolucionMes as number) - 1, 1);
       const fechaFin = new Date(filtroDevolucionAnio as number, filtroDevolucionMes as number, 0);
       return fechaDevolucion >= fechaInicio && fechaDevolucion <= fechaFin;
     }
 
-    return true; // si no hay filtros → mostrar todo
+    return true;
   });
 
   const meses = [
     "Enero","Febrero","Marzo","Abril","Mayo","Junio",
     "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"
   ];
+
+  // 🔹 Función para generar PDF
+  const descargarPDF = () => {
+    const doc = new jsPDF();
+    const fecha = new Date();
+    const fechaStr = fecha.toLocaleString();
+
+    doc.setFontSize(16);
+    doc.text("Devoluciones de Equipos Propios", 105, 15, { align: "center" });
+    doc.setFontSize(10);
+    doc.text(`Fecha de impresión: ${fechaStr}`, 105, 22, { align: "center" });
+
+    const tableColumn = [
+      "Clase", "Marca y Serie", "Entrega", "Recibe", "Fecha Entrega",
+      "Hora Entrega", "Fecha Devolución", "Hora Devolución", "Comentarios", "Estado"
+    ];
+
+    const tableRows: any[] = movimientosFiltrados.map((mov) => [
+      mov.id_asignacion.clase,
+      `${mov.id_asignacion.marca} - ${mov.id_asignacion.serie}`,
+      `${mov.id_usuario_entrega.nombres} ${mov.id_usuario_entrega.apellidos}`,
+      `${mov.id_usuario_recibe.nombres} ${mov.id_usuario_recibe.apellidos}`,
+      mov.fecha_entrega,
+      mov.hora_entrega,
+      mov.fecha_devolucion || "-",
+      mov.hora_devolucion || "-",
+      mov.comentarios || "-",
+      mov.estado
+    ]);
+
+    autoTable(doc, {
+      head: [tableColumn],
+      body: tableRows,
+      startY: 30,
+      styles: { fontSize: 10 },
+      headStyles: { fillColor: [25, 118, 210], textColor: [255, 255, 255] },
+    });
+
+    doc.save(`Devoluciones_${fecha.getTime()}.pdf`);
+  };
 
   return (
     <Paper elevation={6} sx={{ p: 3, borderRadius: 3 }}>
@@ -91,9 +136,43 @@ const DevolucionPropios: React.FC = () => {
         Aquí puedes aceptar la devolución de equipos prestados.
       </Typography>
 
-      {/* 🔹 Filtros */}
+      {/* 🔹 Botones de filtro de estado */}
+      <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
+        <Button
+          variant={filtroEstado === "todos" ? "contained" : "outlined"}
+          color="primary"
+          onClick={() => setFiltroEstado("todos")}
+        >
+          Todos
+        </Button>
+        <Button
+          variant={filtroEstado === "guardado" ? "contained" : "outlined"}
+          color="success"
+          onClick={() => setFiltroEstado("guardado")}
+        >
+          Guardado
+        </Button>
+        <Button
+          variant={filtroEstado === "en uso" ? "contained" : "outlined"}
+          color="warning"
+          onClick={() => setFiltroEstado("en uso")}
+        >
+          En Uso
+        </Button>
+
+        {/* 🔹 Botón Descargar PDF */}
+        <Button
+          variant="contained"
+          color="error"
+          sx={{ ml: "auto" }}
+          onClick={descargarPDF}
+        >
+          Descargar PDF
+        </Button>
+      </Box>
+
+      {/* 🔹 Filtros de fecha */}
       <Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: "wrap" }}>
-        {/* Filtro por entrega */}
         <FormControl sx={{ minWidth: 150 }} size="small">
           <InputLabel>Mes Entrega</InputLabel>
           <Select
@@ -118,7 +197,6 @@ const DevolucionPropios: React.FC = () => {
           disabled={filtroDevolucionMes !== "" || filtroDevolucionAnio !== ""}
         />
 
-        {/* Filtro por devolución */}
         <FormControl sx={{ minWidth: 150 }} size="small">
           <InputLabel>Mes Devolución</InputLabel>
           <Select
@@ -144,6 +222,7 @@ const DevolucionPropios: React.FC = () => {
         />
       </Box>
 
+      {/* 🔹 Tabla */}
       <TableContainer sx={{ borderRadius: 2, overflow: "hidden" }}>
         <Table>
           <TableHead>
