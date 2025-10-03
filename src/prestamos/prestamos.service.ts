@@ -75,4 +75,13 @@ export const prestamosService = {
     const res = await axiosPrestamo.get("/api/usuarios");
     return res.data;
   },
+
+  // Tipos de equipo
+getTipos: async (): Promise<TipoEquipo[]> => {
+  const res = await axiosPrestamo.get("/api/tipos-equipos");
+  return res.data;
+}
+
 };
+
+

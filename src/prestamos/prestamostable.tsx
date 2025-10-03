@@ -1,3 +1,4 @@
+// src/prestamos/PrestamosTable.jsx
 import React, { useEffect, useState } from "react";
 import {
   Table, TableBody, TableCell, TableContainer, TableHead,
@@ -6,16 +7,28 @@ import {
   Select, FormControl, InputLabel, Snackbar, Alert,
   Typography, Box,
 } from "@mui/material";
-import { CheckCircle, Close, Send } from "@mui/icons-material";
-import { prestamosService, type EquipoPrestamo, type Usuario } from "./prestamos.service";
+import { CheckCircle, Close, Send, AddCircle } from "@mui/icons-material";
+import { prestamosService, type EquipoPrestamo, type Usuario, type TipoEquipo } from "./prestamos.service";
 import { usePrestarPrestamo } from "./usePrestarPrestamo";
 
 const PrestamosTable: React.FC = () => {
   const [prestamos, setPrestamos] = useState<EquipoPrestamo[]>([]);
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
+  const [tipos, setTipos] = useState<TipoEquipo[]>([]);
   const [filtro, setFiltro] = useState<"todos" | "disponible" | "en uso">("todos");
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [mensajeSnackbar, setMensajeSnackbar] = useState("");
+
+  // Nuevo equipo
+  const [openNuevoEquipo, setOpenNuevoEquipo] = useState(false);
+  const [nuevoEquipo, setNuevoEquipo] = useState({
+    clase: "",
+    marca: "",
+    calibre: "",
+    serie: "",
+    id_tipo: 0,
+    estado: "disponible",
+  });
 
   const usuarioLogueado = localStorage.getItem("usuario");
   const usuarioEntregaId = usuarioLogueado
@@ -58,16 +71,50 @@ const PrestamosTable: React.FC = () => {
       .catch(console.error);
   }, []);
 
+  // Cargar tipos de equipo
+useEffect(() => {
+  prestamosService.getTipos()
+    .then(setTipos)
+    .catch(console.error);
+}, []);
+
   // Equipos filtrados
   const prestamosFiltrados = prestamos.filter((p) =>
     filtro === "todos" ? true : p.estado === filtro
   );
+
+  // Función para guardar nuevo equipo
+  const handleGuardarNuevoEquipo = async () => {
+    try {
+      const creado = await prestamosService.addEquipo(nuevoEquipo);
+      setPrestamos((prev) => [...prev, creado]);
+      setMensajeSnackbar("✅ Equipo agregado con éxito");
+      setOpenSnackbar(true);
+      setOpenNuevoEquipo(false);
+      setNuevoEquipo({ clase: "", marca: "", calibre: "", serie: "", id_tipo: 0, estado: "disponible" });
+    } catch (error) {
+      console.error("Error al agregar equipo:", error);
+      setMensajeSnackbar("❌ Error al agregar equipo");
+      setOpenSnackbar(true);
+    }
+  };
 
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant="h5" gutterBottom fontWeight="bold" color="primary">
         📋 Gestión de Préstamos de Equipos
       </Typography>
+
+      {/* Botón ingresar nuevo equipo */}
+      <Button
+        variant="contained"
+        color="success"
+        startIcon={<AddCircle />}
+        onClick={() => setOpenNuevoEquipo(true)}
+        sx={{ mb: 2, borderRadius: 2 }}
+      >
+        Ingresar nuevo equipo
+      </Button>
 
       {/* Filtro por estado */}
       <FormControl fullWidth margin="normal">
@@ -88,7 +135,6 @@ const PrestamosTable: React.FC = () => {
         <Table>
           <TableHead sx={{ backgroundColor: "primary.main" }}>
             <TableRow>
-              <TableCell sx={{ color: "white", fontWeight: "bold" }}>ID</TableCell>
               <TableCell sx={{ color: "white", fontWeight: "bold" }}>Clase</TableCell>
               <TableCell sx={{ color: "white", fontWeight: "bold" }}>Marca</TableCell>
               <TableCell sx={{ color: "white", fontWeight: "bold" }}>Calibre</TableCell>
@@ -100,7 +146,6 @@ const PrestamosTable: React.FC = () => {
           <TableBody>
             {prestamosFiltrados.map((prestamo) => (
               <TableRow key={prestamo.id_prestamo}>
-                <TableCell>{prestamo.id_prestamo}</TableCell>
                 <TableCell>{prestamo.clase}</TableCell>
                 <TableCell>{prestamo.marca}</TableCell>
                 <TableCell>{prestamo.calibre}</TableCell>
@@ -168,6 +213,60 @@ const PrestamosTable: React.FC = () => {
           </Button>
           <Button onClick={handlePrestar} startIcon={<CheckCircle />} variant="contained" color="primary">
             Confirmar préstamo
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Dialog nuevo equipo */}
+      <Dialog open={openNuevoEquipo} onClose={() => setOpenNuevoEquipo(false)} PaperProps={{ sx: { borderRadius: 3, p: 1 } }}>
+        <DialogTitle fontWeight="bold" color="success.main">➕ Ingresar nuevo equipo</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Clase"
+            value={nuevoEquipo.clase}
+            onChange={(e) => setNuevoEquipo({ ...nuevoEquipo, clase: e.target.value })}
+            fullWidth
+            margin="dense"
+          />
+          <TextField
+            label="Marca"
+            value={nuevoEquipo.marca}
+            onChange={(e) => setNuevoEquipo({ ...nuevoEquipo, marca: e.target.value })}
+            fullWidth
+            margin="dense"
+          />
+          <TextField
+            label="Calibre"
+            value={nuevoEquipo.calibre}
+            onChange={(e) => setNuevoEquipo({ ...nuevoEquipo, calibre: e.target.value })}
+            fullWidth
+            margin="dense"
+          />
+          <TextField
+            label="Serie"
+            value={nuevoEquipo.serie}
+            onChange={(e) => setNuevoEquipo({ ...nuevoEquipo, serie: e.target.value })}
+            fullWidth
+            margin="dense"
+          />
+          <FormControl fullWidth margin="dense">
+  <InputLabel>Tipo de equipo</InputLabel>
+  <Select
+    value={nuevoEquipo.id_tipo}
+    onChange={(e) => setNuevoEquipo({ ...nuevoEquipo, id_tipo: Number(e.target.value) })}
+  >
+    {tipos.map((t) => (
+      <MenuItem key={t.id_tipo} value={t.id_tipo}>{t.nombre}</MenuItem>
+    ))}
+  </Select>
+</FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenNuevoEquipo(false)} startIcon={<Close />} variant="outlined" color="secondary">
+            Cancelar
+          </Button>
+          <Button onClick={handleGuardarNuevoEquipo} startIcon={<CheckCircle />} variant="contained" color="success">
+            Guardar equipo
           </Button>
         </DialogActions>
       </Dialog>

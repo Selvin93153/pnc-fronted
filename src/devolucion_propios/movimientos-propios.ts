@@ -32,13 +32,13 @@ export interface MovimientoEquipo {
   estado: string;
 }
 
-// 👉 GET: obtener todos los movimientos
+//  GET: obtener todos los movimientos
 export const getMovimientos = async (): Promise<MovimientoEquipo[]> => {
   const response = await axiosMovimientos.get<MovimientoEquipo[]>('/api/movimientos-propios');
   return response.data;
 };
 
-// 👉 POST: crear movimiento
+//  POST: crear movimiento
 export const addMovimiento = async (data: {
   id_asignacion: number;
   id_usuario_entrega: number;
@@ -54,13 +54,19 @@ export const addMovimiento = async (data: {
   return response.data;
 };
 
-// 👉 PUT: actualizar movimiento
+//  PUT: actualizar movimiento
 export const updateMovimiento = async (id: number, data: Partial<Omit<MovimientoEquipo, 'id_movimiento'>>): Promise<MovimientoEquipo> => {
   const response = await axiosMovimientos.patch<MovimientoEquipo>(`/api/movimientos-propios/${id}`, data);
   return response.data;
 };
 
-// 👉 DELETE: eliminar movimiento
+//  DELETE: eliminar movimiento
 export const deleteMovimiento = async (id: number): Promise<void> => {
   await axiosMovimientos.delete(`/api/movimientos-propios/${id}`);
+};
+
+//  GET: obtener movimientos por NIP
+export const getMovimientosPorNIP = async (nip: string): Promise<MovimientoEquipo[]> => {
+  const response = await axiosMovimientos.get<MovimientoEquipo[]>(`/api/movimientos-propios/por-nip/${nip}`);
+  return response.data;
 };

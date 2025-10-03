@@ -68,12 +68,12 @@ export default function AppContent({ onLogout, forceReloadWelcome }: Props) {
     { title: "Reportes", icon: <SummarizeIcon sx={{ fontSize: 40, color: "#ff9800" }} />, route: "/panel/reportes", description: "Visualización de reportes" },
     { title: "Vehiculos", icon: <DirectionsCarIcon sx={{ fontSize: 40, color: "#0288d1" }} />, route: "/panel/vehiculos", description: "Control de vehículos" },
     { title: "Mantenimiento", icon: <BuildIcon sx={{ fontSize: 40, color: "#f44336" }} />, route: "/panel/mantenimiento", description: "Gestión de mantenimiento" },
-    { title: "Equipos Asignados", icon: <ChecklistIcon sx={{ fontSize: 40, color: "#388e3c" }} />, route: "/panel/asignados", description: "Gestión de armas, chalecos y radios" },
+    { title: "Equipos Asignados", icon: <ChecklistIcon sx={{ fontSize: 40, color: "#388e3c" }} />, route: "/panel/asignados", description: "Gestion del equipo adjudicado a un agente" },
     { title: "Equipos a Prestamo", icon: <WorkOutlineIcon sx={{ fontSize: 40, color: "#6a1b9a" }} />, route: "/panel/prestamos", description: "Total de equipos disponibles" },
     { title: "Movimientos de Equipos", icon: <SwapHorizIcon sx={{ fontSize: 40, color: "#1976d2" }} />, route: "/panel/movimientos", description: "Registro de ingreso y egreso de equipos" },
-    { title: "Devolución de Equipos Prestados", icon: <AssignmentReturnIcon sx={{ fontSize: 40, color: "#00796b" }} />, route: "/panel/devolucion", description: "Devoluciones de equipos" },
-    { title: "Equipos Cargados", icon: <StorefrontIcon sx={{ fontSize: 40, color: "#ff9800" }} />, route: "/panel/equiposcargados", description: "Listado de equipos adjudicados" },
-    { title: "Devoluciones de Equipos Propios", icon: <AssignmentReturnedIcon sx={{ fontSize: 40, color: "#795548" }} />, route: "/panel/equipospropios", description: "Listado de devoluciones de equipos propios" },
+    { title: "Devolución de Equipos Prestados", icon: <AssignmentReturnIcon sx={{ fontSize: 40, color: "#00796b" }} />, route: "/panel/devolucion", description: "Devoluciones de equipos a prestamo" },
+    { title: "Equipos Cargados", icon: <StorefrontIcon sx={{ fontSize: 40, color: "#ff9800" }} />, route: "/panel/equiposcargados", description: "Equipos adjudicados a tu usuario" },
+    { title: "Devoluciones de Equipos Propios", icon: <AssignmentReturnedIcon sx={{ fontSize: 40, color: "#795548" }} />, route: "/panel/equipospropios", description: "Gestion de devoluciones de equipos adjudicados" },
   ];
 
   // Filtrar módulos según el rol

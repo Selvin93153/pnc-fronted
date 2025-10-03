@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
 import {
-  Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, Typography, Chip, IconButton, Tooltip, Button, Dialog,
-  DialogTitle, DialogContent, TextField, DialogActions, Box, FormControl,
-  InputLabel, Select, MenuItem
+  Box, Button, Chip, Dialog, DialogActions, DialogContent, DialogTitle,
+  FormControl, IconButton, InputLabel, MenuItem, Paper, Select, Table,
+  TableBody, TableCell, TableContainer, TableHead, TableRow, TextField,
+  Tooltip, Typography
 } from "@mui/material";
 import ReplayIcon from "@mui/icons-material/Replay";
 import {
-  getMovimientos, updateMovimiento,
+  getMovimientos,
+  getMovimientosPorNIP,
+  updateMovimiento,
   type MovimientoEquipo
 } from "./movimientos-propios";
 
@@ -24,11 +26,21 @@ const DevolucionPropios: React.FC = () => {
   const [filtroEntregaAnio, setFiltroEntregaAnio] = useState<number | string>("");
   const [filtroDevolucionMes, setFiltroDevolucionMes] = useState<number | string>("");
   const [filtroDevolucionAnio, setFiltroDevolucionAnio] = useState<number | string>("");
-  const [filtroEstado, setFiltroEstado] = useState<"todos" | "guardado" | "en uso">("todos"); // 🔹 nuevo
+  const [filtroEstado, setFiltroEstado] = useState<"todos" | "guardado" | "en uso">("todos");
+
+  // búsqueda por NIP
+  const [nipBusqueda, setNipBusqueda] = useState("");
+  const [mensajeError, setMensajeError] = useState("");
 
   const cargarMovimientos = async () => {
-    const data = await getMovimientos();
-    setMovimientos(data);
+    try {
+      const data = await getMovimientos();
+      setMovimientos(data);
+      setMensajeError("");
+    } catch (err) {
+      setMovimientos([]);
+      setMensajeError("Error al cargar movimientos");
+    }
   };
 
   useEffect(() => { cargarMovimientos(); }, []);
@@ -58,15 +70,38 @@ const DevolucionPropios: React.FC = () => {
     cargarMovimientos();
   };
 
-  // 🔹 Filtrado de movimientos
+  // Buscar por NIP
+  const handleBuscarPorNIP = async () => {
+    const nip = nipBusqueda.trim();
+    if (!nip) {
+      // si está vacío, recargar todo
+      setMensajeError("");
+      cargarMovimientos();
+      return;
+    }
+
+    try {
+      const data = await getMovimientosPorNIP(nip);
+      if (data.length === 0) {
+        setMovimientos([]);
+        setMensajeError("No existe registro");
+      } else {
+        setMovimientos(data);
+        setMensajeError("");
+      }
+    } catch (err) {
+      setMovimientos([]);
+      setMensajeError("Error al buscar por NIP");
+    }
+  };
+
+  // Filtrado (mantengo tu lógica)
   const movimientosFiltrados = movimientos.filter((mov) => {
     const fechaEntrega = new Date(mov.fecha_entrega);
     const fechaDevolucion = mov.fecha_devolucion ? new Date(mov.fecha_devolucion) : null;
 
-    // Filtro por estado
     if (filtroEstado !== "todos" && mov.estado !== filtroEstado) return false;
 
-    // Filtros de fecha
     if (filtroEntregaMes !== "" && filtroEntregaAnio !== "") {
       const fechaInicio = new Date(filtroEntregaAnio as number, (filtroEntregaMes as number) - 1, 1);
       const fechaFin = new Date(filtroEntregaAnio as number, filtroEntregaMes as number, 0);
@@ -87,7 +122,6 @@ const DevolucionPropios: React.FC = () => {
     "Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"
   ];
 
-  // 🔹 Función para generar PDF
   const descargarPDF = () => {
     const doc = new jsPDF();
     const fecha = new Date();
@@ -136,42 +170,47 @@ const DevolucionPropios: React.FC = () => {
         Aquí puedes aceptar la devolución de equipos prestados.
       </Typography>
 
-      {/* 🔹 Botones de filtro de estado */}
-      <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
-        <Button
-          variant={filtroEstado === "todos" ? "contained" : "outlined"}
-          color="primary"
-          onClick={() => setFiltroEstado("todos")}
-        >
-          Todos
+      {/* BARRA NIP */}
+      <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+        <TextField
+          label="Buscar por NIP"
+          variant="outlined"
+          size="small"
+          value={nipBusqueda}
+          onChange={(e) => setNipBusqueda(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter") handleBuscarPorNIP(); }}
+        />
+        <Button variant="contained" color="primary" onClick={handleBuscarPorNIP}>
+          Buscar
         </Button>
         <Button
-          variant={filtroEstado === "guardado" ? "contained" : "outlined"}
-          color="success"
-          onClick={() => setFiltroEstado("guardado")}
+          variant="outlined"
+          onClick={() => {
+            setNipBusqueda("");
+            setMensajeError("");
+            cargarMovimientos();
+          }}
         >
-          Guardado
-        </Button>
-        <Button
-          variant={filtroEstado === "en uso" ? "contained" : "outlined"}
-          color="warning"
-          onClick={() => setFiltroEstado("en uso")}
-        >
-          En Uso
-        </Button>
-
-        {/* 🔹 Botón Descargar PDF */}
-        <Button
-          variant="contained"
-          color="error"
-          sx={{ ml: "auto" }}
-          onClick={descargarPDF}
-        >
-          Descargar PDF
+          Limpiar
         </Button>
       </Box>
 
-      {/* 🔹 Filtros de fecha */}
+      {/* mensaje (opcional) */}
+      {mensajeError && (
+        <Typography color="error" sx={{ mb: 2 }}>
+          {mensajeError}
+        </Typography>
+      )}
+
+      {/* filtros estado y PDF */}
+      <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
+        <Button variant={filtroEstado === "todos" ? "contained" : "outlined"} color="primary" onClick={() => setFiltroEstado("todos")}>Todos</Button>
+        <Button variant={filtroEstado === "guardado" ? "contained" : "outlined"} color="success" onClick={() => setFiltroEstado("guardado")}>Guardado</Button>
+        <Button variant={filtroEstado === "en uso" ? "contained" : "outlined"} color="warning" onClick={() => setFiltroEstado("en uso")}>En Uso</Button>
+        <Button variant="contained" color="error" sx={{ ml: "auto" }} onClick={descargarPDF}>Descargar PDF</Button>
+      </Box>
+
+      {/* filtros de fecha */}
       <Box sx={{ display: 'flex', gap: 2, mb: 2, flexWrap: "wrap" }}>
         <FormControl sx={{ minWidth: 150 }} size="small">
           <InputLabel>Mes Entrega</InputLabel>
@@ -179,11 +218,10 @@ const DevolucionPropios: React.FC = () => {
             value={filtroEntregaMes}
             onChange={(e) => setFiltroEntregaMes(e.target.value === "" ? "" : Number(e.target.value))}
             disabled={filtroDevolucionMes !== "" || filtroDevolucionAnio !== ""}
+            label="Mes Entrega"
           >
             <MenuItem value="">Todos</MenuItem>
-            {meses.map((nombre, i) => (
-              <MenuItem key={i} value={i + 1}>{nombre}</MenuItem>
-            ))}
+            {meses.map((nombre, i) => <MenuItem key={i} value={i + 1}>{nombre}</MenuItem>)}
           </Select>
         </FormControl>
 
@@ -203,11 +241,10 @@ const DevolucionPropios: React.FC = () => {
             value={filtroDevolucionMes}
             onChange={(e) => setFiltroDevolucionMes(e.target.value === "" ? "" : Number(e.target.value))}
             disabled={filtroEntregaMes !== "" || filtroEntregaAnio !== ""}
+            label="Mes Devolución"
           >
             <MenuItem value="">Todos</MenuItem>
-            {meses.map((nombre, i) => (
-              <MenuItem key={i} value={i + 1}>{nombre}</MenuItem>
-            ))}
+            {meses.map((nombre, i) => <MenuItem key={i} value={i + 1}>{nombre}</MenuItem>)}
           </Select>
         </FormControl>
 
@@ -222,7 +259,7 @@ const DevolucionPropios: React.FC = () => {
         />
       </Box>
 
-      {/* 🔹 Tabla */}
+      {/* TABLA */}
       <TableContainer sx={{ borderRadius: 2, overflow: "hidden" }}>
         <Table>
           <TableHead>
@@ -246,7 +283,7 @@ const DevolucionPropios: React.FC = () => {
               <TableRow>
                 <TableCell colSpan={11} align="center" sx={{ py: 4 }}>
                   <Typography variant="body1" color="text.secondary">
-                    No hay movimientos registrados.
+                    {mensajeError ? mensajeError : "No hay movimientos registrados."}
                   </Typography>
                 </TableCell>
               </TableRow>
@@ -288,7 +325,7 @@ const DevolucionPropios: React.FC = () => {
         </Table>
       </TableContainer>
 
-      {/* Dialog para devolución */}
+      {/* Dialog */}
       <Dialog open={openDialog} onClose={() => setOpenDialog(false)}>
         <DialogTitle>Registrar Devolución</DialogTitle>
         <DialogContent>

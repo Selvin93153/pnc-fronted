@@ -6,6 +6,7 @@ import {
   InputLabel, Select, MenuItem
 } from "@mui/material";
 import ReplayIcon from "@mui/icons-material/Replay";
+import axiosMovimientos from './axiosDevolucion';
 import {
   getMovimientos, updateMovimiento,
   type MovimientoEquipo
@@ -24,7 +25,11 @@ const DevolucionTable: React.FC = () => {
   const [filtroEntregaAnio, setFiltroEntregaAnio] = useState<number | string>("");
   const [filtroDevolucionMes, setFiltroDevolucionMes] = useState<number | string>("");
   const [filtroDevolucionAnio, setFiltroDevolucionAnio] = useState<number | string>("");
-  const [filtroEstado, setFiltroEstado] = useState<"todos" | "disponible" | "en uso">("todos"); // 🔹 nuevo
+  const [filtroEstado, setFiltroEstado] = useState<"todos" | "disponible" | "en uso">("todos"); 
+
+  // 🔹 Estados para búsqueda por NIP
+  const [nipBuscado, setNipBuscado] = useState("");
+  const [mensajeError, setMensajeError] = useState("");
 
   const cargarMovimientos = async () => {
     const data = await getMovimientos();
@@ -63,10 +68,8 @@ const DevolucionTable: React.FC = () => {
     const fechaEntrega = new Date(mov.fecha_entrega);
     const fechaDevolucion = mov.fecha_devolucion ? new Date(mov.fecha_devolucion) : null;
 
-    // Filtro por estado
     if (filtroEstado !== "todos" && mov.estado !== filtroEstado) return false;
 
-    // Filtros de fecha
     if (filtroEntregaMes !== "" && filtroEntregaAnio !== "") {
       const fechaInicio = new Date(filtroEntregaAnio as number, (filtroEntregaMes as number) - 1, 1);
       const fechaFin = new Date(filtroEntregaAnio as number, filtroEntregaMes as number, 0);
@@ -127,6 +130,30 @@ const DevolucionTable: React.FC = () => {
     doc.save(`Devoluciones_${fecha.getTime()}.pdf`);
   };
 
+  // 🔹 Función para buscar por NIP
+  const buscarPorNip = async () => {
+    if (!nipBuscado) {
+      cargarMovimientos();
+      setMensajeError("");
+      return;
+    }
+
+    try {
+      const response = await axiosMovimientos.get<MovimientoEquipo[]>(`/api/movimientos-equipos/por-nip/${nipBuscado}`);
+      if (response.data.length === 0) {
+        setMovimientos([]);
+        setMensajeError("No existe registro con ese NIP");
+      } else {
+        setMovimientos(response.data);
+        setMensajeError("");
+      }
+    } catch (error) {
+      console.error("Error al buscar por NIP", error);
+      setMovimientos([]);
+      setMensajeError("No existe registro con ese NIP");
+    }
+  };
+
   return (
     <Paper elevation={6} sx={{ p: 3, borderRadius: 3 }}>
       <Typography variant="h5" gutterBottom fontWeight="bold" color="primary">
@@ -137,7 +164,7 @@ const DevolucionTable: React.FC = () => {
       </Typography>
 
       {/* 🔹 Botones de filtro de estado y PDF */}
-      <Box sx={{ display: "flex", gap: 1, mb: 2 }}>
+      <Box sx={{ display: "flex", gap: 1, mb: 2, flexWrap: "wrap" }}>
         <Button
           variant={filtroEstado === "todos" ? "contained" : "outlined"}
           color="primary"
@@ -168,6 +195,24 @@ const DevolucionTable: React.FC = () => {
         >
           Descargar PDF
         </Button>
+      </Box>
+
+      {/* 🔹 Búsqueda por NIP */}
+      <Box sx={{ display: "flex", gap: 1, mb: 2, flexWrap: "wrap" }}>
+        <TextField
+          label="Buscar por NIP"
+          size="small"
+          value={nipBuscado}
+          onChange={(e) => setNipBuscado(e.target.value)}
+        />
+        <Button variant="contained" color="secondary" onClick={buscarPorNip}>
+          Buscar
+        </Button>
+        {mensajeError && (
+          <Typography color="error" sx={{ ml: 2, alignSelf: "center" }}>
+            {mensajeError}
+          </Typography>
+        )}
       </Box>
 
       {/* 🔹 Filtros de fecha */}
@@ -221,6 +266,7 @@ const DevolucionTable: React.FC = () => {
         />
       </Box>
 
+      {/* 🔹 Tabla de movimientos */}
       <TableContainer sx={{ borderRadius: 2, overflow: "hidden" }}>
         <Table>
           <TableHead>

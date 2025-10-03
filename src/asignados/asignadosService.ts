@@ -77,3 +77,9 @@ export async function addMovimiento(data: Movimiento) {
   const response = await axiosAsignados.post('/api/movimientos-propios', data);
   return response.data;
 }
+
+// 🔹 Función para obtener asignados por NIP
+export async function getAsignadosPorNip(nip: string): Promise<Asignado[]> {
+  const response = await axiosAsignados.get(`/api/equipos-asignados/por-nip/${nip}`);
+  return response.data;
+}

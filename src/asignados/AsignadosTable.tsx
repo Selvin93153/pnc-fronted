@@ -6,7 +6,10 @@ import {
   Chip
 } from '@mui/material';
 import { useEffect, useState } from 'react';
-import { getAsignados, createAsignado, getTipos, getUsuarios, updateAsignado, addMovimiento } from './asignadosService';
+import { 
+  getAsignados, createAsignado, getTipos, getUsuarios, updateAsignado, addMovimiento,
+  getAsignadosPorNip 
+} from './asignadosService';
 import type { Asignado, Tipo, Usuario } from './asignadosService';
 
 export default function AsignadosTable() {
@@ -36,6 +39,10 @@ export default function AsignadosTable() {
 
   // 🔹 Estado para filtro por estado
   const [filtroEstado, setFiltroEstado] = useState<'todos' | 'guardado' | 'en uso'>('todos');
+
+  // 🔹 Estado para buscador por NIP y mensaje
+  const [nipBuscado, setNipBuscado] = useState('');
+  const [mensajeBusqueda, setMensajeBusqueda] = useState('');
 
   useEffect(() => {
     async function fetchData() {
@@ -79,6 +86,7 @@ export default function AsignadosTable() {
       setOpen(false);
       const data = await getAsignados();
       setAsignados(data);
+      setMensajeBusqueda('');
     } catch (error) {
       console.error('Error al crear asignación', error);
     }
@@ -104,8 +112,6 @@ export default function AsignadosTable() {
         estado: "en uso",
       };
 
-      console.log("Datos que se van a enviar al backend:", movimientoData);
-
       await addMovimiento(movimientoData);
 
       await updateAsignado(asignacionSeleccionada.id_asignacion, {
@@ -116,7 +122,7 @@ export default function AsignadosTable() {
       setAsignacionSeleccionada(null);
       const data = await getAsignados();
       setAsignados(data);
-
+      setMensajeBusqueda('');
     } catch (error) {
       console.error("Error al registrar entrega", error);
     }
@@ -134,24 +140,67 @@ export default function AsignadosTable() {
         Equipos Asignados
       </Typography>
 
-      {/* 🔹 Barra superior con botón + filtro */}
+      {/* 🔹 Barra superior con botón, filtro y buscador */}
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
         <Button variant="contained" color="primary" onClick={() => setOpen(true)}>
           Agregar asignación
         </Button>
 
-        <TextField
-          select
-          label="Filtrar por estado"
-          value={filtroEstado}
-          onChange={(e) => setFiltroEstado(e.target.value as 'todos' | 'guardado' | 'en uso')}
-          size="small"
-          sx={{ minWidth: 150 }}
-        >
-          <MenuItem value="todos">Todos</MenuItem>
-          <MenuItem value="guardado">Guardado</MenuItem>
-          <MenuItem value="en uso">En uso</MenuItem>
-        </TextField>
+        <Box display="flex" gap={2} alignItems="center">
+          <TextField
+            select
+            label="Filtrar por estado"
+            value={filtroEstado}
+            onChange={(e) => setFiltroEstado(e.target.value as 'todos' | 'guardado' | 'en uso')}
+            size="small"
+            sx={{ minWidth: 150 }}
+          >
+            <MenuItem value="todos">Todos</MenuItem>
+            <MenuItem value="guardado">Guardado</MenuItem>
+            <MenuItem value="en uso">En uso</MenuItem>
+          </TextField>
+
+          <TextField
+            label="Buscar por NIP"
+            size="small"
+            value={nipBuscado}
+            onChange={(e) => setNipBuscado(e.target.value)}
+          />
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={async () => {
+              if (!nipBuscado) {
+                const data = await getAsignados();
+                setAsignados(data);
+                setMensajeBusqueda('');
+              } else {
+                try {
+                  const data = await getAsignadosPorNip(nipBuscado);
+                  setAsignados(data);
+                  if (data.length === 0) {
+                    setMensajeBusqueda('No hay registro existente');
+                  } else {
+                    setMensajeBusqueda('');
+                  }
+                } catch (error) {
+                  console.error("Error al buscar por NIP", error);
+                  setAsignados([]);
+                  setMensajeBusqueda('No hay registro existente');
+                }
+              }
+            }}
+          >
+            Buscar
+          </Button>
+
+          {/* Mensaje de búsqueda */}
+          {mensajeBusqueda && (
+            <Typography color="error" variant="body2">
+              {mensajeBusqueda}
+            </Typography>
+          )}
+        </Box>
       </Box>
 
       <TableContainer component={Paper} sx={{ borderRadius: 3, boxShadow: 3 }}>
@@ -176,7 +225,6 @@ export default function AsignadosTable() {
                 <TableCell>{item.calibre || '-'}</TableCell>
                 <TableCell>{item.serie}</TableCell>
                 <TableCell>
-                  {/* 🔹 Chip de colores según estado */}
                   {item.estado === 'guardado' && <Chip label="Guardado" color="info" size="small" />}
                   {item.estado === 'en uso' && <Chip label="En uso" color="success" size="small" />}
                 </TableCell>
