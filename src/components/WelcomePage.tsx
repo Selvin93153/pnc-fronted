@@ -10,7 +10,6 @@ import SummarizeIcon from "@mui/icons-material/Summarize";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import BuildIcon from "@mui/icons-material/Build";
 
-// Items de la barra lateral
 const sidebarItems = [
   { title: "Inicio", icon: <EmojiEventsIcon />, route: "/welcome" },
   { title: "Perfil", icon: <AdminPanelSettingsIcon />, route: "/panel/perfil" },
@@ -26,7 +25,6 @@ export default function WelcomePage() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const navigate = useNavigate();
 
-  // 🔹 Datos simulados de dashboard (pueden reemplazarse con tus endpoints reales)
   const [stats] = useState({
     usuariosActivos: 12,
     reportesRecientes: 5,
@@ -35,106 +33,241 @@ export default function WelcomePage() {
   });
 
   return (
-    <Box sx={{ display: "flex", minHeight: "100vh", backgroundColor: "#ffffffff", color: "#0c0c0cff" }}>
-      
-      {/* Sidebar */}
-      <Sidebar
-        open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-        onLogout={() => navigate("/login")}
-        items={sidebarItems}
-        forceReloadWelcome={() => {}}
+    <Box
+      sx={{
+        display: "flex",
+        minHeight: "100vh",
+        color: "#ffffff",
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      {/* 🔹 Fondo */}
+      <Box
+        sx={{
+          position: "absolute",
+          inset: 0,
+          backgroundImage: 'url("/fondoPNC3.webp")',
+          backgroundSize: "cover",
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "center",
+          backgroundAttachment: "fixed",
+          zIndex: 0,
+        }}
+      />
+      {/* 🔹 Capa oscura */}
+      <Box
+        sx={{
+          position: "absolute",
+          inset: 0,
+          backgroundColor: "rgba(0, 0, 0, 0.30)",
+          zIndex: 1,
+        }}
       />
 
-      {/* Contenido principal */}
-      <Box sx={{ flexGrow: 1, p: 5 }}>
-        
-        {/* Barra superior */}
-        <Stack direction="row" justifyContent="space-between" alignItems="center" mb={6}>
-          <Stack direction="row" spacing={2} alignItems="center">
-            <Button onClick={() => setDrawerOpen(true)}>
-              <MenuIcon sx={{ color: "#090909ff" }} />
-            </Button>
-            <Typography variant="h4" fontWeight="bold">
-              Bienvenido
-            </Typography>
-          </Stack>
-        </Stack>
+      {/* 🔹 Encabezado superior */}
+      <Box
+        sx={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: "100%",
+          zIndex: 4,
+          backgroundColor: "#0b1a2f",
+          backdropFilter: "blur(6px)",
+          px: 4,
+          py: 1.5, // Padding vertical reducido para acercar el texto al botón
+          display: "flex",
+          alignItems: "flex-start", // Alinea al inicio del header
+          justifyContent: "space-between",
+          boxShadow: "0px 4px 10px rgba(6, 22, 41, 0.82)",
+        }}
+      >
+        <Stack direction="row" alignItems="center" spacing={2}>
+          {/* Botón menú */}
+          <Button onClick={() => setDrawerOpen(true)}>
+            <MenuIcon sx={{ color: "#ffffff" }} />
+          </Button>
 
-        {/* Título principal */}
-        <Box textAlign="center" mb={8}>
-            <Box sx={{ display: "flex", justifyContent: "center" }}>
-    <img
-      src="/public/logo.png"   // 👉 coloca aquí la ruta de tu logo (carpeta public)
-      alt="Logo PNC"
-      style={{ width: "150px", height: "auto", marginBottom: "20px" }}
-    />
-  </Box>
-
-
-          <Typography variant="h2" fontWeight="bold" sx={{ mt: 2, mb: 2, color: "#0b0b0bff" }}>
-            ¡Bienvenido al Sistema de Control!
-          </Typography>
-          <Typography variant="h6" sx={{ color: "#050505ff" }}>
-            Gestiona de forma segura armas, vehículos, equipos y reportes de la sede policial.
-          </Typography>
-
-
-
-
-
-          <Button
-            variant="contained"
-            onClick={() => navigate("/panel")}
+          {/* Texto de bienvenida pegado al botón */}
+          <Typography
+            variant="h5"
             sx={{
-              mt: 4,
-              py: 1.5,
-              px: 6,
-              borderRadius: 3,
               fontWeight: "bold",
-              fontSize: "1.1rem",
-              backgroundColor: "#ffff18ff",
-              color: "#0d1b2a",
-              boxShadow: "0 6px 20px rgba(0, 0, 0, 0.5)",
-              transition: "all 0.3s ease",
-              "&:hover": { backgroundColor: "#5d93eaff" },
+              color: "#ffffffff",
+              WebkitTextStroke: "1px #0b1a2f",
             }}
           >
-            Entrar al Panel General
-          </Button>
-        </Box>
-
-        {/* Dashboard inferior */}
-        <Stack direction={{ xs: "column", md: "row" }} spacing={4} justifyContent="center" alignItems="center" flexWrap="wrap">
-          
-          {/* Usuarios activos */}
-          <Paper sx={{ p: 4, borderRadius: 3, backgroundColor: "#4870e9ff", minWidth: 200, textAlign: "center" }}>
-            <PeopleIcon sx={{ fontSize: 40, color: "#f9fafbff" }} />
-            <Typography variant="h5" fontWeight="bold" sx={{ mt: 1 }}>{stats.usuariosActivos}</Typography>
-            <Typography variant="subtitle1" sx={{ color: "#0b0b0bff" }}>Usuarios activos</Typography>
-          </Paper>
-
-          {/* Reportes recientes */}
-          <Paper sx={{ p: 4, borderRadius: 3, backgroundColor: "#f88214ff", minWidth: 200, textAlign: "center" }}>
-            <SummarizeIcon sx={{ fontSize: 40, color: "#060606ff" }} />
-            <Typography variant="h5" fontWeight="bold" sx={{ mt: 1 }}>{stats.reportesRecientes}</Typography>
-            <Typography variant="subtitle1" sx={{ color: "#0a0a0aff" }}>Reportes recientes</Typography>
-          </Paper>
-
-          {/* Equipos en uso */}
-          <Paper sx={{ p: 4, borderRadius: 3, backgroundColor: "#0fe8ddff", minWidth: 200, textAlign: "center" }}>
-            <BuildIcon sx={{ fontSize: 40, color: "#0901ebff" }} />
-            <Typography variant="h5" fontWeight="bold" sx={{ mt: 1 }}>{stats.equiposEnUso}</Typography>
-            <Typography variant="subtitle1" sx={{ color: "#0b0b0bff" }}>Equipos en uso</Typography>
-          </Paper>
-
-          {/* Movimientos hoy */}
-          <Paper sx={{ p: 4, borderRadius: 3, backgroundColor: "#83f123ff", minWidth: 200, textAlign: "center" }}>
-            <DirectionsCarIcon sx={{ fontSize: 40, color: "#ee0f0fff" }} />
-            <Typography variant="h5" fontWeight="bold" sx={{ mt: 1 }}>{stats.movimientosHoy}</Typography>
-            <Typography variant="subtitle1" sx={{ color: "#040404ff" }}>Movimientos hoy</Typography>
-          </Paper>
+            ¡Bienvenido al Sistema de Control!
+          </Typography>
         </Stack>
+
+        {/* Opciones seleccionables */}
+        <Stack direction="row" spacing={4}>
+          {["Perfil", "Soporte", "Misión", "Historia"].map((item) => (
+            <Typography
+              key={item}
+              variant="h6"
+              sx={{
+                color: "#ffffff",
+                cursor: "pointer",
+                transition: "0.3s",
+                "&:hover": {
+                  color: "#ffff00",
+                  textShadow: "0 0 8px #ffff00",
+                },
+              }}
+              onClick={() => {
+                if (item === "Perfil") navigate("/panel/perfil");
+              }}
+            >
+              {item}
+            </Typography>
+          ))}
+        </Stack>
+      </Box>
+
+      {/* 🔹 Logo debajo del encabezado */}
+      <Box
+        sx={{
+          position: "absolute",
+          top: 75,
+          right: 30,
+          zIndex: 3,
+        }}
+      >
+        <img
+          src="/public/logo.png"
+          alt="Logo PNC"
+          style={{ width: "130px", height: "auto" }}
+        />
+      </Box>
+
+      {/* 🔹 Contenido principal */}
+      <Box sx={{ position: "relative", zIndex: 2, display: "flex", flexGrow: 1, mt: 30 }}>
+        <Sidebar
+          open={drawerOpen}
+          onClose={() => setDrawerOpen(false)}
+          onLogout={() => navigate("/login")}
+          items={sidebarItems}
+          forceReloadWelcome={() => {}}
+        />
+
+        <Box sx={{ flexGrow: 1, p: 5 }}>
+          {/* Mensaje central */}
+          <Box textAlign="center" mb={8}>
+            <Typography
+              variant="h4"
+              sx={{
+                color: "#ffffff",
+                WebkitTextStroke: "0.6px #000000",
+              }}
+            >
+              Gestiona de forma segura armas, vehículos, equipos y reportes de la sede policial.
+            </Typography>
+
+            <Button
+              variant="contained"
+              onClick={() => navigate("/panel")}
+              sx={{
+                mt: 4,
+                py: 1.5,
+                px: 6,
+                borderRadius: 3,
+                fontWeight: "bold",
+                fontSize: "1.1rem",
+                backgroundColor: "#ffffffff",
+                color: "#0d1b2a",
+                boxShadow: "0 6px 20px rgba(0, 0, 0, 0.5)",
+                transition: "all 0.3s ease",
+                "&:hover": { backgroundColor: "#5d93eaff" },
+              }}
+            >
+              Entrar al Panel General
+            </Button>
+          </Box>
+
+          {/* Dashboard inferior con estadísticas */}
+          <Stack
+            direction={{ xs: "column", md: "row" }}
+            spacing={4}
+            justifyContent="center"
+            alignItems="center"
+            flexWrap="wrap"
+          >
+            <Paper
+              sx={{
+                p: 4,
+                borderRadius: 3,
+                backgroundColor: "#4870e9ff",
+                minWidth: 200,
+                textAlign: "center",
+              }}
+            >
+              <PeopleIcon sx={{ fontSize: 40, color: "#f9fafbff" }} />
+              <Typography variant="h5" fontWeight="bold" sx={{ mt: 1 }}>
+                {stats.usuariosActivos}
+              </Typography>
+              <Typography variant="subtitle1" sx={{ color: "#0b0b0bff" }}>
+                Usuarios activos
+              </Typography>
+            </Paper>
+
+            <Paper
+              sx={{
+                p: 4,
+                borderRadius: 3,
+                backgroundColor: "#f88214ff",
+                minWidth: 200,
+                textAlign: "center",
+              }}
+            >
+              <SummarizeIcon sx={{ fontSize: 40, color: "#060606ff" }} />
+              <Typography variant="h5" fontWeight="bold" sx={{ mt: 1 }}>
+                {stats.reportesRecientes}
+              </Typography>
+              <Typography variant="subtitle1" sx={{ color: "#0a0a0aff" }}>
+                Reportes recientes
+              </Typography>
+            </Paper>
+
+            <Paper
+              sx={{
+                p: 4,
+                borderRadius: 3,
+                backgroundColor: "#0fe8ddff",
+                minWidth: 200,
+                textAlign: "center",
+              }}
+            >
+              <BuildIcon sx={{ fontSize: 40, color: "#0901ebff" }} />
+              <Typography variant="h5" fontWeight="bold" sx={{ mt: 1 }}>
+                {stats.equiposEnUso}
+              </Typography>
+              <Typography variant="subtitle1" sx={{ color: "#0b0b0bff" }}>
+                Equipos en uso
+              </Typography>
+            </Paper>
+
+            <Paper
+              sx={{
+                p: 4,
+                borderRadius: 3,
+                backgroundColor: "#83f123ff",
+                minWidth: 200,
+                textAlign: "center",
+              }}
+            >
+              <DirectionsCarIcon sx={{ fontSize: 40, color: "#ee0f0fff" }} />
+              <Typography variant="h5" fontWeight="bold" sx={{ mt: 1 }}>
+                {stats.movimientosHoy}
+              </Typography>
+              <Typography variant="subtitle1" sx={{ color: "#040404ff" }}>
+                Movimientos hoy
+              </Typography>
+            </Paper>
+          </Stack>
+        </Box>
       </Box>
     </Box>
   );
