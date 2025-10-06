@@ -109,48 +109,62 @@ export default function AppContent({ onLogout, forceReloadWelcome }: Props) {
   }
 
   return (
-    <Box sx={{ display: "flex", height: "100vh" }}>
-      <Sidebar
-        open={drawerOpen}
-        onClose={() => setDrawerOpen(false)}
-        onLogout={onLogout}
-        items={sidebarItems}
-        forceReloadWelcome={forceReloadWelcome}
-      />
+  <Box sx={{ display: "flex", height: "100vh" }}>
+    <Sidebar
+      open={drawerOpen}
+      onClose={() => setDrawerOpen(false)}
+      onLogout={onLogout}
+      items={sidebarItems}
+      forceReloadWelcome={forceReloadWelcome}
+    />
 
-      <Box sx={{ flexGrow: 1, p: 3 }}>
-        {/* Header general (solo botones) */}
-        <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
-          <Stack direction="row" spacing={2} alignItems="center">
-            <IconButton onClick={() => setDrawerOpen(true)}>
-              <MenuIcon />
-            </IconButton>
-          </Stack>
-          <Box>
-            <IconButton onClick={onLogout}>Cerrar sesión</IconButton>
-          </Box>
-        </Stack>
+    <Box sx={{ flexGrow: 1, p: 3 }}>
+      {/* Mostrar header solo en /panel */}
+      {isInRootPanel && (
+        <>
+          {/* Header en una sola barra azul */}
+          <Box
+            sx={{
+              backgroundColor: "#1976d2",
+              p: 2,
+              borderRadius: 2,
+              mb: 4,
+            }}
+          >
+            <Stack direction="row" justifyContent="space-between" alignItems="center">
+              {/* Botón menú */}
+              <IconButton onClick={() => setDrawerOpen(true)} sx={{ color: "white" }}>
+                <MenuIcon />
+              </IconButton>
 
-        {/* Mostrar título y tarjetas solo en /panel */}
-        {isInRootPanel && (
-          <>
-            {/* Título centrado y subtítulo */}
-            <Box textAlign="center" mb={4}>
-              <Typography variant="h4" color="primary" fontWeight="bold" gutterBottom>
+              {/* Título centrado */}
+              <Typography
+                variant="h4"
+                color="white"
+                fontWeight="bold"
+                sx={{ flexGrow: 1, textAlign: "center" }}
+              >
                 PANEL DE ADMINISTRACIÓN
               </Typography>
-            </Box>
 
-            <Box
-              sx={{
-                display: "flex",
-                flexWrap: "wrap",
-                justifyContent: "center",
-                alignItems: "center",
-                minHeight: "70vh",
-                gap: 4,
-              }}
-            >
+              {/* Botón logout */}
+              <IconButton onClick={onLogout} sx={{ color: "white" }}>
+                Cerrar sesión
+              </IconButton>
+            </Stack>
+          </Box>
+
+          {/* Contenedor de tarjetas */}
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "center",
+              alignItems: "center",
+              minHeight: "70vh",
+              gap: 4,
+            }}
+          >
               {cardModules.map((mod) => (
                 <Card
                   key={mod.title}
@@ -159,7 +173,7 @@ export default function AppContent({ onLogout, forceReloadWelcome }: Props) {
                     height: 250,
                     borderRadius: 4,
                     boxShadow: "0 4px 12px rgba(25, 118, 210, 0.3)",
-                    backgroundColor: "#fff",
+                    backgroundColor: "#ffffffff",
                     transition: "transform 0.2s ease-in-out, box-shadow 0.3s",
                     "&:hover": {
                       transform: "scale(1.03)",
