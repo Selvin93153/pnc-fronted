@@ -46,7 +46,7 @@ export default function Sidebar({ open, onClose, onLogout, items, forceReloadWel
       sx={{
         "& .MuiDrawer-paper": {
           width: 260,
-          backgroundColor: "#0b1a2f", // 🔹 negro marino
+          backgroundColor: "#0b60d8ff", // 🔹 color de barra
           color: "#fff",
           display: "flex",
           flexDirection: "column",
@@ -57,7 +57,7 @@ export default function Sidebar({ open, onClose, onLogout, items, forceReloadWel
       {/* Logo o título de la app */}
       <Box sx={{ p: 3 }}>
         <Typography variant="h6" fontWeight="bold">
-          Mi App
+        ARMERIA VIRTUAL
         </Typography>
       </Box>
 

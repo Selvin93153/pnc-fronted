@@ -73,7 +73,7 @@ export default function WelcomePage() {
           left: 0,
           width: "100%",
           zIndex: 4,
-          backgroundColor: "#0b1a2f",
+          backgroundColor: "#0b60d8ff", //fondo de header
           backdropFilter: "blur(6px)",
           px: 4,
           py: 1.5, // Padding vertical reducido para acercar el texto al botón
