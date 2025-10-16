@@ -1,4 +1,3 @@
-// src/prestamos/PrestamosTable.jsx
 import React, { useEffect, useState } from "react";
 import {
   Table, TableBody, TableCell, TableContainer, TableHead,
@@ -7,7 +6,7 @@ import {
   Select, FormControl, InputLabel, Snackbar, Alert,
   Typography, Box,
 } from "@mui/material";
-import { CheckCircle, Close, Send, AddCircle } from "@mui/icons-material";
+import { CheckCircle, Close, Send, AddCircle, Edit } from "@mui/icons-material";
 import { prestamosService, type EquipoPrestamo, type Usuario, type TipoEquipo } from "./prestamos.service";
 import { usePrestarPrestamo } from "./usePrestarPrestamo";
 
@@ -16,8 +15,13 @@ const PrestamosTable: React.FC = () => {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [tipos, setTipos] = useState<TipoEquipo[]>([]);
   const [filtro, setFiltro] = useState<"todos" | "disponible" | "en uso">("todos");
+  const [filtroTipo, setFiltroTipo] = useState<number | "todos">("todos");
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [mensajeSnackbar, setMensajeSnackbar] = useState("");
+
+  // Editar equipo
+  const [openEditar, setOpenEditar] = useState(false);
+  const [equipoEditando, setEquipoEditando] = useState<EquipoPrestamo | null>(null);
 
   // Nuevo equipo
   const [openNuevoEquipo, setOpenNuevoEquipo] = useState(false);
@@ -31,12 +35,10 @@ const PrestamosTable: React.FC = () => {
   });
 
   const usuarioLogueado = localStorage.getItem("usuario");
-  const usuarioEntregaId = usuarioLogueado
-    ? JSON.parse(usuarioLogueado).id_usuario
-    : null;
-
+  const usuarioEntregaId = usuarioLogueado ? JSON.parse(usuarioLogueado).id_usuario : null;
   if (!usuarioEntregaId) console.error("No hay usuario logueado");
 
+  // Función para actualizar estado después de prestar
   const actualizarEstado = (idPrestamo: number) => {
     setPrestamos((prev) =>
       prev.map((p) =>
@@ -45,6 +47,7 @@ const PrestamosTable: React.FC = () => {
     );
   };
 
+  // Hook para Prestar
   const {
     openDialog,
     formData,
@@ -52,15 +55,29 @@ const PrestamosTable: React.FC = () => {
     handleCloseDialog,
     handleChange,
     handlePrestar,
-  } = usePrestarPrestamo(usuarioEntregaId!, actualizarEstado,
+  } = usePrestarPrestamo(
+    usuarioEntregaId!,
+    actualizarEstado,
     (msg) => { setMensajeSnackbar(msg); setOpenSnackbar(true); },
     (msg) => { setMensajeSnackbar(msg); setOpenSnackbar(true); }
   );
 
   // Cargar equipos
+  const cargarEquipos = async () => {
+    try {
+      const data = await prestamosService.getEquipos();
+      setPrestamos(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => { cargarEquipos(); }, []);
+
+  // Cargar tipos de equipo
   useEffect(() => {
-    prestamosService.getEquipos()
-      .then(setPrestamos)
+    prestamosService.getTipos()
+      .then(setTipos)
       .catch(console.error);
   }, []);
 
@@ -71,19 +88,54 @@ const PrestamosTable: React.FC = () => {
       .catch(console.error);
   }, []);
 
-  // Cargar tipos de equipo
-useEffect(() => {
-  prestamosService.getTipos()
-    .then(setTipos)
-    .catch(console.error);
-}, []);
+  // Filtrado por tipo
+  useEffect(() => {
+    if (filtroTipo === "todos") {
+      cargarEquipos();
+    } else {
+      prestamosService.getEquiposPorTipo(Number(filtroTipo))
+        .then(setPrestamos)
+        .catch(console.error);
+    }
+  }, [filtroTipo]);
 
-  // Equipos filtrados
+  // Filtrado por estado
   const prestamosFiltrados = prestamos.filter((p) =>
-    filtro === "todos" ? true : p.estado === filtro
+    (filtro === "todos" ? true : p.estado === filtro)
   );
 
-  // Función para guardar nuevo equipo
+  // Guardar edición
+  const handleGuardarEdicion = async () => {
+    if (!equipoEditando) return;
+    try {
+      const actualizado = await prestamosService.updateEquipo(
+        equipoEditando.id_prestamo,
+        {
+          clase: equipoEditando.clase,
+          marca: equipoEditando.marca,
+          calibre: equipoEditando.calibre,
+          serie: equipoEditando.serie,
+          estado: equipoEditando.estado,
+          id_tipo: equipoEditando.id_tipo, // objeto TipoEquipo
+        }
+      );
+      setPrestamos((prev) =>
+        prev.map((p) =>
+          p.id_prestamo === actualizado.id_prestamo ? actualizado : p
+        )
+      );
+      setMensajeSnackbar("✅ Equipo actualizado con éxito");
+      setOpenSnackbar(true);
+      setOpenEditar(false);
+      setEquipoEditando(null);
+    } catch (error) {
+      console.error("Error al actualizar equipo:", error);
+      setMensajeSnackbar("❌ Error al actualizar equipo");
+      setOpenSnackbar(true);
+    }
+  };
+
+  // Guardar nuevo equipo
   const handleGuardarNuevoEquipo = async () => {
     try {
       const creado = await prestamosService.addEquipo(nuevoEquipo);
@@ -105,7 +157,7 @@ useEffect(() => {
         📋 Gestión de Préstamos de Equipos
       </Typography>
 
-      {/* Botón ingresar nuevo equipo */}
+      {/* Botón nuevo equipo */}
       <Button
         variant="contained"
         color="success"
@@ -116,22 +168,40 @@ useEffect(() => {
         Ingresar nuevo equipo
       </Button>
 
-      {/* Filtro por estado */}
-      <FormControl fullWidth margin="normal">
-        <InputLabel>Filtrar por estado</InputLabel>
-        <Select
-          value={filtro}
-          onChange={(e) => setFiltro(e.target.value as any)}
-          label="Filtrar por estado"
-        >
-          <MenuItem value="todos">Todos</MenuItem>
-          <MenuItem value="disponible">Disponibles</MenuItem>
-          <MenuItem value="en uso">En uso</MenuItem>
-        </Select>
-      </FormControl>
+      {/* Filtros */}
+      <Box sx={{ display: "flex", gap: 2, mb: 2 }}>
+        <FormControl fullWidth>
+          <InputLabel>Filtrar por estado</InputLabel>
+          <Select
+            value={filtro}
+            onChange={(e) => setFiltro(e.target.value as any)}
+            label="Filtrar por estado"
+          >
+            <MenuItem value="todos">Todos</MenuItem>
+            <MenuItem value="disponible">Disponibles</MenuItem>
+            <MenuItem value="en uso">En uso</MenuItem>
+          </Select>
+        </FormControl>
+
+        <FormControl fullWidth>
+          <InputLabel>Filtrar por tipo</InputLabel>
+          <Select
+            value={filtroTipo}
+            onChange={(e) => setFiltroTipo(e.target.value)}
+            label="Filtrar por tipo"
+          >
+            <MenuItem value="todos">Todos</MenuItem>
+            {tipos.map((t) => (
+              <MenuItem key={t.id_tipo} value={t.id_tipo}>
+                {t.nombre}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Box>
 
       {/* Tabla */}
-      <TableContainer component={Paper} sx={{ mt: 2, borderRadius: 3, boxShadow: 4 }}>
+      <TableContainer component={Paper} sx={{ borderRadius: 3, boxShadow: 4 }}>
         <Table>
           <TableHead sx={{ backgroundColor: "primary.main" }}>
             <TableRow>
@@ -160,15 +230,30 @@ useEffect(() => {
                   </Typography>
                 </TableCell>
                 <TableCell>
+                  {/* Botón Prestar */}
                   <Button
                     variant="contained"
                     color="primary"
                     startIcon={<Send />}
                     onClick={() => handleOpenDialog(prestamo.id_prestamo)}
                     disabled={prestamo.estado !== "disponible"}
-                    sx={{ borderRadius: 2 }}
+                    sx={{ borderRadius: 2, mr: 1 }}
                   >
                     Prestar
+                  </Button>
+
+                  {/* Botón Editar */}
+                  <Button
+                    variant="outlined"
+                    color="secondary"
+                    startIcon={<Edit />}
+                    sx={{ borderRadius: 2 }}
+                    onClick={() => {
+                      setEquipoEditando(prestamo);
+                      setOpenEditar(true);
+                    }}
+                  >
+                    Editar
                   </Button>
                 </TableCell>
               </TableRow>
@@ -217,6 +302,59 @@ useEffect(() => {
         </DialogActions>
       </Dialog>
 
+      {/* Dialog Editar */}
+      <Dialog open={openEditar} onClose={() => setOpenEditar(false)} PaperProps={{ sx: { borderRadius: 3, p: 1 } }}>
+        <DialogTitle fontWeight="bold" color="primary">✏️ Editar equipo</DialogTitle>
+        <DialogContent>
+          <TextField
+            label="Clase"
+            value={equipoEditando?.clase || ""}
+            onChange={(e) => setEquipoEditando({ ...equipoEditando!, clase: e.target.value })}
+            fullWidth margin="dense"
+          />
+          <TextField
+            label="Marca"
+            value={equipoEditando?.marca || ""}
+            onChange={(e) => setEquipoEditando({ ...equipoEditando!, marca: e.target.value })}
+            fullWidth margin="dense"
+          />
+          <TextField
+            label="Calibre"
+            value={equipoEditando?.calibre || ""}
+            onChange={(e) => setEquipoEditando({ ...equipoEditando!, calibre: e.target.value })}
+            fullWidth margin="dense"
+          />
+          <TextField
+            label="Serie"
+            value={equipoEditando?.serie || ""}
+            onChange={(e) => setEquipoEditando({ ...equipoEditando!, serie: e.target.value })}
+            fullWidth margin="dense"
+          />
+          <FormControl fullWidth margin="dense">
+            <InputLabel>Tipo de equipo</InputLabel>
+            <Select
+              value={equipoEditando?.id_tipo.id_tipo || ""}
+              onChange={(e) => {
+                const tipoSeleccionado = tipos.find(t => t.id_tipo === Number(e.target.value));
+                if (tipoSeleccionado) setEquipoEditando({ ...equipoEditando!, id_tipo: tipoSeleccionado });
+              }}
+            >
+              {tipos.map(t => (
+                <MenuItem key={t.id_tipo} value={t.id_tipo}>{t.nombre}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenEditar(false)} startIcon={<Close />} variant="outlined" color="secondary">
+            Cancelar
+          </Button>
+          <Button onClick={handleGuardarEdicion} startIcon={<CheckCircle />} variant="contained" color="primary">
+            Guardar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
       {/* Dialog nuevo equipo */}
       <Dialog open={openNuevoEquipo} onClose={() => setOpenNuevoEquipo(false)} PaperProps={{ sx: { borderRadius: 3, p: 1 } }}>
         <DialogTitle fontWeight="bold" color="success.main">➕ Ingresar nuevo equipo</DialogTitle>
@@ -250,16 +388,16 @@ useEffect(() => {
             margin="dense"
           />
           <FormControl fullWidth margin="dense">
-  <InputLabel>Tipo de equipo</InputLabel>
-  <Select
-    value={nuevoEquipo.id_tipo}
-    onChange={(e) => setNuevoEquipo({ ...nuevoEquipo, id_tipo: Number(e.target.value) })}
-  >
-    {tipos.map((t) => (
-      <MenuItem key={t.id_tipo} value={t.id_tipo}>{t.nombre}</MenuItem>
-    ))}
-  </Select>
-</FormControl>
+            <InputLabel>Tipo de equipo</InputLabel>
+            <Select
+              value={nuevoEquipo.id_tipo}
+              onChange={(e) => setNuevoEquipo({ ...nuevoEquipo, id_tipo: Number(e.target.value) })}
+            >
+              {tipos.map((t) => (
+                <MenuItem key={t.id_tipo} value={t.id_tipo}>{t.nombre}</MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenNuevoEquipo(false)} startIcon={<Close />} variant="outlined" color="secondary">

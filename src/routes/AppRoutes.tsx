@@ -13,7 +13,6 @@ import UsuariosTable from "../usuarios/UsuariosTable";
 import ReportesTable from "../reportes/ReportesTable";
 import AsignadosTable from "../asignados/AsignadosTable";
 import PrestamosTable from "../prestamos/prestamostable";
-import MovimientosTable from "../movimientos/movimientosTable";
 import AsignadosPropio from "../asignadospropio/AsignadosPropio";
 import DevolucionTable from "../devolucion_equipos/devolucionTable";
 import UserProfile from "../perfil/UserProfile";
@@ -149,15 +148,7 @@ export default function AppRoutes() {
           }
         />
 
-        {/* Movimientos de Equipos (solo armero) */}
-        <Route
-          path="movimientos"
-          element={
-            <RoleProtectedRoute allowedRoles={["armero"]}>
-              <MovimientosTable />
-            </RoleProtectedRoute>
-          }
-        />
+     
 
         {/* Devolución de Equipos Prestados (solo armero) */}
         <Route

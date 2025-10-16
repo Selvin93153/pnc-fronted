@@ -13,12 +13,13 @@ import MenuIcon from "@mui/icons-material/Menu";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import Sidebar from "./Sidebar";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
-import PeopleIcon from "@mui/icons-material/People";
+import SecurityIcon from "@mui/icons-material/Security";
 import SummarizeIcon from "@mui/icons-material/Summarize";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import BuildIcon from "@mui/icons-material/Build";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 
 
 
@@ -229,9 +230,9 @@ export default function WelcomePage() {
             >
               {[
                 {
-                  label: "Usuarios activos",
+                  label: "EQUIPO PROPIO",
                   value: stats.usuariosActivos,
-                  icon: <PeopleIcon />,
+                  icon: <SecurityIcon />,
                   color: "#2196f3",
                 },
                 {
@@ -241,16 +242,16 @@ export default function WelcomePage() {
                   color: "#ff9800",
                 },
                 {
-                  label: "Equipos en uso",
+                  label: "EQUIPOS PRESTADOS",
                   value: stats.equiposEnUso,
-                  icon: <BuildIcon />,
-                  color: "#00bcd4",
+                  icon: <AssignmentTurnedInIcon />,
+                  color: "#fd1f1fff",
                 },
                 {
-                  label: "Movimientos hoy",
+                  label: "VEHICULOS ASIGNADOS",
                   value: stats.movimientosHoy,
                   icon: <DirectionsCarIcon />,
-                  color: "#8bc34a",
+                  color: "#9cf536ff",
                 },
               ].map((item, i) => (
                 <Paper

@@ -59,12 +59,20 @@ export const prestamosService = {
   },
 
   updateEquipo: async (
-    id: number,
-    data: Partial<Omit<EquipoPrestamo, "id_prestamo" | "id_tipo">>
-  ): Promise<EquipoPrestamo> => {
-    const res = await axiosPrestamo.put(`/api/equipos-prestamo/${id}`, data);
-    return res.data;
-  },
+  id: number,
+  data: Partial<Omit<EquipoPrestamo, "id_prestamo">> // id_tipo es TipoEquipo
+): Promise<EquipoPrestamo> => {
+  // Preparar payload para enviar solo el id_tipo como number a la API
+  const payload = {
+    ...data,
+    id_tipo: data.id_tipo ? data.id_tipo.id_tipo : undefined, // convertir a número
+  };
+
+  const res = await axiosPrestamo.put(`/api/equipos-prestamo/${id}`, payload);
+  return res.data;
+},
+
+
 
   deleteEquipo: async (id: number): Promise<void> => {
     await axiosPrestamo.delete(`/api/equipos-prestamo/${id}`);
@@ -80,7 +88,14 @@ export const prestamosService = {
 getTipos: async (): Promise<TipoEquipo[]> => {
   const res = await axiosPrestamo.get("/api/tipos-equipos");
   return res.data;
+},
+
+//filtrado por tipo de equipo
+getEquiposPorTipo: async (id_tipo: number): Promise<EquipoPrestamo[]> => {
+  const res = await axiosPrestamo.get(`/api/equipos-prestamo/tipo/${id_tipo}`);
+  return res.data;
 }
+
 
 };
 

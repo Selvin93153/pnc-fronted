@@ -25,7 +25,7 @@ import BuildIcon from "@mui/icons-material/Build";
 import StorefrontIcon from "@mui/icons-material/Storefront";
 import AssignmentReturnedIcon from "@mui/icons-material/AssignmentReturned";
 import SummarizeIcon from "@mui/icons-material/Summarize";
-import OutboxIcon  from "@mui/icons-material/Outbox";
+
 
 
 interface Props {
@@ -54,7 +54,7 @@ export default function AppContent({ onLogout, forceReloadWelcome }: Props) {
       "Mantenimiento",
       "Equipos Asignados",
       "Equipos a Prestamo",
-      "Movimientos de Equipos",
+    
       "Devolución de Equipos Prestados",
       "Equipos Cargados",
       "Devoluciones de Equipos Propios",
@@ -63,7 +63,7 @@ export default function AppContent({ onLogout, forceReloadWelcome }: Props) {
     ],
     "agente operativo": ["Reportes", "Vehiculos", "Mantenimiento", "Equipos Cargados","Equipos Prestados"],
   };
-
+  
   const allModules = [
     { title: "Roles", icon: <AdminPanelSettingsIcon sx={{ fontSize: 40, color: "#1976d2" }} />, route: "/panel/roles", description: "Gestiona los roles del sistema" },
     { title: "Tipos de Equipos", icon: <DevicesIcon sx={{ fontSize: 40, color: "#2e7d32" }} />, route: "/panel/tipos", description: "Administra los tipos de equipos" },
@@ -73,11 +73,10 @@ export default function AppContent({ onLogout, forceReloadWelcome }: Props) {
     { title: "Mantenimiento", icon: <BuildIcon sx={{ fontSize: 40, color: "#f44336" }} />, route: "/panel/mantenimiento", description: "Gestión de mantenimiento" },
     { title: "Equipos Asignados", icon: <ChecklistIcon sx={{ fontSize: 40, color: "#388e3c" }} />, route: "/panel/asignados", description: "Gestión del equipo adjudicado a un agente" },
     { title: "Equipos a Prestamo", icon: <WorkOutlineIcon sx={{ fontSize: 40, color: "#6a1b9a" }} />, route: "/panel/prestamos", description: "Total de equipos disponibles" },
-    { title: "Movimientos de Equipos", icon: <SwapHorizIcon sx={{ fontSize: 40, color: "#1976d2" }} />, route: "/panel/movimientos", description: "Registro de ingreso y egreso de equipos" },
     { title: "Devolución de Equipos Prestados", icon: <AssignmentReturnIcon sx={{ fontSize: 40, color: "#00796b" }} />, route: "/panel/devolucion", description: "Devoluciones de equipos a préstamo" },
-    { title: "Equipos Cargados", icon: <StorefrontIcon sx={{ fontSize: 40, color: "#ff9800" }} />, route: "/panel/equiposcargados", description: "Equipos adjudicados a tu usuario" },
     { title: "Devoluciones de Equipos Propios", icon: <AssignmentReturnedIcon sx={{ fontSize: 40, color: "#795548" }} />, route: "/panel/equipospropios", description: "Gestión de devoluciones de equipos adjudicados" },
-     { title: "Equipos Prestados", icon: <OutboxIcon  sx={{ fontSize: 40, color: "#1ed360ff" }} />, route: "/panel/prestados", description: "Aca podras ver los equipos que has prestado y aun no has devuelto" },
+      { title: "Equipos Cargados", icon: <StorefrontIcon sx={{ fontSize: 40, color: "#ff9800" }} />, route: "/panel/equiposcargados", description: "Equipos adjudicados a tu usuario" },
+    { title: "Equipos Prestados", icon: <SwapHorizIcon  sx={{ fontSize: 40, color: "#1ed360ff" }} />, route: "/panel/prestados", description: "Aca podras ver los equipos que has prestado y aun no has devuelto" },
   ];
 
   const cardModules = allModules.filter((mod) => roleAccess[rol]?.includes(mod.title));
