@@ -13,7 +13,7 @@ import {
   Collapse,
   Divider,
 } from "@mui/material";
-import AddIcon from "@mui/icons-material/Add"; // icono para botón
+import AddIcon from "@mui/icons-material/Add";
 
 import AddRoleForm from "./AddRoleForm";
 import { getRoles, addRole } from "./rolesService";
@@ -50,53 +50,95 @@ export default function RolesTable() {
   };
 
   return (
-    <Box sx={{ p: 4, bgcolor: "#f4f6f8", minHeight: "100vh" }}>
-      {/* Encabezado */}
-      <Paper
-        elevation={3}
-        sx={{ p: 3, mb: 3, textAlign: "center", borderRadius: 3 }}
+    <Box
+      sx={{
+        minHeight: "100vh",
+        bgcolor: "#f8f9fb",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        py: 6,
+        px: 2,
+      }}
+    >
+      {/* Encabezado limpio */}
+      <Typography
+        variant="h4"
+        fontWeight="bold"
+        sx={{ color: "#1a1a1a", mb: 1, textAlign: "center" }}
       >
-        <Typography variant="h4" fontWeight="bold" gutterBottom>
-          Gestión de Roles
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          Administra y agrega los diferentes roles disponibles en el sistema
-        </Typography>
-      </Paper>
+        Gestión de Roles
+      </Typography>
+      <Typography
+        variant="body1"
+        color="text.secondary"
+        sx={{ mb: 4, textAlign: "center", maxWidth: 600 }}
+      >
+        Administra, visualiza y agrega los diferentes roles disponibles en el sistema.
+      </Typography>
 
-      {/* Botón */}
-      <Box sx={{ textAlign: "center", mb: 3 }}>
-        <Button
-          variant={mostrarFormulario ? "outlined" : "contained"}
-          color="primary"
-          startIcon={!mostrarFormulario && <AddIcon />}
-          onClick={() => setMostrarFormulario(!mostrarFormulario)}
-          sx={{ borderRadius: 2, px: 3 }}
-        >
-          {mostrarFormulario ? "Cancelar" : "Agregar nuevo rol"}
-        </Button>
-      </Box>
+      {/* Botón agregar */}
+      <Button
+        variant={mostrarFormulario ? "outlined" : "contained"}
+        color="primary"
+        startIcon={!mostrarFormulario && <AddIcon />}
+        onClick={() => setMostrarFormulario(!mostrarFormulario)}
+        sx={{
+          borderRadius: 2,
+          px: 4,
+          py: 1.2,
+          mb: 3,
+          fontWeight: 600,
+          textTransform: "none",
+        }}
+      >
+        {mostrarFormulario ? "Cancelar" : "Agregar nuevo rol"}
+      </Button>
 
-      {/* Formulario */}
+      {/* Formulario agregar */}
       <Collapse in={mostrarFormulario}>
-        <Paper elevation={2} sx={{ p: 3, mb: 3, borderRadius: 2, maxWidth: 600, mx: "auto" }}>
+        <Paper
+          elevation={0}
+          sx={{
+            p: 3,
+            mb: 3,
+            border: "1px solid #e0e0e0",
+            borderRadius: 2,
+            maxWidth: 600,
+            mx: "auto",
+            bgcolor: "white",
+          }}
+        >
           <AddRoleForm onAdd={handleAddRole} />
         </Paper>
       </Collapse>
 
-      <Divider sx={{ mb: 3 }} />
+      <Divider sx={{ width: "80%", my: 3 }} />
 
-      {/* Tabla */}
+      {/* Tabla de roles */}
       <TableContainer
         component={Paper}
-        elevation={2}
-        sx={{ maxWidth: 800, mx: "auto", borderRadius: 3 }}
+        elevation={0}
+        sx={{
+          width: "90%",
+          maxWidth: 700,
+          border: "1px solid #e0e0e0",
+          borderRadius: 2,
+          bgcolor: "white",
+        }}
       >
         <Table>
           <TableHead>
-            <TableRow sx={{ bgcolor: "primary.main" }}>
-              <TableCell sx={{ color: "white", fontWeight: "bold" }}>ID</TableCell>
-              <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+            <TableRow sx={{ bgcolor: "#1976d2" }}>
+              <TableCell
+                align="center"
+                sx={{
+                  color: "white",
+                  fontWeight: "bold",
+                  fontSize: "1rem",
+                  letterSpacing: 0.3,
+                }}
+              >
                 Nombre del Rol
               </TableCell>
             </TableRow>
@@ -108,20 +150,24 @@ export default function RolesTable() {
                   key={role.id_rol}
                   hover
                   sx={{
-                    cursor: "pointer",
-                    "&:hover": { bgcolor: "#f0f4ff" },
+                    transition: "background 0.2s ease",
+                    "&:hover": { bgcolor: "#f4f7fc" },
                   }}
                 >
-                  <TableCell>{role.id_rol}</TableCell>
-                  <TableCell>{role.nombre_rol}</TableCell>
+                  <TableCell align="center" sx={{ py: 2 }}>
+                    {role.nombre_rol}
+                  </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={2}
                   align="center"
-                  sx={{ fontStyle: "italic", py: 3 }}
+                  sx={{
+                    fontStyle: "italic",
+                    py: 3,
+                    color: "text.secondary",
+                  }}
                 >
                   No hay roles disponibles.
                 </TableCell>

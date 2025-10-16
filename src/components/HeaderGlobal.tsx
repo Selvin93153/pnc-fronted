@@ -1,6 +1,5 @@
 import { AppBar, Toolbar, Typography, Box, Button, IconButton } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
-import logo from "../../public/logo.png";
 import { useNavigate, useLocation } from "react-router-dom";
 
 interface HeaderGlobalProps {
@@ -91,7 +90,7 @@ export default function HeaderGlobal({ onMenuClick }: HeaderGlobalProps) {
             }}
           >
             <img
-              src={logo}
+              src="/logo.png"
               alt="Logo"
               style={{
                 width: 55,

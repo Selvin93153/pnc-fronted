@@ -112,7 +112,6 @@ export default function TiposTable() {
         <Table>
           <TableHead>
             <TableRow sx={{ bgcolor: "primary.main" }}>
-              <TableCell sx={{ color: "white", fontWeight: "bold" }}>ID</TableCell>
               <TableCell sx={{ color: "white", fontWeight: "bold" }}>
                 Nombre del tipo de equipo
               </TableCell>
@@ -123,7 +122,6 @@ export default function TiposTable() {
             {tipos.length > 0 ? (
               tipos.map((tipo) => (
                 <TableRow key={tipo.id_tipo}>
-                  <TableCell>{tipo.id_tipo}</TableCell>
                   <TableCell>
                     {modoEdicion === tipo.id_tipo ? (
                       <TextField

@@ -263,7 +263,7 @@ export default function UsuariosTable() {
         <Table>
           <TableHead>
             <TableRow sx={{ bgcolor: "primary.main" }}>
-              <TableCell sx={{ color: "white", fontWeight: "bold" }}>ID</TableCell>
+              
               <TableCell sx={{ color: "white", fontWeight: "bold" }}>Nombres</TableCell>
               <TableCell sx={{ color: "white", fontWeight: "bold" }}>Apellidos</TableCell>
               <TableCell sx={{ color: "white", fontWeight: "bold" }}>NIP</TableCell>
@@ -276,7 +276,7 @@ export default function UsuariosTable() {
             {usuarios.length > 0 ? (
               usuarios.map((usuario) => (
                 <TableRow key={usuario.id_usuario}>
-                  <TableCell>{usuario.id_usuario}</TableCell>
+                  
 
                   <TableCell>
                     {modoEdicion === usuario.id_usuario ? (

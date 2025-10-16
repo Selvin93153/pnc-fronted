@@ -20,7 +20,7 @@ import BuildIcon from "@mui/icons-material/Build";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 
-import logo from "../../public/logo.png"; // Logo PNC
+
 
 const sidebarItems = [
   { title: "Inicio", icon: <EmojiEventsIcon />, route: "/welcome" },
@@ -148,7 +148,7 @@ export default function WelcomePage() {
           {/* Logo PNC al lado de Historia */}
           <Box sx={{ ml: 2, display: "flex", alignItems: "center" }}>
             <img
-              src={logo}
+               src="/logo.png"
               alt="Logo PNC"
               style={{ width: 50, height: "auto", objectFit: "contain" }}
             />

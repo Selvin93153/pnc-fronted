@@ -25,6 +25,8 @@ import BuildIcon from "@mui/icons-material/Build";
 import StorefrontIcon from "@mui/icons-material/Storefront";
 import AssignmentReturnedIcon from "@mui/icons-material/AssignmentReturned";
 import SummarizeIcon from "@mui/icons-material/Summarize";
+import OutboxIcon  from "@mui/icons-material/Outbox";
+
 
 interface Props {
   onLogout: () => void;
@@ -44,7 +46,7 @@ export default function AppContent({ onLogout, forceReloadWelcome }: Props) {
 
   // Definir los módulos que cada rol puede ver
   const roleAccess: Record<string, string[]> = {
-    jefe: ["Roles", "Tipos de Equipos", "Usuarios", "Reportes", "Vehiculos", "Mantenimiento", "Equipos Cargados"],
+    jefe: ["Roles", "Tipos de Equipos", "Usuarios", "Reportes", "Vehiculos", "Mantenimiento", "Equipos Cargados","Equipos Prestados"],
     armero: [
       "Tipos de Equipos",
       "Reportes",
@@ -56,8 +58,10 @@ export default function AppContent({ onLogout, forceReloadWelcome }: Props) {
       "Devolución de Equipos Prestados",
       "Equipos Cargados",
       "Devoluciones de Equipos Propios",
+      "Equipos Prestados"
+      ,
     ],
-    "agente operativo": ["Reportes", "Vehiculos", "Mantenimiento", "Equipos Cargados"],
+    "agente operativo": ["Reportes", "Vehiculos", "Mantenimiento", "Equipos Cargados","Equipos Prestados"],
   };
 
   const allModules = [
@@ -73,6 +77,7 @@ export default function AppContent({ onLogout, forceReloadWelcome }: Props) {
     { title: "Devolución de Equipos Prestados", icon: <AssignmentReturnIcon sx={{ fontSize: 40, color: "#00796b" }} />, route: "/panel/devolucion", description: "Devoluciones de equipos a préstamo" },
     { title: "Equipos Cargados", icon: <StorefrontIcon sx={{ fontSize: 40, color: "#ff9800" }} />, route: "/panel/equiposcargados", description: "Equipos adjudicados a tu usuario" },
     { title: "Devoluciones de Equipos Propios", icon: <AssignmentReturnedIcon sx={{ fontSize: 40, color: "#795548" }} />, route: "/panel/equipospropios", description: "Gestión de devoluciones de equipos adjudicados" },
+     { title: "Equipos Prestados", icon: <OutboxIcon  sx={{ fontSize: 40, color: "#1ed360ff" }} />, route: "/panel/prestados", description: "Aca podras ver los equipos que has prestado y aun no has devuelto" },
   ];
 
   const cardModules = allModules.filter((mod) => roleAccess[rol]?.includes(mod.title));
@@ -87,6 +92,7 @@ export default function AppContent({ onLogout, forceReloadWelcome }: Props) {
       { title: "Panel General", icon: <StorefrontIcon sx={{ fontSize: 24 }} />, route: "/panel" },
       { title: "Equipos Asignados", icon: <ChecklistIcon sx={{ fontSize: 24 }} />, route: "/panel/asignados" },
       { title: "Equipos a Prestamo", icon: <WorkOutlineIcon sx={{ fontSize: 24 }} />, route: "/panel/prestamos" },
+      { title: "Equipos Prestados", icon: <WorkOutlineIcon sx={{ fontSize: 24 }} />, route: "/panel/prestados" },
     ];
   } else if (rol === "jefe") {
     sidebarItems = [
@@ -95,6 +101,7 @@ export default function AppContent({ onLogout, forceReloadWelcome }: Props) {
       { title: "Panel General", icon: <StorefrontIcon sx={{ fontSize: 24 }} />, route: "/panel" },
       { title: "Usuarios", icon: <PeopleIcon sx={{ fontSize: 24 }} />, route: "/panel/usuarios" },
       { title: "Equipos Cargados", icon: <StorefrontIcon sx={{ fontSize: 24 }} />, route: "/panel/equiposcargados" },
+      { title: "Equipos Prestados", icon: <WorkOutlineIcon sx={{ fontSize: 24 }} />, route: "/panel/prestados" },
     ];
   } else if (rol === "agente operativo") {
     sidebarItems = [
@@ -103,14 +110,16 @@ export default function AppContent({ onLogout, forceReloadWelcome }: Props) {
       { title: "Panel General", icon: <StorefrontIcon sx={{ fontSize: 24 }} />, route: "/panel" },
       { title: "Reportes", icon: <SummarizeIcon sx={{ fontSize: 24 }} />, route: "/panel/reportes" },
       { title: "Equipos Cargados", icon: <StorefrontIcon sx={{ fontSize: 24 }} />, route: "/panel/equiposcargados" },
+      { title: "Equipos Prestados", icon: <WorkOutlineIcon sx={{ fontSize: 24 }} />, route: "/panel/prestados" },
     ];
   }
 
   return (
-    // ⚡ Layout column para header + contenido + footer
+    //  Layout column para header + contenido + footer
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       {/* Header global */}
-      <HeaderGlobal onMenuClick={() => setDrawerOpen(true)} onLogout={onLogout} />
+<HeaderGlobal onMenuClick={() => setDrawerOpen(true)} />
+
 
       <Box sx={{ display: "flex", flexGrow: 1 }}>
         {/* Sidebar */}

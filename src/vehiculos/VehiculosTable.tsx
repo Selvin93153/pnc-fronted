@@ -158,7 +158,7 @@ const VehiculosTable: React.FC = () => {
         <Table>
           <TableHead>
             <TableRow sx={{ backgroundColor: '#1976d2' }}>
-              <TableCell sx={{ color: 'white' }}>ID</TableCell>
+              
               <TableCell sx={{ color: 'white' }}>Tipo</TableCell>
               <TableCell sx={{ color: 'white' }}>Placa</TableCell>
               <TableCell sx={{ color: 'white' }}>Marca</TableCell>
@@ -171,7 +171,7 @@ const VehiculosTable: React.FC = () => {
           <TableBody>
             {vehiculos.map((v) => (
               <TableRow key={v.id_vehiculo} sx={{ '&:hover': { backgroundColor: '#e3f2fd' } }}>
-                <TableCell>{v.id_vehiculo}</TableCell>
+              
                 <TableCell>{v.tipo}</TableCell>
                 <TableCell>{v.placa}</TableCell>
                 <TableCell>{v.marca}</TableCell>

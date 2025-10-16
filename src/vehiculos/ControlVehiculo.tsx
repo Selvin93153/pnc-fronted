@@ -228,7 +228,7 @@ const ControlVehiculo: React.FC = () => {
         <Table sx={{ borderRadius: 3 }}>
           <TableHead>
             <TableRow sx={{ backgroundColor: '#1976d2' }}>
-              <TableCell sx={{ color: 'white' }}>ID</TableCell>
+              
               <TableCell sx={{ color: 'white' }}>Km Salida</TableCell>
               <TableCell sx={{ color: 'white' }}>Km Entrada</TableCell>
               <TableCell sx={{ color: 'white' }}>Servicio Km</TableCell>
@@ -242,7 +242,7 @@ const ControlVehiculo: React.FC = () => {
                 key={c.id_control}
                 sx={{ '&:hover': { backgroundColor: '#e3f2fd' }, transition: '0.3s' }}
               >
-                <TableCell>{c.id_control}</TableCell>
+              
                 <TableCell>{c.km_salida}</TableCell>
                 <TableCell>{c.km_entrada ?? 'En uso'}</TableCell>
                 <TableCell>{c.servicio_km}</TableCell>

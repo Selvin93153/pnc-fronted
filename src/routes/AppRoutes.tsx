@@ -21,6 +21,7 @@ import DevolucionPropios from "../devolucion_propios/devolucionTable";
 import VehiculosTable from "../vehiculos/VehiculosTable";
 import ControlVehiculo from "../vehiculos/ControlVehiculo";
 import MantenimientoTabla from "../mantenimiento/MantenimientoTabla";
+import PrestadosTable from "../ver_prestados/prestadosTable";
 
 export default function AppRoutes() {
   const [welcomeKey, setWelcomeKey] = useState(0);
@@ -114,6 +115,16 @@ export default function AppRoutes() {
           element={
             <RoleProtectedRoute allowedRoles={["jefe","armero","agente operativo"]}>
               <MantenimientoTabla/>
+            </RoleProtectedRoute>
+          }
+        />
+
+          {/* Equipos que el usuario presta y quiere verlos (todos los roles) */}
+        <Route
+          path="prestados"
+          element={
+            <RoleProtectedRoute allowedRoles={["jefe","armero","agente operativo"]}>
+              <PrestadosTable/>
             </RoleProtectedRoute>
           }
         />
