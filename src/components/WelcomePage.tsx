@@ -1,6 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Box, Typography, Button, Stack, Paper } from "@mui/material";
+import {
+  Box,
+  Typography,
+  Button,
+  Stack,
+  Paper,
+  Collapse,
+  Avatar,
+} from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import Sidebar from "./Sidebar";
@@ -9,20 +17,23 @@ import PeopleIcon from "@mui/icons-material/People";
 import SummarizeIcon from "@mui/icons-material/Summarize";
 import DirectionsCarIcon from "@mui/icons-material/DirectionsCar";
 import BuildIcon from "@mui/icons-material/Build";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+
+import logo from "../../public/logo.png"; // Logo PNC
 
 const sidebarItems = [
   { title: "Inicio", icon: <EmojiEventsIcon />, route: "/welcome" },
   { title: "Perfil", icon: <AdminPanelSettingsIcon />, route: "/panel/perfil" },
   { title: "Panel General", icon: <MenuIcon />, route: "/panel" },
-  { title: "Roles", icon: <AdminPanelSettingsIcon />, route: "/panel/roles" },
-  { title: "Usuarios", icon: <PeopleIcon />, route: "/panel/usuarios" },
   { title: "Reportes", icon: <SummarizeIcon />, route: "/panel/reportes" },
-  { title: "Movimientos de Equipos", icon: <DirectionsCarIcon />, route: "/panel/movimientos" },
-  { title: "Equipos Cargados", icon: <BuildIcon />, route: "/panel/equipos-cargados" },
+  { title: "Mis Equipos", icon: <BuildIcon />, route: "/panel/equiposcargados" },
 ];
 
 export default function WelcomePage() {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [showDashboard, setShowDashboard] = useState(false);
+  const [usuarioNombre, setUsuarioNombre] = useState("Usuario");
   const navigate = useNavigate();
 
   const [stats] = useState({
@@ -31,6 +42,16 @@ export default function WelcomePage() {
     equiposEnUso: 8,
     movimientosHoy: 3,
   });
+
+  useEffect(() => {
+    // Tomamos el usuario del localStorage y usamos solo primer nombre y primer apellido
+    const storedUser = JSON.parse(localStorage.getItem("usuario") || "{}");
+    if (storedUser.nombres && storedUser.apellidos) {
+      const primerNombre = storedUser.nombres.split(" ")[0];
+      const primerApellido = storedUser.apellidos.split(" ")[0];
+      setUsuarioNombre(`${primerNombre} ${primerApellido}`);
+    }
+  }, []);
 
   return (
     <Box
@@ -42,7 +63,7 @@ export default function WelcomePage() {
         overflow: "hidden",
       }}
     >
-      {/* 🔹 Fondo */}
+      {/* Fondo */}
       <Box
         sx={{
           position: "absolute",
@@ -55,7 +76,7 @@ export default function WelcomePage() {
           zIndex: 0,
         }}
       />
-      {/* 🔹 Capa oscura */}
+      {/* Capa oscura */}
       <Box
         sx={{
           position: "absolute",
@@ -65,7 +86,7 @@ export default function WelcomePage() {
         }}
       />
 
-      {/* 🔹 Encabezado superior */}
+      {/* Encabezado superior */}
       <Box
         sx={{
           position: "fixed",
@@ -73,38 +94,37 @@ export default function WelcomePage() {
           left: 0,
           width: "100%",
           zIndex: 4,
-          backgroundColor: "#0b60d8ff", //fondo de header
+          backgroundColor: "#0b60d8ff",
           backdropFilter: "blur(6px)",
           px: 4,
-          py: 1.5, // Padding vertical reducido para acercar el texto al botón
+          py: 1.5,
           display: "flex",
-          alignItems: "flex-start", // Alinea al inicio del header
+          alignItems: "center",
           justifyContent: "space-between",
           boxShadow: "0px 4px 10px rgba(6, 22, 41, 0.82)",
         }}
       >
         <Stack direction="row" alignItems="center" spacing={2}>
-          {/* Botón menú */}
           <Button onClick={() => setDrawerOpen(true)}>
             <MenuIcon sx={{ color: "#ffffff" }} />
           </Button>
 
-          {/* Texto de bienvenida pegado al botón */}
+          {/* Bienvenida con misma fuente y estilo que los links */}
           <Typography
-            variant="h5"
+            variant="h6"
             sx={{
+              color: "#ffffff",
               fontWeight: "bold",
-              color: "#ffffffff",
-              WebkitTextStroke: "1px #0b1a2f",
+              letterSpacing: "0.5px",
+              cursor: "default",
             }}
           >
-            ¡Bienvenido al Sistema de Control!
+            Bienvenido {usuarioNombre}
           </Typography>
         </Stack>
 
-        {/* Opciones seleccionables */}
-        <Stack direction="row" spacing={4}>
-          {["Perfil", "Soporte", "Misión", "Historia"].map((item) => (
+        <Stack direction="row" spacing={2} alignItems="center">
+          {["Perfil", "Misión"].map((item) => (
             <Typography
               key={item}
               variant="h6"
@@ -124,26 +144,19 @@ export default function WelcomePage() {
               {item}
             </Typography>
           ))}
+
+          {/* Logo PNC al lado de Historia */}
+          <Box sx={{ ml: 2, display: "flex", alignItems: "center" }}>
+            <img
+              src={logo}
+              alt="Logo PNC"
+              style={{ width: 50, height: "auto", objectFit: "contain" }}
+            />
+          </Box>
         </Stack>
       </Box>
 
-      {/* 🔹 Logo debajo del encabezado */}
-      <Box
-        sx={{
-          position: "absolute",
-          top: 75,
-          right: 30,
-          zIndex: 3,
-        }}
-      >
-        <img
-          src="/public/logo.png"
-          alt="Logo PNC"
-          style={{ width: "130px", height: "auto" }}
-        />
-      </Box>
-
-      {/* 🔹 Contenido principal */}
+      {/* Contenido principal */}
       <Box sx={{ position: "relative", zIndex: 2, display: "flex", flexGrow: 1, mt: 30 }}>
         <Sidebar
           open={drawerOpen}
@@ -163,7 +176,7 @@ export default function WelcomePage() {
                 WebkitTextStroke: "0.6px #000000",
               }}
             >
-              Gestiona de forma segura armas, vehículos, equipos y reportes de la sede policial.
+              Gestiona de forma segura armas, vehículos, equipos y mucho más de la sede policial.
             </Typography>
 
             <Button
@@ -187,86 +200,98 @@ export default function WelcomePage() {
             </Button>
           </Box>
 
-          {/* Dashboard inferior con estadísticas */}
-          <Stack
-            direction={{ xs: "column", md: "row" }}
-            spacing={4}
-            justifyContent="center"
-            alignItems="center"
-            flexWrap="wrap"
-          >
-            <Paper
+          {/* Botón para mostrar/ocultar estadísticas */}
+          <Box textAlign="center" mb={2}>
+            <Button
+              variant="outlined"
+              onClick={() => setShowDashboard((prev) => !prev)}
               sx={{
-                p: 4,
-                borderRadius: 3,
-                backgroundColor: "#4870e9ff",
-                minWidth: 200,
-                textAlign: "center",
+                color: "#ffffff",
+                borderColor: "#ffffff",
+                fontWeight: "bold",
+                letterSpacing: "0.5px",
+                "&:hover": { backgroundColor: "rgba(255,255,255,0.1)" },
               }}
+              startIcon={showDashboard ? <ExpandLessIcon /> : <ExpandMoreIcon />}
             >
-              <PeopleIcon sx={{ fontSize: 40, color: "#f9fafbff" }} />
-              <Typography variant="h5" fontWeight="bold" sx={{ mt: 1 }}>
-                {stats.usuariosActivos}
-              </Typography>
-              <Typography variant="subtitle1" sx={{ color: "#0b0b0bff" }}>
-                Usuarios activos
-              </Typography>
-            </Paper>
+              {showDashboard ? "Ocultar estadísticas" : "Mostrar estadísticas"}
+            </Button>
+          </Box>
 
-            <Paper
-              sx={{
-                p: 4,
-                borderRadius: 3,
-                backgroundColor: "#f88214ff",
-                minWidth: 200,
-                textAlign: "center",
-              }}
+          {/* Dashboard */}
+          <Collapse in={showDashboard}>
+            <Stack
+              direction={{ xs: "column", md: "row" }}
+              spacing={4}
+              justifyContent="center"
+              alignItems="center"
+              flexWrap="wrap"
             >
-              <SummarizeIcon sx={{ fontSize: 40, color: "#060606ff" }} />
-              <Typography variant="h5" fontWeight="bold" sx={{ mt: 1 }}>
-                {stats.reportesRecientes}
-              </Typography>
-              <Typography variant="subtitle1" sx={{ color: "#0a0a0aff" }}>
-                Reportes recientes
-              </Typography>
-            </Paper>
-
-            <Paper
-              sx={{
-                p: 4,
-                borderRadius: 3,
-                backgroundColor: "#0fe8ddff",
-                minWidth: 200,
-                textAlign: "center",
-              }}
-            >
-              <BuildIcon sx={{ fontSize: 40, color: "#0901ebff" }} />
-              <Typography variant="h5" fontWeight="bold" sx={{ mt: 1 }}>
-                {stats.equiposEnUso}
-              </Typography>
-              <Typography variant="subtitle1" sx={{ color: "#0b0b0bff" }}>
-                Equipos en uso
-              </Typography>
-            </Paper>
-
-            <Paper
-              sx={{
-                p: 4,
-                borderRadius: 3,
-                backgroundColor: "#83f123ff",
-                minWidth: 200,
-                textAlign: "center",
-              }}
-            >
-              <DirectionsCarIcon sx={{ fontSize: 40, color: "#ee0f0fff" }} />
-              <Typography variant="h5" fontWeight="bold" sx={{ mt: 1 }}>
-                {stats.movimientosHoy}
-              </Typography>
-              <Typography variant="subtitle1" sx={{ color: "#040404ff" }}>
-                Movimientos hoy
-              </Typography>
-            </Paper>
-          </Stack>
+              {[
+                {
+                  label: "Usuarios activos",
+                  value: stats.usuariosActivos,
+                  icon: <PeopleIcon />,
+                  color: "#2196f3",
+                },
+                {
+                  label: "Reportes recientes",
+                  value: stats.reportesRecientes,
+                  icon: <SummarizeIcon />,
+                  color: "#ff9800",
+                },
+                {
+                  label: "Equipos en uso",
+                  value: stats.equiposEnUso,
+                  icon: <BuildIcon />,
+                  color: "#00bcd4",
+                },
+                {
+                  label: "Movimientos hoy",
+                  value: stats.movimientosHoy,
+                  icon: <DirectionsCarIcon />,
+                  color: "#8bc34a",
+                },
+              ].map((item, i) => (
+                <Paper
+                  key={i}
+                  sx={{
+                    p: 4,
+                    borderRadius: 4,
+                    minWidth: 220,
+                    textAlign: "center",
+                    background: "rgba(255,255,255,0.1)",
+                    backdropFilter: "blur(12px)",
+                    border: "1px solid rgba(255,255,255,0.2)",
+                    boxShadow: "0 8px 20px rgba(0,0,0,0.3)",
+                    transition: "all 0.3s ease",
+                    "&:hover": {
+                      transform: "scale(1.05)",
+                      boxShadow: "0 12px 25px rgba(0,0,0,0.5)",
+                    },
+                  }}
+                >
+                  <Avatar
+                    sx={{
+                      bgcolor: item.color,
+                      width: 60,
+                      height: 60,
+                      margin: "0 auto",
+                      mb: 2,
+                    }}
+                  >
+                    {item.icon}
+                  </Avatar>
+                  <Typography variant="h4" fontWeight="bold">
+                    {item.value}
+                  </Typography>
+                  <Typography variant="subtitle1" sx={{ opacity: 0.9 }}>
+                    {item.label}
+                  </Typography>
+                </Paper>
+              ))}
+            </Stack>
+          </Collapse>
         </Box>
       </Box>
     </Box>

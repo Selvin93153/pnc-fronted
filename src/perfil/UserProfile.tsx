@@ -12,10 +12,15 @@ import {
   Alert,
   Divider,
   Chip,
+  TextField,
+  IconButton,
+  InputAdornment,
 } from "@mui/material";
-import { getUsuarioById } from "./profileService";
+import { getUsuarioById, changePassword } from "./profileService";
 import { useNavigate } from "react-router-dom";
 import LogoutIcon from "@mui/icons-material/Logout";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
 
 interface UserProfileProps {
   onLogout?: () => void;
@@ -25,6 +30,16 @@ export default function UserProfile({ onLogout }: UserProfileProps) {
   const [usuario, setUsuario] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [showChangePassword, setShowChangePassword] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [showCurrent, setShowCurrent] = useState(false);
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -53,6 +68,31 @@ export default function UserProfile({ onLogout }: UserProfileProps) {
     }
   };
 
+  const handlePasswordChange = async () => {
+    setPasswordError("");
+    setSuccessMessage("");
+
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setPasswordError("Todos los campos son obligatorios.");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordError("La nueva contraseña y la confirmación no coinciden.");
+      return;
+    }
+
+    try {
+      const res = await changePassword(currentPassword, newPassword);
+      setSuccessMessage(res.message);
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setShowChangePassword(false);
+    } catch (err: any) {
+      setPasswordError(err.message);
+    }
+  };
+
   if (loading) {
     return (
       <Box textAlign="center" mt={6}>
@@ -70,14 +110,7 @@ export default function UserProfile({ onLogout }: UserProfileProps) {
   }
 
   return (
-    <Box
-      sx={{
-        maxWidth: 500,
-        mx: "auto",
-        mt: 6,
-        px: 2,
-      }}
-    >
+    <Box sx={{ maxWidth: 500, mx: "auto", mt: 6, px: 2 }}>
       <Card
         sx={{
           borderRadius: 5,
@@ -87,7 +120,6 @@ export default function UserProfile({ onLogout }: UserProfileProps) {
       >
         <CardContent>
           <Stack spacing={3} alignItems="center">
-            {/* Avatar con borde */}
             <Avatar
               sx={{
                 width: 110,
@@ -101,7 +133,6 @@ export default function UserProfile({ onLogout }: UserProfileProps) {
               {usuario.nombres?.charAt(0).toUpperCase() || "U"}
             </Avatar>
 
-            {/* Nombre y correo */}
             <Box textAlign="center">
               <Typography variant="h5" fontWeight="bold">
                 {usuario.nombres} {usuario.apellidos}
@@ -113,13 +144,87 @@ export default function UserProfile({ onLogout }: UserProfileProps) {
 
             <Divider flexItem />
 
-            {/* Info del usuario */}
             <Stack spacing={1} alignItems="center">
               <Chip label={`NIP: ${usuario.nip}`} color="primary" variant="outlined" />
               <Chip label={`Rol: ${usuario.rol?.nombre_rol}`} color="secondary" variant="outlined" />
             </Stack>
 
-            {/* Botón logout */}
+            <Button
+              variant="contained"
+              color="primary"
+              sx={{ borderRadius: 3, px: 4, mt: 2 }}
+              onClick={() => setShowChangePassword(!showChangePassword)}
+            >
+              Cambiar contraseña
+            </Button>
+
+            {showChangePassword && (
+              <Stack spacing={2} width="100%" mt={2}>
+                {passwordError && <Alert severity="error">{passwordError}</Alert>}
+                {successMessage && <Alert severity="success">{successMessage}</Alert>}
+
+                <TextField
+                  type={showCurrent ? "text" : "password"}
+                  label="Contraseña actual"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  fullWidth
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton onClick={() => setShowCurrent(!showCurrent)} edge="end">
+                          {showCurrent ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+
+                <TextField
+                  type={showNew ? "text" : "password"}
+                  label="Nueva contraseña"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  fullWidth
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton onClick={() => setShowNew(!showNew)} edge="end">
+                          {showNew ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+
+                <TextField
+                  type={showConfirm ? "text" : "password"}
+                  label="Confirmar nueva contraseña"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  fullWidth
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton onClick={() => setShowConfirm(!showConfirm)} edge="end">
+                          {showConfirm ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+
+                <Button
+                  variant="contained"
+                  color="success"
+                  onClick={handlePasswordChange}
+                  sx={{ borderRadius: 3 }}
+                >
+                  Guardar cambios
+                </Button>
+              </Stack>
+            )}
+
             <Button
               variant="contained"
               color="error"

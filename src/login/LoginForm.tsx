@@ -25,6 +25,31 @@ const fadeSlide = keyframes`
   to { opacity: 1; transform: translateY(0); }
 `;
 
+/**
+ * Extrae un mensaje legible del error que devuelve el backend.
+ * Maneja message como string, array o estructuras anidadas.
+ */
+function getBackendMessage(err: any, fallback = ''): string {
+  const data = err?.response?.data;
+  if (!data) return fallback || (err?.message ?? 'Ocurrió un error');
+  const { message } = data;
+
+  if (!message) return data?.error || fallback || 'Ocurrió un error';
+
+  // message puede ser string o array (por ejemplo de class-validator)
+  if (Array.isArray(message)) {
+    // unir mensajes en un solo string
+    return message.join('; ');
+  }
+  if (typeof message === 'string') return message;
+  // a veces message puede ser objeto/otro formato
+  try {
+    return String(message);
+  } catch {
+    return fallback || 'Ocurrió un error';
+  }
+}
+
 export default function LoginForm({ onLoginSuccess }: Props) {
   const [correo, setCorreo] = useState('');
   const [contraseña, setContraseña] = useState('');
@@ -44,6 +69,7 @@ export default function LoginForm({ onLoginSuccess }: Props) {
   const [resetMessage, setResetMessage] = useState('');
   const [resetError, setResetError] = useState('');
   const [resetLoading, setResetLoading] = useState(false);
+  const [showResetNewPassword, setShowResetNewPassword] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -81,8 +107,10 @@ export default function LoginForm({ onLoginSuccess }: Props) {
 
       onLoginSuccess();
       navigate('/welcome');
-    } catch {
-      setError('Correo o contraseña incorrectos.');
+    } catch (err: any) {
+      // Mostrar mensaje exacto del backend si existe
+      const msg = getBackendMessage(err, 'Correo o contraseña incorrectos.');
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -101,7 +129,8 @@ export default function LoginForm({ onLoginSuccess }: Props) {
       });
       setForgotMessage(response.data.message);
     } catch (err: any) {
-      setForgotError(err.response?.data?.message || 'Error al enviar correo');
+      const msg = getBackendMessage(err, 'Error al enviar correo');
+      setForgotError(msg);
     } finally {
       setForgotLoading(false);
     }
@@ -127,7 +156,8 @@ export default function LoginForm({ onLoginSuccess }: Props) {
       });
       setResetMessage(response.data.message);
     } catch (err: any) {
-      setResetError(err.response?.data?.message || 'Error al resetear contraseña');
+      const msg = getBackendMessage(err, 'Error al resetear contraseña');
+      setResetError(msg);
     } finally {
       setResetLoading(false);
     }
@@ -268,11 +298,20 @@ export default function LoginForm({ onLoginSuccess }: Props) {
               />
               <TextField
                 label="Nueva contraseña"
-                type="password"
+                type={showResetNewPassword ? 'text' : 'password'}
                 fullWidth
                 required
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={() => setShowResetNewPassword(!showResetNewPassword)} edge="end" size="small">
+                        {showResetNewPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
               />
 
               <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2 }}>
