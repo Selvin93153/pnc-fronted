@@ -27,7 +27,7 @@ const AsignadosPropio: React.FC = () => {
     const fetchEquipos = async () => {
       try {
         const data = await getMisEquipos();
-        setEquipos(data);
+        setEquipos(data.equipos);
       } catch (error) {
         console.error("Error cargando equipos asignados:", error);
       }

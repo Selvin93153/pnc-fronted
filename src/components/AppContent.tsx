@@ -99,7 +99,7 @@ export default function AppContent({ onLogout, forceReloadWelcome }: Props) {
       { title: "Perfil", icon: <AdminPanelSettingsIcon />, route: "/panel/perfil" },
       { title: "Panel General", icon: <StorefrontIcon sx={{ fontSize: 24 }} />, route: "/panel" },
       { title: "Usuarios", icon: <PeopleIcon sx={{ fontSize: 24 }} />, route: "/panel/usuarios" },
-      { title: "Equipos Cargados", icon: <StorefrontIcon sx={{ fontSize: 24 }} />, route: "/panel/equiposcargados" },
+      { title: "Equipo Propio", icon: <StorefrontIcon sx={{ fontSize: 24 }} />, route: "/panel/equiposcargados" },
       { title: "Equipos Prestados", icon: <WorkOutlineIcon sx={{ fontSize: 24 }} />, route: "/panel/prestados" },
     ];
   } else if (rol === "agente operativo") {
@@ -108,7 +108,7 @@ export default function AppContent({ onLogout, forceReloadWelcome }: Props) {
       { title: "Perfil", icon: <AdminPanelSettingsIcon />, route: "/panel/perfil" },
       { title: "Panel General", icon: <StorefrontIcon sx={{ fontSize: 24 }} />, route: "/panel" },
       { title: "Reportes", icon: <SummarizeIcon sx={{ fontSize: 24 }} />, route: "/panel/reportes" },
-      { title: "Equipos Cargados", icon: <StorefrontIcon sx={{ fontSize: 24 }} />, route: "/panel/equiposcargados" },
+      { title: "Equipos Propio", icon: <StorefrontIcon sx={{ fontSize: 24 }} />, route: "/panel/equiposcargados" },
       { title: "Equipos Prestados", icon: <WorkOutlineIcon sx={{ fontSize: 24 }} />, route: "/panel/prestados" },
     ];
   }

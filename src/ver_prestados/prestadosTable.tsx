@@ -12,6 +12,7 @@ import {
   CircularProgress,
   Box,
   Alert,
+  Stack,
 } from '@mui/material';
 
 interface PrestadosTableProps {
@@ -37,7 +38,7 @@ const PrestadosTable: React.FC<PrestadosTableProps> = ({ id_usuario }) => {
       try {
         setLoading(true);
         const data = await getPrestamosEnUso(userId);
-        setPrestamos(data);
+        setPrestamos(data.prestamos);
       } catch (err) {
         console.error('Error al cargar préstamos:', err);
         setError('Error al cargar los préstamos. Intenta de nuevo más tarde.');
@@ -67,21 +68,40 @@ const PrestadosTable: React.FC<PrestadosTableProps> = ({ id_usuario }) => {
 
   return (
     <Box padding={3}>
-      <Typography variant="h4" gutterBottom color="primary">
-        Préstamos en Uso
-      </Typography>
+      {/* Título moderno con badge del total */}
+      <Stack direction={{ xs: 'column', sm: 'row' }} alignItems="center" spacing={2} mb={3}>
+        <Typography variant="h4" sx={{ fontWeight: 'bold', color: '#1976d2' }}>
+          Préstamos en Uso
+        </Typography>
+        <Box
+          sx={{
+            minWidth: 50,
+            minHeight: 50,
+            borderRadius: '50%',
+            bgcolor: '#1976d2',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#fff',
+            fontWeight: 'bold',
+            fontSize: '1.3rem',
+            boxShadow: '0px 4px 12px rgba(0,0,0,0.25)',
+          }}
+        >
+          {prestamos.length}
+        </Box>
+      </Stack>
 
-      <Paper elevation={6} style={{ padding: '20px', borderRadius: '16px', backgroundColor: '#f9f9f9' }}>
+      <Paper elevation={6} sx={{ p: 3, borderRadius: '16px', backgroundColor: '#f5f5f5' }}>
         <TableContainer>
           <Table>
             <TableHead>
-              <TableRow style={{ backgroundColor: '#1976d2' }}>
-                {/* Se quitó el ID del préstamo */}
-                <TableCell align="center" style={{ color: '#fff', fontWeight: 'bold' }}>Clase</TableCell>
-                <TableCell align="center" style={{ color: '#fff', fontWeight: 'bold' }}>Marca</TableCell>
-                <TableCell align="center" style={{ color: '#fff', fontWeight: 'bold' }}>Calibre</TableCell>
-                <TableCell align="center" style={{ color: '#fff', fontWeight: 'bold' }}>Serie</TableCell>
-                <TableCell align="center" style={{ color: '#fff', fontWeight: 'bold' }}>Estado</TableCell>
+              <TableRow sx={{ backgroundColor: '#1976d2' }}>
+                <TableCell align="center" sx={{ color: '#fff', fontWeight: 'bold' }}>Clase</TableCell>
+                <TableCell align="center" sx={{ color: '#fff', fontWeight: 'bold' }}>Marca</TableCell>
+                <TableCell align="center" sx={{ color: '#fff', fontWeight: 'bold' }}>Calibre</TableCell>
+                <TableCell align="center" sx={{ color: '#fff', fontWeight: 'bold' }}>Serie</TableCell>
+                <TableCell align="center" sx={{ color: '#fff', fontWeight: 'bold' }}>Estado</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -100,7 +120,7 @@ const PrestadosTable: React.FC<PrestadosTableProps> = ({ id_usuario }) => {
                     <TableCell align="center">{p.serie}</TableCell>
                     <TableCell
                       align="center"
-                      style={{
+                      sx={{
                         color: p.estado === 'en uso' ? 'green' : 'red',
                         fontWeight: 'bold',
                       }}

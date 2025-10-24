@@ -9,11 +9,19 @@ export interface Prestamo {
   estado: string;
 }
 
+// Nueva interfaz para la respuesta
+interface PrestamosResponse {
+  total: number;
+  prestamos: Prestamo[];
+}
+
 // Obtener todos los préstamos "en uso" de un usuario
-export async function getPrestamosEnUso(id_usuario: number): Promise<Prestamo[]> {
+export async function getPrestamosEnUso(id_usuario: number): Promise<PrestamosResponse> {
   try {
-    const response = await axiosPrestados.get<Prestamo[]>(`/api/movimientos-equipos/prestamos-en-uso/${id_usuario}`);
-    return response.data;
+    const response = await axiosPrestados.get<PrestamosResponse>(
+      `/api/movimientos-equipos/prestamos-en-uso/${id_usuario}`
+    );
+    return response.data; // ✅ ahora contiene { total, prestamos }
   } catch (error) {
     console.error('Error al obtener préstamos en uso:', error);
     throw error;

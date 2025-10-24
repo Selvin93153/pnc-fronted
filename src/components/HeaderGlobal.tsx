@@ -14,8 +14,6 @@ export default function HeaderGlobal({ onMenuClick }: HeaderGlobalProps) {
   const navItems = [
     { label: "INICIO", path: "/welcome" },
     { label: "PANEL GENERAL", path: "/panel" },
-    { label: "MIS ARMAS", path: "/panel/equiposcargados" },
-    { label: "MI PERFIL", path: "/panel/perfil" },
   ];
 
   return (

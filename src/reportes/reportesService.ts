@@ -17,6 +17,11 @@ export interface Reporte {
   fecha_creacion: string;
 }
 
+export interface TotalReportes {
+  total: number;
+}
+
+
 // Función para obtener el token de localStorage
 const getAuthHeader = () => {
   const token = localStorage.getItem('token');
@@ -106,6 +111,19 @@ export async function marcarReporteVisto(id_reporte: number): Promise<Reporte> {
     return response.data;
   } catch (error) {
     console.error('Error al marcar reporte como visto:', error);
+    throw error;
+  }
+}
+
+// Obtener total de reportes según rol
+export async function getTotalReportes(): Promise<number> {
+  try {
+    const response = await axiosReporte.get<TotalReportes>('/api/reportes/total', {
+      headers: getAuthHeader(),
+    });
+    return response.data.total;
+  } catch (error) {
+    console.error('Error al obtener total de reportes:', error);
     throw error;
   }
 }

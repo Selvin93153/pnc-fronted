@@ -20,7 +20,12 @@ import BuildIcon from "@mui/icons-material/Build";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
 import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
+import WorkOutlineIcon from "@mui/icons-material/WorkOutline";
 
+// Servicios
+import { getMisEquipos } from "../asignadospropio/service"; 
+import { getPrestamosEnUso } from "../ver_prestados/prestadosService"; 
+import {  getTotalReportes } from "../reportes/reportesService"
 
 
 const sidebarItems = [
@@ -29,6 +34,7 @@ const sidebarItems = [
   { title: "Panel General", icon: <MenuIcon />, route: "/panel" },
   { title: "Reportes", icon: <SummarizeIcon />, route: "/panel/reportes" },
   { title: "Mis Equipos", icon: <BuildIcon />, route: "/panel/equiposcargados" },
+  { title: "Equipos Prestados", icon: <WorkOutlineIcon/>, route: "/panel/prestados" },
 ];
 
 export default function WelcomePage() {
@@ -37,21 +43,69 @@ export default function WelcomePage() {
   const [usuarioNombre, setUsuarioNombre] = useState("Usuario");
   const navigate = useNavigate();
 
+  // Dinámicos
+  const [equiposPropios, setEquiposPropios] = useState<number>(0);
+  const [prestamosEnUso, setPrestamosEnUso] = useState<number>(0);
+  const [reportesEnUso, setReportes] = useState<number>(0);
+
+   
+
   const [stats] = useState({
-    usuariosActivos: 12,
     reportesRecientes: 5,
-    equiposEnUso: 8,
     movimientosHoy: 3,
   });
 
   useEffect(() => {
-    // Tomamos el usuario del localStorage y usamos solo primer nombre y primer apellido
+    // Usuario desde localStorage
     const storedUser = JSON.parse(localStorage.getItem("usuario") || "{}");
     if (storedUser.nombres && storedUser.apellidos) {
       const primerNombre = storedUser.nombres.split(" ")[0];
       const primerApellido = storedUser.apellidos.split(" ")[0];
       setUsuarioNombre(`${primerNombre} ${primerApellido}`);
     }
+  }, []);
+
+  // Cargar número de equipos propios
+  useEffect(() => {
+    const fetchEquipos = async () => {
+      try {
+        const data = await getMisEquipos();
+        setEquiposPropios(data.total);
+      } catch (error) {
+        console.error("Error al cargar equipos propios:", error);
+      }
+    };
+    fetchEquipos();
+  }, []);
+
+  // Cargar número de préstamos en uso
+  useEffect(() => {
+    const fetchPrestamos = async () => {
+      try {
+        const storedUser = JSON.parse(localStorage.getItem("usuario") || "{}");
+        const id_usuario = storedUser.id_usuario;
+        if (!id_usuario) return;
+
+        const data = await getPrestamosEnUso(id_usuario);
+        setPrestamosEnUso(data.total); // ✅ número de préstamos en uso
+      } catch (error) {
+        console.error("Error al obtener préstamos en uso:", error);
+      }
+    };
+    fetchPrestamos();
+  }, []);
+
+    // Cargar número de reportes
+ useEffect(() => {
+    const fetchReportes = async () => {
+      try {
+        const data = await getTotalReportes();
+        setReportes(data);
+      } catch (error) {
+        console.error("Error al cargar equipos propios:", error);
+      }
+    };
+    fetchReportes();
   }, []);
 
   return (
@@ -87,7 +141,7 @@ export default function WelcomePage() {
         }}
       />
 
-      {/* Encabezado superior */}
+      {/* Encabezado */}
       <Box
         sx={{
           position: "fixed",
@@ -110,7 +164,6 @@ export default function WelcomePage() {
             <MenuIcon sx={{ color: "#ffffff" }} />
           </Button>
 
-          {/* Bienvenida con misma fuente y estilo que los links */}
           <Typography
             variant="h6"
             sx={{
@@ -146,10 +199,9 @@ export default function WelcomePage() {
             </Typography>
           ))}
 
-          {/* Logo PNC al lado de Historia */}
           <Box sx={{ ml: 2, display: "flex", alignItems: "center" }}>
             <img
-               src="/logo.png"
+              src="/logo.png"
               alt="Logo PNC"
               style={{ width: 50, height: "auto", objectFit: "contain" }}
             />
@@ -168,7 +220,6 @@ export default function WelcomePage() {
         />
 
         <Box sx={{ flexGrow: 1, p: 5 }}>
-          {/* Mensaje central */}
           <Box textAlign="center" mb={8}>
             <Typography
               variant="h4"
@@ -201,7 +252,7 @@ export default function WelcomePage() {
             </Button>
           </Box>
 
-          {/* Botón para mostrar/ocultar estadísticas */}
+          {/* Botón estadísticas */}
           <Box textAlign="center" mb={2}>
             <Button
               variant="outlined"
@@ -231,19 +282,19 @@ export default function WelcomePage() {
               {[
                 {
                   label: "EQUIPO PROPIO",
-                  value: stats.usuariosActivos,
+                  value: equiposPropios,
                   icon: <SecurityIcon />,
                   color: "#2196f3",
                 },
                 {
-                  label: "Reportes recientes",
-                  value: stats.reportesRecientes,
+                  label: "Reportes",
+                  value: reportesEnUso,
                   icon: <SummarizeIcon />,
                   color: "#ff9800",
                 },
                 {
                   label: "EQUIPOS PRESTADOS",
-                  value: stats.equiposEnUso,
+                  value: prestamosEnUso, // ✅ dinámico del backend
                   icon: <AssignmentTurnedInIcon />,
                   color: "#fd1f1fff",
                 },
