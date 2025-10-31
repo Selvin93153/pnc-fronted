@@ -1,3 +1,4 @@
+// src/components/UsuariosTable.tsx
 import { useEffect, useState } from "react";
 import {
   Box,
@@ -12,13 +13,18 @@ import {
   TextField,
   Button,
   IconButton,
-  Collapse,
   Select,
   MenuItem,
   FormControl,
   InputLabel,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  InputAdornment,
+  Alert,
 } from "@mui/material";
 import { Edit, Save } from "@mui/icons-material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
   getUsuarios,
   addUsuario,
@@ -34,7 +40,6 @@ export default function UsuariosTable() {
   const [mostrarFormulario, setMostrarFormulario] = useState(false);
   const [modoEdicion, setModoEdicion] = useState<number | null>(null);
 
-  // Estado para nuevo usuario (sin id_usuario)
   const [nuevoUsuario, setNuevoUsuario] = useState<Omit<Usuario, "id_usuario">>({
     nombres: "",
     apellidos: "",
@@ -44,7 +49,12 @@ export default function UsuariosTable() {
     rol: { id_rol: 1, nombre_rol: "" },
   });
 
-  // Estado para editar usuario
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
   const [usuarioEditado, setUsuarioEditado] = useState<Omit<Usuario, "id_usuario"> | null>(null);
 
   useEffect(() => {
@@ -64,20 +74,18 @@ export default function UsuariosTable() {
     fetchData();
   }, []);
 
-  // Cambios en formulario nuevo usuario
   const handleInputChange = (field: keyof Omit<Usuario, "id_usuario">, value: any) => {
     setNuevoUsuario({ ...nuevoUsuario, [field]: value });
   };
 
-  // Cambios en formulario editar usuario
   const handleInputEditChange = (field: keyof Omit<Usuario, "id_usuario">, value: any) => {
     if (!usuarioEditado) return;
     setUsuarioEditado({ ...usuarioEditado, [field]: value });
   };
 
-  // Agregar nuevo usuario
   const handleAddUsuario = async () => {
-    // Validaciones básicas
+    setErrorMsg(null);
+
     if (
       !nuevoUsuario.nombres.trim() ||
       !nuevoUsuario.apellidos.trim() ||
@@ -86,25 +94,25 @@ export default function UsuariosTable() {
       !nuevoUsuario.contraseña.trim() ||
       !nuevoUsuario.rol
     ) {
-      alert("Por favor complete todos los campos.");
+      setErrorMsg("Por favor complete todos los campos.");
       return;
     }
-    if (nuevoUsuario.contraseña.length < 6) {
-      alert("La contraseña debe tener al menos 6 caracteres.");
+
+    if (nuevoUsuario.contraseña !== confirmPassword) {
+      setErrorMsg("Las contraseñas no coinciden.");
       return;
     }
+
     try {
-      // Preparamos objeto para enviar (backend espera id_rol, no rol completo)
-      const usuarioAEnviar = {
+      const usuarioAEnviar: any = {
         ...nuevoUsuario,
         id_rol: nuevoUsuario.rol.id_rol,
       };
-      delete (usuarioAEnviar as any).rol;
+      delete usuarioAEnviar.rol;
 
       const agregado = await addUsuario(usuarioAEnviar);
       setUsuarios([agregado, ...usuarios]);
 
-      // Reset form
       setNuevoUsuario({
         nombres: "",
         apellidos: "",
@@ -113,14 +121,21 @@ export default function UsuariosTable() {
         contraseña: "",
         rol: roles.length > 0 ? roles[0] : { id_rol: 1, nombre_rol: "" },
       });
+      setConfirmPassword("");
       setMostrarFormulario(false);
     } catch (error: any) {
-      alert(error?.response?.data?.message || "Error al agregar usuario.");
+      let mensaje = "Error al agregar usuario.";
+      if (error?.response?.data) {
+        const data = error.response.data;
+        mensaje = Array.isArray(data.message) ? data.message.join(", ") : data.message || String(data);
+      } else if (error?.message) {
+        mensaje = error.message;
+      }
+      setErrorMsg(mensaje);
       console.error(error);
     }
   };
 
-  // Iniciar edición
   const handleEditar = (usuario: Usuario) => {
     setModoEdicion(usuario.id_usuario);
     setUsuarioEditado({
@@ -128,47 +143,56 @@ export default function UsuariosTable() {
       apellidos: usuario.apellidos,
       nip: usuario.nip,
       correo: usuario.correo,
-      contraseña: usuario.contraseña,
+      contraseña: "", // contraseña vacía, solo se envía si se cambia
       rol: usuario.rol,
     });
   };
 
-  // Guardar edición
   const handleGuardarEdicion = async (id: number) => {
     if (!usuarioEditado) return;
 
-    // Validaciones
     if (
       !usuarioEditado.nombres.trim() ||
       !usuarioEditado.apellidos.trim() ||
       !usuarioEditado.nip.trim() ||
       !usuarioEditado.correo.trim() ||
-      !usuarioEditado.contraseña.trim() ||
       !usuarioEditado.rol
     ) {
       alert("Por favor complete todos los campos.");
       return;
     }
-    if (usuarioEditado.contraseña.length < 6) {
-      alert("La contraseña debe tener al menos 6 caracteres.");
-      return;
-    }
 
     try {
-      const usuarioAEnviar = {
-        ...usuarioEditado,
+      const usuarioAEnviar: any = {
+        nombres: usuarioEditado.nombres,
+        apellidos: usuarioEditado.apellidos,
+        nip: usuarioEditado.nip,
+        correo: usuarioEditado.correo,
         id_rol: usuarioEditado.rol.id_rol,
       };
-      delete (usuarioAEnviar as any).rol;
+
+      // Solo enviar contraseña si se escribió algo nuevo
+      if (usuarioEditado.contraseña) {
+        usuarioAEnviar.contraseña = usuarioEditado.contraseña;
+      }
 
       const actualizado = await updateUsuario(id, usuarioAEnviar);
+
       setUsuarios(
         usuarios.map((u) => (u.id_usuario === id ? actualizado : u))
       );
+
       setModoEdicion(null);
       setUsuarioEditado(null);
     } catch (error: any) {
-      alert(error?.response?.data?.message || "Error al actualizar usuario.");
+      let mensaje = "Error al actualizar usuario.";
+      if (error?.response?.data) {
+        const data = error.response.data;
+        mensaje = Array.isArray(data.message) ? data.message.join(", ") : data.message || String(data);
+      } else if (error?.message) {
+        mensaje = error.message;
+      }
+      alert(mensaje);
       console.error(error);
     }
   };
@@ -182,58 +206,102 @@ export default function UsuariosTable() {
       <Box sx={{ textAlign: "center", mb: 2 }}>
         <Button
           variant="contained"
-          onClick={() => setMostrarFormulario(!mostrarFormulario)}
+          onClick={() => {
+            setMostrarFormulario(!mostrarFormulario);
+            if (!mostrarFormulario) setErrorMsg(null);
+          }}
         >
           {mostrarFormulario ? "Cancelar" : "Agregar nuevo usuario"}
         </Button>
       </Box>
 
-      <Collapse in={mostrarFormulario}>
-        <Box
-          component="form"
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleAddUsuario();
-          }}
-          sx={{
-            mb: 4,
-            display: "flex",
-            flexWrap: "wrap",
-            gap: 2,
-            justifyContent: "center",
-          }}
-        >
+      <Dialog
+        open={mostrarFormulario}
+        onClose={() => setMostrarFormulario(false)}
+        fullWidth
+        maxWidth="sm"
+      >
+        <DialogTitle>Agregar Nuevo Usuario</DialogTitle>
+        <DialogContent sx={{ display: "flex", flexWrap: "wrap", gap: 2, mt: 1 }}>
+          {errorMsg && (
+            <Box sx={{ width: "100%" }}>
+              <Alert severity="error">{errorMsg}</Alert>
+            </Box>
+          )}
+
           <TextField
             label="Nombres"
             value={nuevoUsuario.nombres}
             onChange={(e) => handleInputChange("nombres", e.target.value)}
             size="small"
+            fullWidth
           />
           <TextField
             label="Apellidos"
             value={nuevoUsuario.apellidos}
             onChange={(e) => handleInputChange("apellidos", e.target.value)}
             size="small"
+            fullWidth
           />
           <TextField
             label="NIP"
             value={nuevoUsuario.nip}
             onChange={(e) => handleInputChange("nip", e.target.value)}
             size="small"
+            sx={{ width: { xs: "100%", sm: "30%" } }}
           />
           <TextField
             label="Correo"
             value={nuevoUsuario.correo}
             onChange={(e) => handleInputChange("correo", e.target.value)}
             size="small"
+            fullWidth
           />
           <TextField
             label="Contraseña"
-            type="password"
+            type={showPassword ? "text" : "password"}
             value={nuevoUsuario.contraseña}
             onChange={(e) => handleInputChange("contraseña", e.target.value)}
             size="small"
+            fullWidth
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    edge="end"
+                    size="small"
+                    aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
           />
+          <TextField
+            label="Confirmar contraseña"
+            type={showConfirmPassword ? "text" : "password"}
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            size="small"
+            fullWidth
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    onClick={() => setShowConfirmPassword((prev) => !prev)}
+                    edge="end"
+                    size="small"
+                    aria-label={showConfirmPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                  >
+                    {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+            }}
+          />
+
           <FormControl size="small" sx={{ minWidth: 150 }}>
             <InputLabel>Rol</InputLabel>
             <Select
@@ -253,17 +321,20 @@ export default function UsuariosTable() {
               ))}
             </Select>
           </FormControl>
-          <Button variant="contained" color="primary" type="submit">
-            Guardar
-          </Button>
-        </Box>
-      </Collapse>
+
+          <Box sx={{ width: "100%", display: "flex", justifyContent: "flex-end", gap: 1 }}>
+            <Button onClick={() => setMostrarFormulario(false)}>Cancelar</Button>
+            <Button variant="contained" color="primary" onClick={handleAddUsuario}>
+              Guardar
+            </Button>
+          </Box>
+        </DialogContent>
+      </Dialog>
 
       <TableContainer component={Paper} sx={{ maxWidth: 1100, mx: "auto" }}>
         <Table>
           <TableHead>
             <TableRow sx={{ bgcolor: "primary.main" }}>
-              
               <TableCell sx={{ color: "white", fontWeight: "bold" }}>Nombres</TableCell>
               <TableCell sx={{ color: "white", fontWeight: "bold" }}>Apellidos</TableCell>
               <TableCell sx={{ color: "white", fontWeight: "bold" }}>NIP</TableCell>
@@ -276,15 +347,11 @@ export default function UsuariosTable() {
             {usuarios.length > 0 ? (
               usuarios.map((usuario) => (
                 <TableRow key={usuario.id_usuario}>
-                  
-
                   <TableCell>
                     {modoEdicion === usuario.id_usuario ? (
                       <TextField
                         value={usuarioEditado?.nombres || ""}
-                        onChange={(e) =>
-                          handleInputEditChange("nombres", e.target.value)
-                        }
+                        onChange={(e) => handleInputEditChange("nombres", e.target.value)}
                         size="small"
                       />
                     ) : (
@@ -296,9 +363,7 @@ export default function UsuariosTable() {
                     {modoEdicion === usuario.id_usuario ? (
                       <TextField
                         value={usuarioEditado?.apellidos || ""}
-                        onChange={(e) =>
-                          handleInputEditChange("apellidos", e.target.value)
-                        }
+                        onChange={(e) => handleInputEditChange("apellidos", e.target.value)}
                         size="small"
                       />
                     ) : (
@@ -322,9 +387,7 @@ export default function UsuariosTable() {
                     {modoEdicion === usuario.id_usuario ? (
                       <TextField
                         value={usuarioEditado?.correo || ""}
-                        onChange={(e) =>
-                          handleInputEditChange("correo", e.target.value)
-                        }
+                        onChange={(e) => handleInputEditChange("correo", e.target.value)}
                         size="small"
                       />
                     ) : (
@@ -341,8 +404,7 @@ export default function UsuariosTable() {
                             const rolSeleccionado = roles.find(
                               (r) => r.id_rol === Number(e.target.value)
                             );
-                            if (rolSeleccionado)
-                              handleInputEditChange("rol", rolSeleccionado);
+                            if (rolSeleccionado) handleInputEditChange("rol", rolSeleccionado);
                           }}
                           label="Rol"
                         >
@@ -367,10 +429,7 @@ export default function UsuariosTable() {
                         <Save />
                       </IconButton>
                     ) : (
-                      <IconButton
-                        color="primary"
-                        onClick={() => handleEditar(usuario)}
-                      >
+                      <IconButton color="primary" onClick={() => handleEditar(usuario)}>
                         <Edit />
                       </IconButton>
                     )}
