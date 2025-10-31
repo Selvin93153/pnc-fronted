@@ -15,6 +15,7 @@ import { Email, Lock, Visibility, VisibilityOff } from '@mui/icons-material';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { login } from '../login/authService';
 import { publicClient } from './publicClient';
+import RegisterForm from './RegisterForm'; // ✅ Nuevo import
 
 interface Props {
   onLoginSuccess: () => void;
@@ -25,24 +26,13 @@ const fadeSlide = keyframes`
   to { opacity: 1; transform: translateY(0); }
 `;
 
-/**
- * Extrae un mensaje legible del error que devuelve el backend.
- * Maneja message como string, array o estructuras anidadas.
- */
 function getBackendMessage(err: any, fallback = ''): string {
   const data = err?.response?.data;
   if (!data) return fallback || (err?.message ?? 'Ocurrió un error');
   const { message } = data;
-
   if (!message) return data?.error || fallback || 'Ocurrió un error';
-
-  // message puede ser string o array (por ejemplo de class-validator)
-  if (Array.isArray(message)) {
-    // unir mensajes en un solo string
-    return message.join('; ');
-  }
+  if (Array.isArray(message)) return message.join('; ');
   if (typeof message === 'string') return message;
-  // a veces message puede ser objeto/otro formato
   try {
     return String(message);
   } catch {
@@ -71,12 +61,13 @@ export default function LoginForm({ onLoginSuccess }: Props) {
   const [resetLoading, setResetLoading] = useState(false);
   const [showResetNewPassword, setShowResetNewPassword] = useState(false);
 
+  const [showRegister, setShowRegister] = useState(false); // ✅ Nuevo estado
+
   const navigate = useNavigate();
   const location = useLocation();
 
   const handleClickShowPassword = () => setShowPassword(!showPassword);
 
-  // ==== Detectar token en URL para reset password ====
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const tokenFromUrl = params.get('token');
@@ -87,7 +78,6 @@ export default function LoginForm({ onLoginSuccess }: Props) {
     }
   }, [location.search]);
 
-  // ==== Login ====
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -108,7 +98,6 @@ export default function LoginForm({ onLoginSuccess }: Props) {
       onLoginSuccess();
       navigate('/welcome');
     } catch (err: any) {
-      // Mostrar mensaje exacto del backend si existe
       const msg = getBackendMessage(err, 'Correo o contraseña incorrectos.');
       setError(msg);
     } finally {
@@ -116,7 +105,6 @@ export default function LoginForm({ onLoginSuccess }: Props) {
     }
   };
 
-  // ==== Forgot Password ====
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setForgotLoading(true);
@@ -136,7 +124,6 @@ export default function LoginForm({ onLoginSuccess }: Props) {
     }
   };
 
-  // ==== Reset Password ====
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setResetLoading(true);
@@ -163,6 +150,16 @@ export default function LoginForm({ onLoginSuccess }: Props) {
     }
   };
 
+  // ✅ Mostrar formulario de registro si está activo
+  if (showRegister) {
+    return (
+      <RegisterForm
+        onCancel={() => setShowRegister(false)}
+        onSuccess={() => setShowRegister(false)}
+      />
+    );
+  }
+
   return (
     <Fade in timeout={700}>
       <Paper
@@ -180,19 +177,19 @@ export default function LoginForm({ onLoginSuccess }: Props) {
           boxShadow: '0 10px 25px rgba(0,0,0,0.3)',
         }}
       >
-        {/* LOGO DENTRO DEL LOGIN */}
+        {/* LOGO */}
         <Box
           component="img"
-          src="/logo.png" // reemplaza con la ruta de tu logo
+          src="/logo.png"
           alt="Logo"
           sx={{
             width: 120,
             height: 'auto',
-            mb: 3, // espacio debajo del logo
+            mb: 3,
           }}
         />
 
-        {/* LOGIN FORM */}
+        {/* LOGIN */}
         {!showForgotPassword && !showResetPassword && (
           <>
             <Typography variant="h4" fontWeight="bold" color="#333" mb={1} textAlign="center">
@@ -204,7 +201,11 @@ export default function LoginForm({ onLoginSuccess }: Props) {
 
             {error && <Alert severity="error" sx={{ mb: 2, width: '100%' }}>{error}</Alert>}
 
-            <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Box
+              component="form"
+              onSubmit={handleSubmit}
+              sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2 }}
+            >
               <TextField
                 label="Correo electrónico"
                 type="email"
@@ -212,7 +213,13 @@ export default function LoginForm({ onLoginSuccess }: Props) {
                 required
                 value={correo}
                 onChange={(e) => setCorreo(e.target.value)}
-                InputProps={{ startAdornment: (<InputAdornment position="start"><Email /></InputAdornment>) }}
+                InputProps={{
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Email />
+                    </InputAdornment>
+                  ),
+                }}
               />
               <TextField
                 label="Contraseña"
@@ -222,7 +229,11 @@ export default function LoginForm({ onLoginSuccess }: Props) {
                 value={contraseña}
                 onChange={(e) => setContraseña(e.target.value)}
                 InputProps={{
-                  startAdornment: (<InputAdornment position="start"><Lock /></InputAdornment>),
+                  startAdornment: (
+                    <InputAdornment position="start">
+                      <Lock />
+                    </InputAdornment>
+                  ),
                   endAdornment: (
                     <InputAdornment position="end">
                       <IconButton onClick={handleClickShowPassword} edge="end" size="small">
@@ -238,11 +249,16 @@ export default function LoginForm({ onLoginSuccess }: Props) {
               <Button variant="text" onClick={() => setShowForgotPassword(true)}>
                 Olvidé mi contraseña
               </Button>
+
+              {/* ✅ Nuevo botón para registro */}
+              <Button variant="text" onClick={() => setShowRegister(true)}>
+                ¿No tienes cuenta? Registrarse
+              </Button>
             </Box>
           </>
         )}
 
-        {/* FORGOT PASSWORD FORM */}
+        {/* FORGOT PASSWORD */}
         {showForgotPassword && !showResetPassword && (
           <>
             <Typography variant="h5" fontWeight="bold" color="#333" mb={2} textAlign="center">
@@ -252,7 +268,11 @@ export default function LoginForm({ onLoginSuccess }: Props) {
             {forgotMessage && <Alert severity="success" sx={{ mb: 2, width: '100%' }}>{forgotMessage}</Alert>}
             {forgotError && <Alert severity="error" sx={{ mb: 2, width: '100%' }}>{forgotError}</Alert>}
 
-            <Box component="form" onSubmit={handleForgotPassword} sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Box
+              component="form"
+              onSubmit={handleForgotPassword}
+              sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2 }}
+            >
               <TextField
                 label="Correo electrónico"
                 type="email"
@@ -278,7 +298,7 @@ export default function LoginForm({ onLoginSuccess }: Props) {
           </>
         )}
 
-        {/* RESET PASSWORD FORM */}
+        {/* RESET PASSWORD */}
         {showResetPassword && (
           <>
             <Typography variant="h5" fontWeight="bold" color="#333" mb={2} textAlign="center">
@@ -288,7 +308,11 @@ export default function LoginForm({ onLoginSuccess }: Props) {
             {resetMessage && <Alert severity="success" sx={{ mb: 2, width: '100%' }}>{resetMessage}</Alert>}
             {resetError && <Alert severity="error" sx={{ mb: 2, width: '100%' }}>{resetError}</Alert>}
 
-            <Box component="form" onSubmit={handleResetPassword} sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Box
+              component="form"
+              onSubmit={handleResetPassword}
+              sx={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 2 }}
+            >
               <TextField
                 label="Token"
                 fullWidth

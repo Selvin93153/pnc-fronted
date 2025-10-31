@@ -51,7 +51,7 @@ export default function WelcomePage() {
   const [reportesEnUso, setReportes] = useState<number>(0);
 
   const [stats] = useState({
-    reportesRecientes: 5,
+    
     movimientosHoy: 3,
   });
 
@@ -124,9 +124,12 @@ export default function WelcomePage() {
         </Stack>
 
         <Stack direction="row" spacing={2} alignItems="center">
-          {["Perfil", "Misión"].map((item) => (
+          {["Perfil", "Soporte"].map((item) => (
             <Typography key={item} variant="h6" sx={{ color: "#ffffff", cursor: "pointer", transition: "0.3s", "&:hover": { color: "#ffff00", textShadow: "0 0 8px #ffff00" } }}
-              onClick={() => { if (item === "Perfil") navigate("/panel/perfil"); }}>
+              onClick={() => { 
+                if (item === "Perfil") navigate("/panel/perfil"); 
+                   if (item === "Soporte") navigate("/panel/soporte"); }}>
+                
               {item}
             </Typography>
           ))}

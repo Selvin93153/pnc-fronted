@@ -21,6 +21,8 @@ import VehiculosTable from "../vehiculos/VehiculosTable";
 import ControlVehiculo from "../vehiculos/ControlVehiculo";
 import MantenimientoTabla from "../mantenimiento/MantenimientoTabla";
 import PrestadosTable from "../ver_prestados/prestadosTable";
+import SupportView from "../components/SupportView";
+
 
 export default function AppRoutes() {
   const [welcomeKey, setWelcomeKey] = useState(0);
@@ -38,6 +40,7 @@ export default function AppRoutes() {
       {/* Rutas públicas */}
       <Route path="/login" element={<LoginPage onLoginSuccess={() => {}} />} />
       <Route path="/reset-password" element={<LoginPage onLoginSuccess={() => {}} />} />
+       
 
       {/* WelcomePage */}
       <Route
@@ -58,6 +61,17 @@ export default function AppRoutes() {
           </PrivateRoute>
         }
       >
+
+        {/* Soporte (todos los roles pueden acceder) */}
+<Route
+  path="soporte"
+  element={
+    <RoleProtectedRoute allowedRoles={["jefe", "armero", "agente operativo"]}>
+      <SupportView />
+    </RoleProtectedRoute>
+  }
+/>
+
         {/* Roles (solo jefe) */}
         <Route
           path="roles"
