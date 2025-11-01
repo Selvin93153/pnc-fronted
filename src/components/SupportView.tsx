@@ -53,7 +53,7 @@ export default function SupportView() {
           <Typography variant="body2" color="#555" mb={2}>
             Descarga y revisa el manual completo para aprender a usar todas las funcionalidades.
           </Typography>
-          <Link href="/manual-usuario.pdf" target="_blank" underline="none">
+          <Link href="https://drive.google.com/file/d/11W7fqBxt1S6haxjz2Vca3LqNORydSUH8/view?usp=sharing" target="_blank" underline="none">
             <Button variant="contained" color="primary">
               Abrir Manual
             </Button>
@@ -82,7 +82,7 @@ export default function SupportView() {
           <Typography variant="body2" color="#555" mb={2}>
             Si tienes problemas técnicos o preguntas, contáctanos directamente por correo.
           </Typography>
-          <Link href="pnc.soporte@gmail.com" underline="none">
+          <Link href="mailto:soporte@tusistema.com" underline="none">
             <Button variant="contained" color="warning">
               Enviar correo
             </Button>
@@ -112,7 +112,7 @@ export default function SupportView() {
             Consulta las dudas más comunes y cómo resolverlas rápidamente.
           </Typography>
           <Button variant="contained" color="success">
-            Ver FAQ
+            Ver 
           </Button>
         </Paper>
       </Box>
